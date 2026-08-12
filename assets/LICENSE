@@ -1,0 +1,9 @@
+# Licensing in this directory
+
+Copyright © 2026 Fabio Furini.
+
+`render_circulant_colouring.py` is software and is licensed under the GNU
+General Public License v3.0 or later; see the repository-level
+[`LICENSE`](../LICENSE). All other files in this directory are licensed under
+the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+License](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en).

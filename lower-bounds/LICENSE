@@ -1,0 +1,13 @@
+# CC BY-NC-SA 4.0 license notice
+
+Copyright © 2026 Fabio Furini.
+
+Except for the Python scripts in [`tools/`](tools/), the material in this
+directory is licensed under the [Creative Commons Attribution-NonCommercial-
+ShareAlike 4.0 International License](https://creativecommons.org/licenses/
+by-nc-sa/4.0/legalcode.en).
+
+The full legal code at that link governs this material. It permits sharing and
+adaptation subject to attribution, non-commercial use, and the ShareAlike
+condition. The Python scripts in `tools/` are software and are licensed under
+the GNU General Public License v3.0 or later; see [`tools/LICENSE`](tools/LICENSE).
