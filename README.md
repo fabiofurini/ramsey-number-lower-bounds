@@ -57,10 +57,6 @@ This repository uses two licenses:
 
 See [`NOTICE.md`](NOTICE.md) for the exact path-by-path scope, copyright attribution, third-party components, and written permission associated with the precompiled binaries.
 
-## Repository history
-
-This repository is the current public distribution of the computational material. It was initialized as a history-free snapshot of commit [`db214d9b`](https://github.com/ThueraufJohannes/ramsey-number-lower-bounds/commit/db214d9b7541e00464a230337c3f1adfe658b5c2) from the [original development repository](https://github.com/ThueraufJohannes/ramsey-number-lower-bounds). The earlier Git history remains available there.
-
 ## Citation request
 
 If this repository, its code, or its lower-bound certificates contribute to a scientific publication, please cite the accompanying paper, *An Integer Programming Approach to Compute Lower Bounds for Ramsey Numbers Using Circulant Graphs*, and identify the repository commit used for the computation. This citation request does not restrict the permissions granted by the licenses above.
