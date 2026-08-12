@@ -52,7 +52,7 @@ ramsey-number-lower-bounds/
 
 This repository uses two licenses:
 
-- The software in [`code/`](code/), [`checker/`](checker/), and the repository's Python rendering tools is licensed under the [GNU General Public License v3.0 or later](LICENSE). The compiled solver and checker incorporate BitGraph and coptBG components by Pablo San Segundo (CSIC-UPM).
+- The software in [`code/`](code/), [`checker/`](checker/), and the repository's Python rendering tools is licensed under the [GNU General Public License v3.0 or later](LICENSE). The compiled solver and checker incorporate [BitGraph](https://github.com/psanse/BitGraph) and coptBG components by Pablo San Segundo (CSIC-UPM).
 - The graph certificates, coloured matrices, figures, and accompanying documentation in [`lower-bounds/`](lower-bounds/) are licensed under [CC BY-NC-SA 4.0](lower-bounds/LICENSE), which permits sharing and adaptation for non-commercial purposes with attribution and under the same license.
 
 See [`NOTICE.md`](NOTICE.md) for the exact path-by-path scope, copyright attribution, third-party components, and written permission associated with the precompiled binaries.
