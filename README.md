@@ -2,7 +2,7 @@
 
 > Accompanying computational material for the paper *An Integer Programming Approach to Compute Lower Bounds for Ramsey Numbers Using Circulant Graphs*.
 
-Paper authors: Stefano Coniglio, Fabio Furini, Ivana Ljubić, Pablo San Segundo, and Johannes Thürauf.
+Paper authors: Stefano Coniglio, Fabio Furini, Ivana Ljubić, Pablo San Segundo, Johannes Thürauf, and Emiliano Traversi.
 
 This repository provides the computational material needed to rerun the mathematical models developed in the paper. The executable package can be used to search for new lower bounds on Ramsey numbers and to compute circulant Ramsey numbers. The repository also provides an independent checker for verifying whether a given graph certificate is an (m,n)-coloring, together with the certificates and visual material supporting the results reported in the paper.
 
@@ -68,7 +68,7 @@ If this repository, its code, or its lower-bound certificates contribute to a sc
 ```bibtex
 @misc{coniglio_ramsey_lower_bounds,
   author = {Coniglio, Stefano and Furini, Fabio and Ljubi{\'c}, Ivana and
-            San Segundo, Pablo and Th{\"u}rauf, Johannes},
+            San Segundo, Pablo and Th{\"u}rauf, Johannes and Traversi, Emiliano},
   title  = {An Integer Programming Approach to Compute Lower Bounds for
             Ramsey Numbers Using Circulant Graphs},
   year   = {2026},
