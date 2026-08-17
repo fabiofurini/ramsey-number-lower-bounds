@@ -15,7 +15,7 @@ The certificates are split across two pages, matching the paper's own distinctio
 | Page | What it contains |
 | --- | --- |
 | [`ramsey-number-lower-bounds.md`](ramsey-number-lower-bounds.md) | New best lower bounds on the unrestricted Ramsey numbers $R(3,n)$, $24\le n\le49$, $n\neq27$. |
-| [`circulant-ramsey-numbers.md`](circulant-ramsey-numbers.md) | Exact circulant Ramsey numbers $R_C(m,n)$ for $m=3,4,5$, including eight new values $R_C(3,n)$, $n=13,\ldots,20$. |
+| [`circulant-ramsey-numbers.md`](circulant-ramsey-numbers.md) | Lower-bound certificates for the circulant Ramsey numbers $R_C(m,n)$, $m=3,4,5$, which the paper establishes as exact values; includes eight new values $R_C(3,n)$, $n=13,\ldots,20$. |
 
 ## File naming
 

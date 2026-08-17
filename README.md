@@ -24,7 +24,7 @@ This repository provides the computational material needed to rerun the mathemat
 
 1. **Rerun the paper's models.** Follow [`code/README.md`](code/README.md) to search for new lower bounds or compute circulant Ramsey numbers. The page documents the available models, their parameters, installation instructions, and input/output files.
 2. **Verify a certificate independently.** Use the stand-alone checker in [`checker/`](checker/README.md). It decides whether a given graph and its complement avoid the two forbidden clique sizes and therefore form an (m,n)-coloring. It does not require CPLEX or the solver.
-3. **Inspect the lower bounds reported in the paper.** Open [`lower-bounds/README.md`](lower-bounds/README.md) for an overview, then [`lower-bounds/ramsey-number-lower-bounds.md`](lower-bounds/ramsey-number-lower-bounds.md) for the new Ramsey number lower bounds or [`lower-bounds/circulant-ramsey-numbers.md`](lower-bounds/circulant-ramsey-numbers.md) for the exact circulant Ramsey numbers, together with their graph certificates and coloured visualisations.
+3. **Inspect the lower bounds reported in the paper.** Open [`lower-bounds/README.md`](lower-bounds/README.md) for an overview, then [`lower-bounds/ramsey-number-lower-bounds.md`](lower-bounds/ramsey-number-lower-bounds.md) for the new Ramsey number lower bounds or [`lower-bounds/circulant-ramsey-numbers.md`](lower-bounds/circulant-ramsey-numbers.md) for the lower-bound certificates underlying the circulant Ramsey numbers, together with their graph certificates and coloured visualisations.
 
 ## What the solver searches for
 
@@ -46,7 +46,7 @@ ramsey-number-lower-bounds/
 │   ├── matrices/               # coloured SVG distance matrices
 │   ├── tools/                  # renderers for the matrix figures
 │   ├── ramsey-number-lower-bounds.md  # new lower bounds on R(3,n)
-│   └── circulant-ramsey-numbers.md    # exact circulant Ramsey numbers
+│   └── circulant-ramsey-numbers.md    # circulant Ramsey number lower-bound certificates
 └── README.md
 ```
 
