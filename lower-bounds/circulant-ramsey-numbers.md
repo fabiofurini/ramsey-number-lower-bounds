@@ -1,11 +1,13 @@
 # Circulant Ramsey numbers
 
-These certificates establish exact circulant Ramsey numbers $R_C(m,n)$ — the
-smallest graph order at which no circulant $(m,n)$-coloring exists — as
-reported in the paper's *Computational Study on Circulant Ramsey Numbers*
-section, for $m=3,4,5$. Each certificate proves the lower-bound side
-$R_C(m,n)\ge N+1$; combined with the paper's infeasibility results at all
-larger relevant orders, this establishes $R_C(m,n)=N+1$ exactly. Eight of
+These graph certificates prove lower bounds for the circulant Ramsey numbers
+$R_C(m,n)$ — the smallest graph order at which no circulant $(m,n)$-coloring
+exists — reported in the paper's *Computational Study on Circulant Ramsey
+Numbers* section, for $m=3,4,5$. Each certificate proves only the
+lower-bound side $R_C(m,n)\ge N+1$; it is not a certificate for the matching
+upper bound. The exact value $R_C(m,n)=N+1$ is established in the paper by
+additionally using our method to prove infeasibility at all larger relevant
+orders, which is not independently certifiable in the same way. Eight of
 these values ($R_C(3,n)$ for $n=13,\ldots,20$) are new; the rest reproduce,
 with a fully reproducible computational procedure, values previously reported
 without a description of the computational procedure used.
