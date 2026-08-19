@@ -7,7 +7,7 @@ Paper authors: Stefano Coniglio, Fabio Furini, Ivana Ljubić, Pablo San Segundo,
 This repository provides the computational material needed to rerun the mathematical models developed in the paper. The executable package can be used to search for new lower bounds on Ramsey numbers and to compute circulant Ramsey numbers. The repository also provides an independent checker for verifying whether a given graph certificate is an (m,n)-coloring, together with the certificates and visual material supporting the results reported in the paper.
 
 <p align="center">
-  <img src="assets/r44-circulant-colouring.png" alt="Blue and red circulant graphs in a 4,4-colouring of K17" width="820">
+  <img src="assets/r44-circulant-colouring.svg" alt="Blue and red circulant graphs in a 4,4-colouring of K17" width="820">
 </p>
 
 <p align="center"><em>A circulant (4,4)-colouring of K<sub>17</sub>. The two complementary colour classes both avoid a clique of order 4.</em></p>
