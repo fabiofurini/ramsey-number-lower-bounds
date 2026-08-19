@@ -4,7 +4,7 @@ This directory contains the graph certificates computed for the paper's Ramsey i
 
 Each certificate is a `.clq` file named `R_<m>_<n>_graphSize_<N>.clq`, representing the red colour class of a two-edge-colouring of a complete graph on `N` vertices; the blue colour class is its complement. This follows the paper's convention: for $R(m,n)$, the blue graph avoids $K_m$ and the red graph avoids $K_n$.
 
-Every certificate has two companion figures with the same basename: `<certificate>.svg` (circular-distance matrix) and `<certificate>_adjacency.svg` (full adjacency matrix). Renderers for both are in [`tools/`](tools/).
+Every certificate has two companion figures with the same basename: `<certificate>.png` (circular-distance matrix) and `<certificate>_adjacency.png` (full adjacency matrix). Renderers for both are in [`tools/`](tools/).
 
 The certificates, matrices, and documentation in this directory are licensed under [CC BY-NC-SA 4.0](LICENSE). The Python rendering scripts in [`tools/`](tools/) are software and are instead licensed under GPL-3.0-or-later; see [`../NOTICE.md`](../NOTICE.md).
 
@@ -50,14 +50,14 @@ and edge lines.
 
 Every certificate has two companion figures sharing its basename:
 
-- **`<certificate>.svg`** — circular-distance matrix. One cell per circular distance $\ell\in\{1,\ldots,\lfloor N/2\rfloor\}$, wrapping after 15 cells per row. For each $\ell$, the *distance class* is the set of all $N$ edges $\{i,\,i+\ell \bmod N\}$. A cell is red if every edge of its class is stored in the certificate (red graph, avoiding $K_n$), and blue if none of them are (blue graph, avoiding $K_m$). Because circulant graphs treat all vertices symmetrically, each class is always entirely red or entirely blue — the figure is simply a compact, one-cell-per-distance summary of the whole certificate.
-- **`<certificate>_adjacency.svg`** — full $N\times N$ adjacency matrix in the same red/blue convention, with the diagonal left blank.
+- **`<certificate>.png`** — circular-distance matrix. One cell per circular distance $\ell\in\{1,\ldots,\lfloor N/2\rfloor\}$, wrapping after 15 cells per row. For each $\ell$, the *distance class* is the set of all $N$ edges $\{i,\,i+\ell \bmod N\}$. A cell is red if every edge of its class is stored in the certificate (red graph, avoiding $K_n$), and blue if none of them are (blue graph, avoiding $K_m$). Because circulant graphs treat all vertices symmetrically, each class is always entirely red or entirely blue — the figure is simply a compact, one-cell-per-distance summary of the whole certificate.
+- **`<certificate>_adjacency.png`** — full $N\times N$ adjacency matrix in the same red/blue convention, with the diagonal left blank.
 
 Generate additional figures from a DIMACS certificate with the renderers in [`tools/`](tools/):
 
 ```bash
-python3 tools/render_circulant_matrix.py --dimacs certificates/R_3_37_graphSize_271.clq --output matrices/R_3_37_graphSize_271.svg
-python3 tools/render_adjacency_matrix.py --dimacs certificates/R_3_37_graphSize_271.clq --output matrices/R_3_37_graphSize_271_adjacency.svg
+python3 tools/render_circulant_matrix.py --dimacs certificates/R_3_37_graphSize_271.clq --output matrices/R_3_37_graphSize_271.png
+python3 tools/render_adjacency_matrix.py --dimacs certificates/R_3_37_graphSize_271.clq --output matrices/R_3_37_graphSize_271_adjacency.png
 ```
 
 See [`ramsey-number-lower-bounds.md`](ramsey-number-lower-bounds.md) and [`circulant-ramsey-numbers.md`](circulant-ramsey-numbers.md) for worked examples of how to read these figures.
