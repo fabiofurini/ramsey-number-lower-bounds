@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 
 	data RAMSEY_instance;
 
+
 	//////////////////////////////////////////////////////////////////////////
 
 	RAMSEY_instance.SKIP_M_SEPARATION=false;
@@ -72,9 +73,13 @@ int main(int argc, char** argv)
 		RAMSEY_instance.CUTS_M.loaded = false;
 		RAMSEY_instance.CUTS_M.num_lines = 0;
 		RAMSEY_instance.CUTS_M.lines = NULL;
+		RAMSEY_instance.CUTS_M.has_clique_data = false;
 		RAMSEY_instance.CUTS_N.loaded = false;
 		RAMSEY_instance.CUTS_N.num_lines = 0;
 		RAMSEY_instance.CUTS_N.lines = NULL;
+		RAMSEY_instance.CUTS_N.has_clique_data = false;
+		RAMSEY_instance.RECORDED_CUTS_M.clear();
+		RAMSEY_instance.RECORDED_CUTS_N.clear();
 	}
 	else
 	{
@@ -145,13 +150,20 @@ int main(int argc, char** argv)
 		cout << "\n**************************************\n";
 		cout << "Loading cuts from files...\n";
 
-		// Search for file for PARAM_M: t<SIZE_GRAPH>_k<PARAM_M>.txt
-		load_cuts_from_file(&RAMSEY_instance, RAMSEY_instance.PARAM_SIZE_GRAPH, RAMSEY_instance.PARAM_M, &RAMSEY_instance.CUTS_M, false);
+		load_cuts_from_file(&RAMSEY_instance, true, &RAMSEY_instance.CUTS_M, false);
 
-		// Search for file for PARAM_N: t<SIZE_GRAPH>_k<PARAM_N>.txt
-		load_cuts_from_file(&RAMSEY_instance, RAMSEY_instance.PARAM_SIZE_GRAPH, RAMSEY_instance.PARAM_N, &RAMSEY_instance.CUTS_N, false);
+		load_cuts_from_file(&RAMSEY_instance, false, &RAMSEY_instance.CUTS_N, false);
 
 		cout << "**************************************\n";
+	}
+	else if (RAMSEY_instance.LOAD_CUTS_FROM_FILE == -100)
+	{
+		if (RAMSEY_instance.PARAM_ALGO != 3)
+		{
+			cout << "LOAD_CUTS_FROM_FILE = -100 is supported only by MODEL 3\n";
+			exit(-1);
+		}
+		cout << "\nRecording newly generated MODEL 3 no-clique cuts to CUTS/\n";
 	}
 	else
 	{
@@ -230,6 +242,3 @@ int main(int argc, char** argv)
 
 	return 1;
 }
-
-
-

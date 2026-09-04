@@ -19,7 +19,7 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 2 | Sets the forbidden blue clique size `m`; use a positive integer. |
 | 3 | Sets the forbidden red clique size `n`; use a positive integer. |
 | 4 | Selects the formulation from the paper: `1` for the edge model; `3` for the distance model. |
-| 5 | Compatibility input; use `0`. |
+| 5 | Selects the optional search additions of the distance model: `0` or `1` for the published behaviour; `2` enables the partial-colouring propagator; `3` enables it together with the integral pre-check. See [Optional search additions](NEW-OPTIONS.md). |
 | 6 | Controls the circulant restriction: `1` enables it; `0` disables it. When input 4 is `3`, use `1`. |
 | 7 | Sets the total time limit in seconds; use a positive integer. |
 | 8 | Controls stronger cuts: `1` enables them; `0` disables them. |
@@ -45,8 +45,8 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 28 | Sets the random seed; use an integer and record it for reproducibility. |
 | 29 | Selects the CPLEX branching variable rule: `-1` minimum infeasibility; `0` default; `1` maximum infeasibility; `2` pseudo-cost; `3` strong branching; `4` pseudo-reduced-cost. |
 | 30 | Sets the number of CPLEX threads; use a positive integer. |
-| 31 | Controls loading cuts from files; use `0`, because external cut files are not included. |
-| 32 | Controls cut minimization: `1` enables it; `0` disables it. |
+| 31 | Controls the cut files; use `0`, because external cut files are not included. `1` loads a pool for this instance and `-100` records one, both experimental and off by default. |
+| 32 | Selects cut minimization: `0` disables it; `1` is the published default (heuristic, repeated to a fixed point); `2` is exact; `3` is a single heuristic pass; `4` and `5` are strided single passes. See [Optional search additions](NEW-OPTIONS.md). |
 | 33 | Sets a unique integer identifying the run and its output files. |
 
 Keep the complete command with every result so that the run configuration is reproducible.
@@ -65,7 +65,9 @@ below.
 ```
 
 For the value and the meaning of every input, see
-[Default RAMSEY parameters](DEFAULT-PARAMETERS.md).
+[Default RAMSEY parameters](DEFAULT-PARAMETERS.md). Inputs 5 and 32 also accept values that switch on
+search additions introduced after the paper; they are off in the default configuration and are
+described in [Optional search additions](NEW-OPTIONS.md).
 
 ## Example
 

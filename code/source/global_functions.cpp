@@ -157,6 +157,7 @@ void FILL_RAMSEY_LOOK_UP(data *RAMSEY_instance)
 	}
 
 
+	// Upper bounds updated from Radziszowski, Small Ramsey Numbers, DS1 revision #18 (2026), Table Ia/Ib.
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][3]=6;//opt
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][4]=9;//opt
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][5]=14;//opt
@@ -165,7 +166,7 @@ void FILL_RAMSEY_LOOK_UP(data *RAMSEY_instance)
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][8]=28;//opt
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][9]=36;//opt
 
-	RAMSEY_instance->LOOK_UP_RAMSEY[3][10]=42;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[3][10]=41;//UB
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][11]=50;//UB
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][12]=59;//UB
 	RAMSEY_instance->LOOK_UP_RAMSEY[3][13]=68;//UB
@@ -182,47 +183,48 @@ void FILL_RAMSEY_LOOK_UP(data *RAMSEY_instance)
 
 	RAMSEY_instance->LOOK_UP_RAMSEY[4][4]=18;//opt
 	RAMSEY_instance->LOOK_UP_RAMSEY[4][5]=25;//opt
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][6]=41;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][7]=61;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][8]=84;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][6]=40;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][7]=58;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][8]=79;//UB
 
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][9]=150;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][10]=149;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][11]=191;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][12]=238;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][13]=291;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][14]=349;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[4][15]=417;//UB
-
-
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][5]=48;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][6]=87;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][7]=143;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][8]=216;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][9]=316;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][10]=442;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[5][11]=633;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][9]=105;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][10]=135;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][11]=170;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][12]=210;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][13]=256;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][14]=307;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[4][15]=364;//UB
 
 
-	RAMSEY_instance->LOOK_UP_RAMSEY[6][6]=165;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[6][7]=298;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[6][8]=495;//UB
-	RAMSEY_instance->LOOK_UP_RAMSEY[6][9]=780;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][5]=46;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][6]=85;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][7]=133;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][8]=193;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][9]=282;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][10]=381;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[5][11]=511;//UB
 
 
-	RAMSEY_instance->LOOK_UP_RAMSEY[7][7]=540;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[6][6]=160;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[6][7]=270;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[6][8]=423;//UB
+	RAMSEY_instance->LOOK_UP_RAMSEY[6][9]=651;//UB
 
+
+	RAMSEY_instance->LOOK_UP_RAMSEY[7][7]=492;//UB
+
+	// Lower bounds updated from Radziszowski, Small Ramsey Numbers, DS1 revision #18 (2026), Tables Ia/IIa/IIb.
 	if(RAMSEY_instance->PARAM_K_CUTS==2)
 	{
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][10]=40;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][11]=47;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][12]=53;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][13]=60;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][13]=61;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][14]=67;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][15]=74;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][16]=82;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][17]=92;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][18]=99;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][18]=100;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][19]=106;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][20]=111;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][21]=122;//LB
@@ -231,27 +233,27 @@ void FILL_RAMSEY_LOOK_UP(data *RAMSEY_instance)
 
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][24]=143;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][25]=154;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][26]=159;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][26]=161;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][27]=172;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][28]=177;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][28]=179;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][29]=190;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][30]=195;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][31]=206;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][30]=197;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][31]=208;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][32]=217;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][33]=224;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][34]=230;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][35]=242;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][36]=252;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][37]=264;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][38]=272;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][39]=284;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][40]=294;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][41]=308;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][42]=318;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][43]=332;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][44]=338;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][33]=227;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][34]=234;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][35]=248;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][36]=255;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][37]=267;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][38]=278;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][39]=290;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][40]=298;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][41]=311;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][42]=320;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][43]=333;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][44]=339;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[3][45]=354;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[3][46]=360;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[3][46]=362;//LB
 
 
 		RAMSEY_instance->LOOK_UP_RAMSEY[4][6]=36;//LB
@@ -261,13 +263,13 @@ void FILL_RAMSEY_LOOK_UP(data *RAMSEY_instance)
 		RAMSEY_instance->LOOK_UP_RAMSEY[4][10]=92;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[4][11]=102;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[4][12]=128;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[4][13]=138;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[4][14]=147;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[4][15]=158;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[4][13]=139;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[4][14]=148;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[4][15]=159;//LB
 
 
-		RAMSEY_instance->LOOK_UP_RAMSEY[5][5]=42;//LB
-		RAMSEY_instance->LOOK_UP_RAMSEY[5][6]=58;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[5][5]=43;//LB
+		RAMSEY_instance->LOOK_UP_RAMSEY[5][6]=59;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[5][7]=80;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[5][8]=101;//LB
 		RAMSEY_instance->LOOK_UP_RAMSEY[5][9]=133;//LB
@@ -443,13 +445,23 @@ int randNum(int min,  int max)
 }
 
 /***********************************************************************************/
-bool load_cuts_from_file(data *RAMSEY_instance, int t_value, int k_value, cut_data *cuts, bool print_cuts)
+string cut_file_name(data *RAMSEY_instance, bool blue)
 /***********************************************************************************/
 {
-	// Build the filename: t<t_value>_k<k_value>.txt
 	stringstream filename_stream;
-	filename_stream << "CUTS/t" << t_value << "_k" << k_value << ".txt";
-	string filename = filename_stream.str();
+	filename_stream << "CUTS/t" << RAMSEY_instance->PARAM_SIZE_GRAPH
+				<< "_m" << RAMSEY_instance->PARAM_M
+				<< "_n" << RAMSEY_instance->PARAM_N
+				<< "_id" << RAMSEY_instance->ID_TEST
+				<< (blue ? "_blue.txt" : "_red.txt");
+	return filename_stream.str();
+}
+
+/***********************************************************************************/
+bool load_cuts_from_file(data *RAMSEY_instance, bool blue, cut_data *cuts, bool print_cuts)
+/***********************************************************************************/
+{
+	const string filename = cut_file_name(RAMSEY_instance, blue);
 	
 	cout << "\nTrying to load cuts from file: " << filename << endl;
 	
@@ -457,25 +469,45 @@ bool load_cuts_from_file(data *RAMSEY_instance, int t_value, int k_value, cut_da
 	ifstream file(filename.c_str());
 	if (!file.is_open())
 	{
-		cout << "File not found: " << filename << endl;
-		cuts->loaded = false;
-		cuts->num_lines = 0;
-		cuts->lines = NULL;
-		return false;
+		// Preserve compatibility with the cut files that predate experiment IDs.
+		stringstream legacy_filename;
+		legacy_filename << "CUTS/t" << RAMSEY_instance->PARAM_SIZE_GRAPH
+						<< "_k" << (blue ? RAMSEY_instance->PARAM_M : RAMSEY_instance->PARAM_N) << ".txt";
+		file.open(legacy_filename.str().c_str());
+		if (!file.is_open())
+		{
+			cout << "File not found: " << filename << endl;
+			cuts->loaded = false;
+			cuts->num_lines = 0;
+			cuts->lines = NULL;
+			cuts->has_clique_data = false;
+			return false;
+		}
+		cout << "Using legacy cut file: " << legacy_filename.str() << endl;
 	}
 	
-	// Prima lettura: conta le righe e trova il numero massimo di elementi
 	vector<vector<int> > temp_cuts;
+	vector<vector<int> > temp_cliques;
 	string line;
+	bool first_nonempty_line = true;
+	cuts->has_clique_data = false;
 	
 	while (getline(file, line))
 	{
 		if (line.empty()) continue;
+		if (first_nonempty_line && line == "# RAMSEY_DISTANCE_CLIQUE_V1")
+		{
+			first_nonempty_line = false;
+			continue;
+		}
+		first_nonempty_line = false;
 		
-		vector<int> row;
-		istringstream iss(line);
+		vector<int> row, clique;
+		const size_t delimiter = line.find('|');
+		const string distance_part = line.substr(0, delimiter);
+		const string clique_part = delimiter == string::npos ? string() : line.substr(delimiter + 1);
+		istringstream iss(distance_part);
 		int value;
-		
 		while (iss >> value)
 		{
 			row.push_back(value);
@@ -484,6 +516,18 @@ bool load_cuts_from_file(data *RAMSEY_instance, int t_value, int k_value, cut_da
 		if (!row.empty())
 		{
 			temp_cuts.push_back(row);
+			if (delimiter != string::npos)
+			{
+				istringstream clique_stream(clique_part);
+				while (clique_stream >> value) clique.push_back(value);
+				if (clique.empty())
+				{
+					cout << "Missing clique data in " << filename << endl;
+					return false;
+				}
+				cuts->has_clique_data = true;
+			}
+			temp_cliques.push_back(clique);
 		}
 	}
 	
@@ -498,11 +542,17 @@ bool load_cuts_from_file(data *RAMSEY_instance, int t_value, int k_value, cut_da
 	{
 		cuts->lines[i].num_elements = temp_cuts[i].size();
 		cuts->lines[i].values = new int[cuts->lines[i].num_elements];
+		cuts->lines[i].clique_num_elements = 0;
+		cuts->lines[i].clique_values = NULL;
 		
 		for (int j = 0; j < cuts->lines[i].num_elements; j++)
 		{
 			cuts->lines[i].values[j] = temp_cuts[i][j];
 		}
+		cuts->lines[i].clique_num_elements = temp_cliques[i].size();
+		cuts->lines[i].clique_values = temp_cliques[i].empty() ? NULL : new int[temp_cliques[i].size()];
+		for (size_t j = 0; j < temp_cliques[i].size(); ++j)
+			cuts->lines[i].clique_values[j] = temp_cliques[i][j];
 	}
 	
 	cuts->loaded = true;
@@ -546,6 +596,10 @@ void free_cuts_data(cut_data *cuts)
 			{
 				delete[] cuts->lines[i].values;
 			}
+			if (cuts->lines[i].clique_values != NULL)
+			{
+				delete[] cuts->lines[i].clique_values;
+			}
 		}
 		delete[] cuts->lines;
 		cuts->lines = NULL;
@@ -553,6 +607,5 @@ void free_cuts_data(cut_data *cuts)
 	
 	cuts->num_lines = 0;
 	cuts->loaded = false;
+	cuts->has_clique_data = false;
 }
-
-

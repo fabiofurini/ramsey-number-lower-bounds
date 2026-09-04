@@ -19,7 +19,7 @@ Run the solver from `code/solver/`:
 | 2 | `3` | Avoid a blue clique of order 3. |
 | 3 | instance-specific | Avoid a red clique of the requested order. |
 | 4 | `3` | Select the distance-space formulation. |
-| 5 | `1` | Retained for compatibility; inactive for formulation 3. |
+| 5 | `1` | Published behaviour. Values `2` and `3` switch on the optional search additions (partial-colouring propagator, integral pre-check); see [Optional search additions](NEW-OPTIONS.md). |
 | 6 | `1` | Impose the circulant restriction. |
 | 7 | `7200` | Allow at most 7,200 seconds for the clique routine. |
 | 8 | `1` | Use the exact Tur\'an right-hand side in clique cuts. |
@@ -45,9 +45,14 @@ Run the solver from `code/solver/`:
 | 28 | `1` | Use seed 1. |
 | 29 | `0` | Use CPLEX's default variable-selection rule. |
 | 30 | `1` | Run each solver process with one CPLEX thread. |
-| 31 | `0` | Do not load external cut files. |
-| 32 | `1` | Minimize a separated cut before adding it. |
+| 31 | `0` | No cut-file input or output. |
+| 32 | `1` | Minimize a separated cut before adding it, repeating until a full pass removes nothing. Values `2`--`5` select other minimization strategies; see [Optional search additions](NEW-OPTIONS.md). |
 | 33 | instance-specific | Identify the run and its output files. |
+
+The values above are the baseline of the paper and remain the default. The search additions
+documented in [Optional search additions](NEW-OPTIONS.md) are reached only by changing input 5 or
+input 32; with the values in this table the solver follows the published path exactly, node for
+node.
 
 The baseline enables MNTS. MNTS was set to `0` only in the ablation
 experiment, so that the other features could be assessed with an exact

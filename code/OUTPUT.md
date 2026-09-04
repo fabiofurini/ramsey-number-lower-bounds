@@ -118,3 +118,14 @@ The summary files allow a counterexample to be matched with the complete command
 ## Independent verification
 
 The solver's own solution check is useful during a run. For an independent verification of a reported result, create a graph certificate from the coloring and use the repository's [(m,n)-coloring checker](../checker/README.md).
+
+## Additional statistics from the optional search additions
+
+If input 5 is `2` or `3`, the run also prints the propagator and pre-check counters
+(`pp_calls`, `pp_prunes_blue`, `pp_prunes_red`, `pp_avg_fixed_at_prune`, `pp_max_fixed_at_prune`,
+`pp_avg_depth_at_prune`, `pp_fast_calls`, `pp_fast_hits_blue`, `pp_fast_hits_red`,
+`time_propagator`). If input 32 is non-zero, the cut-minimization counters
+(`n_jumps_minimized_*`, `n_minimization_successes_*`, `time_minimization` and the low/high half
+breakdown) are printed as well. Both groups are described in
+[Optional search additions](NEW-OPTIONS.md); with the default configuration only the second group
+appears.

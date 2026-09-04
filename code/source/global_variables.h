@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <cstring>
 #include <cstdlib>
+#include <mutex>
 
 using namespace std;
 
@@ -46,6 +47,8 @@ struct cut_line
 {
 	int num_elements;     // how many numbers are in the line
 	int* values;          // the values read from the line
+	int clique_num_elements;
+	int* clique_values;
 };
 
 /***********************************************************************************/
@@ -56,6 +59,7 @@ struct cut_data
 	int num_lines;        // how many lines there are
 	cut_line* lines;      // array of lines
 	bool loaded;          // flag to know if cuts have been loaded
+	bool has_clique_data; // rows include generating clique data after '|'
 };
 
 typedef class data
@@ -111,8 +115,8 @@ public:
 	//	//4	CPX_VARSEL_PSEUDOREDUCED	Branch based on pseudo reduced costs
 	int NUMBER_OF_THREADS; //It determines the number of threads used by CPLEX (CPX_PARALLEL_DETERMINISTIC is set to have deterministic results)
 	int  ID_TEST;						//id of the test
-	int  LOAD_CUTS_FROM_FILE;			//1 to load cuts from files in CUTS/ folder, 0 otherwise
-	int  MINIMIZE_CUTS;					//1 to minimize cuts in callback before adding them, 0 otherwise
+	int  LOAD_CUTS_FROM_FILE;			// 1: load cuts; 0: no cut-file I/O; -100: record unique supports and generating cliques (MODEL_3 only)
+	int  MINIMIZE_CUTS;					//0 disabled; 1 heuristic minimization, repeated until a full pass removes nothing; 2 exact (MNTS+CliSAT) minimization, same repeat-until-fixpoint loop; 3 heuristic minimization like 1, but only a single pass (no repeat, regardless of outcome); 4 like 3, but on the high half of candidate distances only every other one is tried (stride 2), since the low half has a consistently ~1.4-1.5x higher empirical success rate; 5 like 4 but more concentrated: stride 2 on the low half too, high half skipped entirely (both scale with t via n_variable_MODEL_3, no fixed constant)
 	////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////CPLEX/////////////////////////////////////
@@ -205,6 +209,16 @@ public:
 	int  n_minimization_successes_blue;  // Number of times blue minimization changed at least one coefficient
 	int  n_minimization_successes_red;   // Number of times red minimization changed at least one coefficient
 	double time_minimization;       // Total time spent in minimization
+	double time_minimization_rebuild;     // Diagnostic: time spent rebuilding edge_fixing_TEMP within minimization
+	double time_minimization_cliquecheck; // Diagnostic: time spent in the per-candidate clique re-check within minimization
+	long long sum_removed_jump_distance_red; // Diagnostic: sum of circular distances (jump_idx+1) of removed red jumps
+	int min_removed_jump_distance_red;       // Diagnostic: smallest circular distance removed
+	int max_removed_jump_distance_red;       // Diagnostic: largest circular distance removed
+	long long n_jump_attempts_red;           // Diagnostic: total candidate-jump checks attempted (success + failure)
+	long long n_jump_attempts_red_lowhalf;   // Diagnostic: attempts with distance <= n_variable_MODEL_3/2
+	long long n_jump_attempts_red_highhalf;  // Diagnostic: attempts with distance > n_variable_MODEL_3/2
+	long long n_jumps_minimized_red_lowhalf; // Diagnostic: successes with distance <= n_variable_MODEL_3/2
+	long long n_jumps_minimized_red_highhalf;// Diagnostic: successes with distance > n_variable_MODEL_3/2
 	////////////////////////////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -233,8 +247,11 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	// Structures for cuts read from files
 	////////////////////////////////////////////////////////////////////////////////
-	cut_data CUTS_M;      // cuts for PARAM_M (file t<SIZE>_k<M>.txt)
-	cut_data CUTS_N;      // cuts for PARAM_N (file t<SIZE>_k<N>.txt)
+	cut_data CUTS_M;      // blue cuts for PARAM_M
+	cut_data CUTS_N;      // red cuts for PARAM_N
+	set<vector<int> > RECORDED_CUTS_M; // unique blue supports written in recording mode
+	set<vector<int> > RECORDED_CUTS_N; // unique red supports written in recording mode
+	mutex RECORDED_CUTS_MUTEX;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -488,6 +505,24 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+	///////////////////////////////////////////////////////////////////////////////////
+	// Partial-colouring propagator (MODEL_3 only, active iff PARAM_OPTIONS==1) 2026-09-02
+	// Counters + scratch arrays; inert (zeroed/allocated but unused) when the flag is off.
+	long long pp_calls;              // branch-callback invocations
+	long long pp_prunes_blue;        // nodes fathomed: forced blue K_M in the fixed part
+	long long pp_prunes_red;         // nodes fathomed: forced red  K_N in the fixed part
+	long long pp_fixed_sum;          // sum over prunes of #locally-fixed distance variables
+	long long pp_depth_sum;          // sum over prunes of the CPLEX node depth
+	int       pp_max_fixed_at_prune; // max #fixed distance variables seen at a prune
+	double    time_propagator;       // total seconds spent inside the propagator callback
+	double   *pp_lb;                 // scratch: node local lower bounds (n_variable_MODEL_3)
+	double   *pp_ub;                 // scratch: node local upper bounds
+	// PARAM_OPTIONS==3 adds a complete bitset pre-check on integral candidates in the lazy
+	// callback, replacing the max-clique separator there (CLIQUE_TARGET==1, MINIMIZE_CUTS==0):
+	long long pp_fast_calls;         // integral candidates screened by the fast test
+	long long pp_fast_hits_blue;     // blue K_M found by the fast test (cut built from it)
+	long long pp_fast_hits_red;      // red  K_N found by the fast test
 
 } data;
 

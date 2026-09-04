@@ -1,6 +1,220 @@
 
 #include "RAMSEY_MODEL_3.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Partial-colouring propagator (active only with PARAM_OPTIONS==1; MODEL_3; t <= 127).
+//
+// Idea: if the partial colouring given by the *locally fixed* distance variables was K_k-free
+// and distance d is fixed to a colour, any monochromatic K_k in that colour's fixed part must
+// use an edge of distance d, hence (translation + reflection, both automorphisms of every
+// circulant) one through the pair {0,d}. Testing, for every fixed distance d, whether
+// N(0) & N(d) restricted to the fixed part contains a K_{k-2} is therefore a sound AND
+// complete emptiness test of the fixed partial colouring, under any branching order.
+// Re-derivation of the anchored test of Van Overberghe's generator (idea only, no GPL code
+// copied); see R66_CIRCULANT_FRONTIER_TEST/IDEAS/IMPLEMENTATION_PLAN_partial_pruning.md and
+// R66_CIRCULANT_FRONTIER_TEST/DIDACTIC_GVO_METHOD/REPORT/report.pdf.
+// The callback never reads fractional LP values: only local bounds (lb==1 blue, ub==0 red).
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef unsigned __int128 ppset_t;   // vertex subsets of Z_t, t <= 127
+
+static inline ppset_t pp_bit(int i){ return ((ppset_t)1)<<i; }
+static inline int pp_popcount(ppset_t s){ return __builtin_popcountll((unsigned long long)s)
+	+ __builtin_popcountll((unsigned long long)(s>>64)); }
+static inline int pp_ctz(ppset_t s){ unsigned long long lo=(unsigned long long)s;
+	return lo ? __builtin_ctzll(lo) : 64+__builtin_ctzll((unsigned long long)(s>>64)); }
+static inline ppset_t pp_range(int n){ return pp_bit(n)-1; }   // bits 0..n-1 (n <= 127)
+static inline ppset_t pp_rotate(ppset_t s, int a, int n)       // rotate upward by a in Z_n
+{ return a==0 ? (s & pp_range(n)) : (((s<<a) | (s>>(n-a))) & pp_range(n)); }
+static inline ppset_t pp_adj_up(ppset_t N0, int v, int n)      // neighbours of v above v
+{ return (N0<<v) & pp_range(n); }
+
+// Is there a K_depth inside cand? (N0 = neighbourhood of vertex 0 = the colour's fixed
+// distance set as a vertex mask; candidates only extend upward: isomorph-free enumeration.)
+static int pp_kclique(ppset_t cand, ppset_t N0, int depth, int n)
+{
+	if(depth==0){ return 1; }
+	if(depth==1){ return cand!=0; }
+	if(pp_popcount(cand)<depth){ return 0; }
+	while(cand)
+	{
+		int v=pp_ctz(cand); cand^=pp_bit(v);
+		if(pp_kclique(cand & pp_adj_up(N0,v,n), N0, depth-1, n)){ return 1; }
+	}
+	return 0;
+}
+
+// Witness-recording variant: on success wit[depth..1] holds the clique vertices beyond the
+// two anchors (wit[1] filled from the depth==1 shortcut).
+static int pp_kclique_wit(ppset_t cand, ppset_t N0, int depth, int n, int *wit)
+{
+	if(depth==0){ return 1; }
+	if(depth==1){ if(cand!=0){ wit[1]=pp_ctz(cand); return 1; } return 0; }
+	if(pp_popcount(cand)<depth){ return 0; }
+	while(cand)
+	{
+		int v=pp_ctz(cand); cand^=pp_bit(v);
+		if(pp_kclique_wit(cand & pp_adj_up(N0,v,n), N0, depth-1, n, wit)){ wit[depth]=v; return 1; }
+	}
+	return 0;
+}
+
+// Complete K_k detector for a FULLY coloured colour class (fixedD = all its distances):
+// fills verts[0..k-1] with the vertices of a monochromatic K_k if one exists.
+static int pp_colour_find_kk(ppset_t fixedD, int k, int n, int *verts)
+{
+	if(fixedD==0){ return 0; }
+	ppset_t N0=0, dd=fixedD;
+	while(dd){ int d=pp_ctz(dd); dd^=pp_bit(d); N0|=pp_bit(d); N0|=pp_bit(n-d); }
+	dd=fixedD;
+	while(dd)
+	{
+		int d=pp_ctz(dd); dd^=pp_bit(d);
+		int wit[16];
+		if(pp_kclique_wit(N0 & pp_rotate(N0,d,n), N0, k-2, n, wit))
+		{
+			verts[0]=0; verts[1]=d;
+			for(int j=2;j<k;j++){ verts[j]=wit[k-j]; }
+			return 1;
+		}
+	}
+	return 0;
+}
+
+// Does the colour whose fixed distances are fixedD (bit d set, 1<=d<=n/2) contain a K_k?
+static int pp_colour_has_kk(ppset_t fixedD, int k, int n)
+{
+	if(fixedD==0){ return 0; }
+	ppset_t N0=0, dd=fixedD;
+	while(dd){ int d=pp_ctz(dd); dd^=pp_bit(d); N0|=pp_bit(d); N0|=pp_bit(n-d); }
+	dd=fixedD;
+	while(dd)
+	{
+		int d=pp_ctz(dd); dd^=pp_bit(d);
+		if(pp_kclique(N0 & pp_rotate(N0,d,n), N0, k-2, n)){ return 1; }
+	}
+	return 0;
+}
+
+/***********************************************************************************/
+int CPXPUBLIC mybranchcallback_PARTIAL_PRUNING_MODEL_3(CALLBACK_BRANCH_ARGS)
+/***********************************************************************************/
+{
+	(*useraction_p)=CPX_CALLBACK_DEFAULT;
+	data *RAMSEY_instance=(data *) cbhandle;
+
+	clock_t pp_t0=clock();
+	RAMSEY_instance->pp_calls++;
+
+	int pp_m=RAMSEY_instance->n_variable_MODEL_3;
+	int pp_n=RAMSEY_instance->PARAM_SIZE_GRAPH;
+
+	if(CPXgetcallbacknodelb(xenv,cbdata,wherefrom,RAMSEY_instance->pp_lb,0,pp_m-1)!=0){ return 0; }
+	if(CPXgetcallbacknodeub(xenv,cbdata,wherefrom,RAMSEY_instance->pp_ub,0,pp_m-1)!=0){ return 0; }
+
+	ppset_t fixedBlue=0, fixedRed=0;
+	int nfixed=0;
+	for(int i=0;i<pp_m;i++)
+	{
+		if(RAMSEY_instance->pp_lb[i]>0.5){ fixedBlue|=pp_bit(i+1); nfixed++; }       // y=1: blue
+		else if(RAMSEY_instance->pp_ub[i]<0.5){ fixedRed|=pp_bit(i+1); nfixed++; }   // y=0: red
+	}
+
+	int prune_blue=0, prune_red=0;
+	if(pp_colour_has_kk(fixedBlue,RAMSEY_instance->PARAM_M,pp_n)){ prune_blue=1; }
+	else if(pp_colour_has_kk(fixedRed,RAMSEY_instance->PARAM_N,pp_n)){ prune_red=1; }
+
+	if(prune_blue||prune_red)
+	{
+		if(prune_blue){ RAMSEY_instance->pp_prunes_blue++; }
+		else{ RAMSEY_instance->pp_prunes_red++; }
+		RAMSEY_instance->pp_fixed_sum+=nfixed;
+		if(nfixed>RAMSEY_instance->pp_max_fixed_at_prune){ RAMSEY_instance->pp_max_fixed_at_prune=nfixed; }
+		int pp_depth=0;
+		if(CPXgetcallbacknodeinfo(xenv,cbdata,wherefrom,0,CPX_CALLBACK_INFO_NODE_DEPTH,&pp_depth)==0)
+		{
+			RAMSEY_instance->pp_depth_sum+=pp_depth;
+		}
+		(*useraction_p)=CPX_CALLBACK_SET;   // zero branches created -> the node is fathomed
+	}
+
+	RAMSEY_instance->time_propagator+=(double)(clock()-pp_t0)/(double)CLOCKS_PER_SEC;
+	return 0;
+}
+
+namespace
+{
+void initialize_cut_recording(data *RAMSEY_instance)
+{
+	if (RAMSEY_instance->LOAD_CUTS_FROM_FILE != -100)
+	{
+		return;
+	}
+
+	const string blue_filename = cut_file_name(RAMSEY_instance, true);
+	const string red_filename = cut_file_name(RAMSEY_instance, false);
+	ofstream blue_file(blue_filename.c_str(), ios::trunc);
+	ofstream red_file(red_filename.c_str(), ios::trunc);
+	if (!blue_file.is_open() || !red_file.is_open())
+	{
+		cout << "Cannot initialize the cut-recording files in CUTS/" << endl;
+		exit(-1);
+	}
+	blue_file << "# RAMSEY_DISTANCE_CLIQUE_V1\n";
+	red_file << "# RAMSEY_DISTANCE_CLIQUE_V1\n";
+	RAMSEY_instance->RECORDED_CUTS_M.clear();
+	RAMSEY_instance->RECORDED_CUTS_N.clear();
+	cout << "Recording blue cuts to " << blue_filename << endl;
+	cout << "Recording red cuts to " << red_filename << endl;
+}
+
+void record_callback_cut(data *RAMSEY_instance, bool blue, const vector<int>& distances)
+{
+	if (RAMSEY_instance->LOAD_CUTS_FROM_FILE != -100)
+	{
+		return;
+	}
+
+	// Store a unique distance support followed by the generating clique. The
+	// clique is the lossless information used to recover distance multiplicities.
+	vector<int> support = distances;
+	sort(support.begin(), support.end());
+	support.erase(unique(support.begin(), support.end()), support.end());
+	if (support.empty()) return;
+	vector<int> clique;
+	for (int i = 0; i < RAMSEY_instance->PARAM_SIZE_GRAPH; ++i)
+	{
+		if (RAMSEY_instance->CLIQUE_SOL[i] > 0.5) clique.push_back(i + 1);
+	}
+	if (clique.size() < 2) return;
+	lock_guard<mutex> lock(RAMSEY_instance->RECORDED_CUTS_MUTEX);
+	set<vector<int> >& recorded = blue ? RAMSEY_instance->RECORDED_CUTS_M
+									 : RAMSEY_instance->RECORDED_CUTS_N;
+	if (!recorded.insert(support).second)
+	{
+		return;
+	}
+
+	ofstream file(cut_file_name(RAMSEY_instance, blue).c_str(), ios::app);
+	if (!file.is_open())
+	{
+		cout << "Cannot append a recorded cut" << endl;
+		exit(-1);
+	}
+	for (size_t i = 0; i < support.size(); ++i)
+	{
+		if (i > 0) file << ' ';
+		file << support[i];
+	}
+	file << " |";
+	for (size_t i = 0; i < clique.size(); ++i)
+	{
+		file << ' ' << clique[i];
+	}
+	file << '\n';
+}
+}
+
 //#define PRINT_SOLUTION_MODEL_3
 //#define PRINT_SOLUTION_CALLBACK
 //#define PRINT_MODEL_3_LP
@@ -50,6 +264,16 @@ void RAMSEY_MODEL_3_allocation(data *RAMSEY_instance)
 	RAMSEY_instance->n_minimization_successes_blue=0;
 	RAMSEY_instance->n_minimization_successes_red=0;
 	RAMSEY_instance->time_minimization=0;
+	RAMSEY_instance->time_minimization_rebuild=0;
+	RAMSEY_instance->time_minimization_cliquecheck=0;
+	RAMSEY_instance->sum_removed_jump_distance_red=0;
+	RAMSEY_instance->min_removed_jump_distance_red=999999999;
+	RAMSEY_instance->max_removed_jump_distance_red=-1;
+	RAMSEY_instance->n_jump_attempts_red=0;
+	RAMSEY_instance->n_jump_attempts_red_lowhalf=0;
+	RAMSEY_instance->n_jump_attempts_red_highhalf=0;
+	RAMSEY_instance->n_jumps_minimized_red_lowhalf=0;
+	RAMSEY_instance->n_jumps_minimized_red_highhalf=0;
 
 	RAMSEY_instance->X_CALLBACK=new double[RAMSEY_instance->n_variable_MODEL_3];
 	RAMSEY_instance->cut_rmatind=new int[RAMSEY_instance->n_variable_MODEL_3];
@@ -58,6 +282,20 @@ void RAMSEY_MODEL_3_allocation(data *RAMSEY_instance)
 
 	// Allocate X_CALLBACK_TEMP for minimization (edge_fixing_TEMP and CLIQUE_SOL_TEMP are in memory_allocation)
 	RAMSEY_instance->X_CALLBACK_TEMP=new double[RAMSEY_instance->n_variable_MODEL_3];
+
+	// Partial-colouring propagator (PARAM_OPTIONS==1): counters + scratch, inert when off
+	RAMSEY_instance->pp_calls=0;
+	RAMSEY_instance->pp_prunes_blue=0;
+	RAMSEY_instance->pp_prunes_red=0;
+	RAMSEY_instance->pp_fixed_sum=0;
+	RAMSEY_instance->pp_depth_sum=0;
+	RAMSEY_instance->pp_max_fixed_at_prune=0;
+	RAMSEY_instance->time_propagator=0;
+	RAMSEY_instance->pp_fast_calls=0;
+	RAMSEY_instance->pp_fast_hits_blue=0;
+	RAMSEY_instance->pp_fast_hits_red=0;
+	RAMSEY_instance->pp_lb=new double[RAMSEY_instance->n_variable_MODEL_3];
+	RAMSEY_instance->pp_ub=new double[RAMSEY_instance->n_variable_MODEL_3];
 
 	RAMSEY_instance->n_calls=0;
 	RAMSEY_instance->n_calls_heur=0;
@@ -81,6 +319,10 @@ void RAMSEY_MODEL_3_deallocation(data *RAMSEY_instance)
 
 	// Deallocate X_CALLBACK_TEMP (edge_fixing_TEMP and CLIQUE_SOL_TEMP in memory_deallocation)
 	delete []RAMSEY_instance->X_CALLBACK_TEMP;
+
+	// Partial-colouring propagator scratch
+	delete []RAMSEY_instance->pp_lb;
+	delete []RAMSEY_instance->pp_ub;
 
 }
 
@@ -239,6 +481,42 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 
 		RAMSEY_instance->n_clique_calls_blue++;
 
+		// PARAM_OPTIONS==3: complete bitset K_M detector on the integral candidate, replacing
+		// the max-clique separator (sound AND complete on a full colouring: any blue K_M goes
+		// through {0,d} for one of its blue distances d, by translation+reflection). Only in
+		// the configuration it exactly reproduces: CLIQUE_TARGET==1 (a clique of size >= M is
+		// all the separator is asked for), no CPLEX-based separation, no cut minimization.
+		int pp_fast_blue_done=0;
+		if(RAMSEY_instance->PARAM_OPTIONS==3 && RAMSEY_instance->PARAM_SIZE_GRAPH<=127
+			&& RAMSEY_instance->CLIQUE_TARGET==1 && RAMSEY_instance->PARAM_CPLEX!=1
+			&& RAMSEY_instance->MINIMIZE_CUTS==0)
+		{
+			clock_t pp_t0=clock();
+			RAMSEY_instance->pp_fast_calls++;
+			ppset_t fixedD=0;
+			for(int i=0;i<RAMSEY_instance->n_variable_MODEL_3;i++)
+			{
+				if(RAMSEY_instance->X_CALLBACK[i]>0.5){ fixedD|=pp_bit(i+1); }
+			}
+			int pp_verts[16];
+			for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++){ RAMSEY_instance->CLIQUE_SOL[i]=0; }
+			if(pp_colour_find_kk(fixedD,RAMSEY_instance->PARAM_M,RAMSEY_instance->PARAM_SIZE_GRAPH,pp_verts))
+			{
+				for(int i=0;i<RAMSEY_instance->PARAM_M;i++){ RAMSEY_instance->CLIQUE_SOL[pp_verts[i]]=1; }
+				RAMSEY_instance->CLIQUE_VAL=RAMSEY_instance->PARAM_M;
+				RAMSEY_instance->pp_fast_hits_blue++;
+			}
+			else
+			{
+				RAMSEY_instance->CLIQUE_VAL=0;   // complete test: no blue K_M exists
+			}
+			pp_fast_blue_done=1;
+			RAMSEY_instance->time_propagator+=(double)(clock()-pp_t0)/(double)CLOCKS_PER_SEC;
+		}
+
+		if(!pp_fast_blue_done)
+		{
+
 		for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++)
 		{
 			for(int j=i+1;j<RAMSEY_instance->PARAM_SIZE_GRAPH;j++)
@@ -303,6 +581,8 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 			clock_t time_end_b_BB=clock();
 			RAMSEY_instance->time_clique_BB+=(double)(time_end_b_BB-time_start_b_BB)/(double)CLOCKS_PER_SEC;
 		}
+
+		} // end if(!pp_fast_blue_done)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -341,6 +621,17 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 					// Try to remove each active jump
 					for(int jump_idx = 0; jump_idx < RAMSEY_instance->n_variable_MODEL_3; jump_idx++)
 					{
+						// MINIMIZE_CUTS==4: full sweep on the low half of distances, stride-2 on the high half
+						// (see the matching comment in the RED block for the rationale).
+						if(RAMSEY_instance->MINIMIZE_CUTS == 4)
+						{
+							int lowhalf_boundary = RAMSEY_instance->n_variable_MODEL_3 / 2;
+							if(jump_idx >= lowhalf_boundary && (jump_idx - lowhalf_boundary) % 2 != 0)
+							{
+								continue;
+							}
+						}
+
 						// Check if this jump is currently active in TEMP
 						if(RAMSEY_instance->X_CALLBACK_TEMP[jump_idx] > 0.5)
 						{
@@ -373,7 +664,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 							// Test if BLUE clique is still large enough with this jump removed
 							double test_clique_val;
 
-							if(RAMSEY_instance->MINIMIZE_CUTS == 1)
+							if(RAMSEY_instance->MINIMIZE_CUTS == 1 || RAMSEY_instance->MINIMIZE_CUTS == 3 || RAMSEY_instance->MINIMIZE_CUTS == 4 || RAMSEY_instance->MINIMIZE_CUTS == 5)
 							{
 								test_clique_val = RAMSEY_instance->clique_solve_BB_edge_fixing_heur
 										(
@@ -430,6 +721,10 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 #ifdef JUST_ONE_ROUND_OF_MINIMALIZATION
 					jump_removed = false;//ONLY ONE ROUND!
 #endif
+					if(RAMSEY_instance->MINIMIZE_CUTS == 3 || RAMSEY_instance->MINIMIZE_CUTS == 4 || RAMSEY_instance->MINIMIZE_CUTS == 5)
+					{
+						jump_removed = false;//ONLY ONE ROUND, regardless of whether this pass removed a jump
+					}
 				}
 
 				if(any_jump_removed)
@@ -476,6 +771,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 				RAMSEY_instance->cut_RHS = edge_number( (int) RAMSEY_instance->CLIQUE_VAL )  - ( RAMSEY_instance->CLIQUE_VAL - RAMSEY_instance->PARAM_M )  - 1;
 			}
 
+			vector<int> cut_distances;
 			RAMSEY_instance->nzcnt=0;
 
 			for(int i=0; i<RAMSEY_instance->n_variable_MODEL_3; i++)
@@ -489,9 +785,10 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 			{
 				for(int j=i+1; j<RAMSEY_instance->PARAM_SIZE_GRAPH; j++)
 				{
-					if(RAMSEY_instance->CLIQUE_SOL[i]>0.5 && RAMSEY_instance->CLIQUE_SOL[j]>0.5)
-					{
-						RAMSEY_instance->cut_rmatval[mapping(RAMSEY_instance,i,j)] ++;
+											if(RAMSEY_instance->CLIQUE_SOL[i]>0.5 && RAMSEY_instance->CLIQUE_SOL[j]>0.5)
+											{
+												RAMSEY_instance->cut_rmatval[mapping(RAMSEY_instance,i,j)] ++;
+												cut_distances.push_back(mapping(RAMSEY_instance, i, j) + 1);
 					}
 				}
 			}
@@ -544,6 +841,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 
 			RAMSEY_instance->status=CPXcutcallbackadd (env,cbdata,wherefrom,RAMSEY_instance->nzcnt,RAMSEY_instance->cut_RHS,'L',RAMSEY_instance->cut_rmatind,RAMSEY_instance->cut_rmatval,RAMSEY_instance->CUT_CALL_BACK_STRATEGY);
 			if(RAMSEY_instance->status!=0){printf("CPXcutcallbackadd\n");exit(-1);}
+			record_callback_cut(RAMSEY_instance, true, cut_distances);
 
 			(*useraction_p)=CPX_CALLBACK_SET;
 
@@ -570,6 +868,37 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 
 		//part on the red
 		RAMSEY_instance->n_clique_calls_red++;
+
+		// PARAM_OPTIONS==3: same complete pre-check on the red side (distances with y=0)
+		int pp_fast_red_done=0;
+		if(RAMSEY_instance->PARAM_OPTIONS==3 && RAMSEY_instance->PARAM_SIZE_GRAPH<=127
+			&& RAMSEY_instance->CLIQUE_TARGET==1 && RAMSEY_instance->PARAM_CPLEX!=1
+			&& RAMSEY_instance->MINIMIZE_CUTS==0)
+		{
+			clock_t pp_t0=clock();
+			ppset_t fixedD=0;
+			for(int i=0;i<RAMSEY_instance->n_variable_MODEL_3;i++)
+			{
+				if(RAMSEY_instance->X_CALLBACK[i]<0.5){ fixedD|=pp_bit(i+1); }
+			}
+			int pp_verts[16];
+			for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++){ RAMSEY_instance->CLIQUE_SOL[i]=0; }
+			if(pp_colour_find_kk(fixedD,RAMSEY_instance->PARAM_N,RAMSEY_instance->PARAM_SIZE_GRAPH,pp_verts))
+			{
+				for(int i=0;i<RAMSEY_instance->PARAM_N;i++){ RAMSEY_instance->CLIQUE_SOL[pp_verts[i]]=1; }
+				RAMSEY_instance->CLIQUE_VAL=RAMSEY_instance->PARAM_N;
+				RAMSEY_instance->pp_fast_hits_red++;
+			}
+			else
+			{
+				RAMSEY_instance->CLIQUE_VAL=0;   // complete test: no red K_N exists
+			}
+			pp_fast_red_done=1;
+			RAMSEY_instance->time_propagator+=(double)(clock()-pp_t0)/(double)CLOCKS_PER_SEC;
+		}
+
+		if(!pp_fast_red_done)
+		{
 
 		for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++)
 		{
@@ -632,6 +961,8 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 			clock_t time_end_r_BB=clock();
 			RAMSEY_instance->time_clique_BB+=(double)(time_end_r_BB-time_start_r_BB)/(double)CLOCKS_PER_SEC;
 		}
+
+		} // end if(!pp_fast_red_done)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -672,14 +1003,49 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 					// For RED (1-X), remove red edges by flipping jumps 0 -> 1
 					for(int jump_idx = 0; jump_idx < RAMSEY_instance->n_variable_MODEL_3; jump_idx++)
 					{
+						// MINIMIZE_CUTS==4: full sweep on the low half of distances (jump_idx+1 <= n_variable_MODEL_3/2),
+						// where the empirical success rate is consistently ~1.4-1.5x higher; on the high half,
+						// only test every other candidate (stride 2) to cut cost where the yield is lower.
+						if(RAMSEY_instance->MINIMIZE_CUTS == 4)
+						{
+							int lowhalf_boundary = RAMSEY_instance->n_variable_MODEL_3 / 2;
+							if(jump_idx >= lowhalf_boundary && (jump_idx - lowhalf_boundary) % 2 != 0)
+							{
+								continue;
+							}
+						}
+
+						// MINIMIZE_CUTS==5: even more concentrated on the low half than mode 4 -
+						// stride 2 on the low half (test every other candidate there too), and skip
+						// the high half entirely. Scales with t via n_variable_MODEL_3, no fixed constant.
+						if(RAMSEY_instance->MINIMIZE_CUTS == 5)
+						{
+							int lowhalf_boundary = RAMSEY_instance->n_variable_MODEL_3 / 2;
+							if(jump_idx >= lowhalf_boundary)
+							{
+								continue;
+							}
+							if(jump_idx % 2 != 0)
+							{
+								continue;
+							}
+						}
+
 						// In RED complement, only inactive X-jumps can be turned on to remove red edges
 						if(RAMSEY_instance->X_CALLBACK_TEMP[jump_idx] < 0.5)
 						{
 							double old_jump_val = RAMSEY_instance->X_CALLBACK_TEMP[jump_idx];
 							// Temporarily activate this jump in TEMP (removes corresponding red edges)
 							RAMSEY_instance->X_CALLBACK_TEMP[jump_idx] = 1.0;
+							RAMSEY_instance->n_jump_attempts_red++;
+							bool this_is_lowhalf = (jump_idx + 1) <= (RAMSEY_instance->n_variable_MODEL_3 / 2);
+							if (this_is_lowhalf)
+								RAMSEY_instance->n_jump_attempts_red_lowhalf++;
+							else
+								RAMSEY_instance->n_jump_attempts_red_highhalf++;
 
 							// Build edge_fixing_TEMP from X_CALLBACK_TEMP
+							clock_t time_start_rebuild = clock();
 							for(int i = 0; i < RAMSEY_instance->PARAM_SIZE_GRAPH; i++)
 							{
 								for(int j = i+1; j < RAMSEY_instance->PARAM_SIZE_GRAPH; j++)
@@ -700,10 +1066,13 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 							{
 								RAMSEY_instance->CLIQUE_SOL_TEMP[i] = 0;
 							}
+							clock_t time_end_rebuild = clock();
+							RAMSEY_instance->time_minimization_rebuild += (double)(time_end_rebuild - time_start_rebuild) / (double)CLOCKS_PER_SEC;
 
 							// Test if RED clique is still large enough with this jump removed
+							clock_t time_start_cliquecheck = clock();
 							double test_clique_val;
-							if(RAMSEY_instance->MINIMIZE_CUTS == 1)
+							if(RAMSEY_instance->MINIMIZE_CUTS == 1 || RAMSEY_instance->MINIMIZE_CUTS == 3 || RAMSEY_instance->MINIMIZE_CUTS == 4 || RAMSEY_instance->MINIMIZE_CUTS == 5)
 							{
 								test_clique_val = RAMSEY_instance->clique_solve_BB_edge_fixing_heur
 										(
@@ -733,6 +1102,8 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 												1
 										);
 							}
+							clock_t time_end_cliquecheck = clock();
+							RAMSEY_instance->time_minimization_cliquecheck += (double)(time_end_cliquecheck - time_start_cliquecheck) / (double)CLOCKS_PER_SEC;
 
 							// Only commit if RED clique constraint is still satisfied
 							if(test_clique_val >= RAMSEY_instance->PARAM_N)
@@ -748,6 +1119,16 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 								jump_removed = true;
 								any_jump_removed = true;
 								RAMSEY_instance->n_jumps_minimized_red++;
+								// Diagnostic: track the circular distance (jump_idx+1) of removed jumps
+								RAMSEY_instance->sum_removed_jump_distance_red += (jump_idx + 1);
+								if (jump_idx + 1 < RAMSEY_instance->min_removed_jump_distance_red)
+									RAMSEY_instance->min_removed_jump_distance_red = jump_idx + 1;
+								if (jump_idx + 1 > RAMSEY_instance->max_removed_jump_distance_red)
+									RAMSEY_instance->max_removed_jump_distance_red = jump_idx + 1;
+								if (this_is_lowhalf)
+									RAMSEY_instance->n_jumps_minimized_red_lowhalf++;
+								else
+									RAMSEY_instance->n_jumps_minimized_red_highhalf++;
 							}
 							else
 							{
@@ -760,6 +1141,10 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 #ifdef JUST_ONE_ROUND_OF_MINIMALIZATION
 					jump_removed = false;//ONLY ONE ROUND!
 #endif
+					if(RAMSEY_instance->MINIMIZE_CUTS == 3 || RAMSEY_instance->MINIMIZE_CUTS == 4 || RAMSEY_instance->MINIMIZE_CUTS == 5)
+					{
+						jump_removed = false;//ONLY ONE ROUND, regardless of whether this pass removed a jump
+					}
 
 				}
 
@@ -808,6 +1193,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 				RAMSEY_instance->cut_RHS = RAMSEY_instance->CLIQUE_VAL - RAMSEY_instance->PARAM_N + 1;
 			}
 
+			vector<int> cut_distances;
 			RAMSEY_instance->nzcnt=0;
 
 			for(int i=0; i<RAMSEY_instance->n_variable_MODEL_3; i++)
@@ -824,6 +1210,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 					if(RAMSEY_instance->CLIQUE_SOL[i]>0.5 && RAMSEY_instance->CLIQUE_SOL[j]>0.5)
 					{
 						RAMSEY_instance->cut_rmatval[mapping(RAMSEY_instance,i,j)] = RAMSEY_instance->cut_rmatval[mapping(RAMSEY_instance,i,j)]+1;
+						cut_distances.push_back(mapping(RAMSEY_instance, i, j) + 1);
 					}
 				}
 			}
@@ -861,6 +1248,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 
 			RAMSEY_instance->status=CPXcutcallbackadd (env,cbdata,wherefrom,RAMSEY_instance->nzcnt,RAMSEY_instance->cut_RHS,'G',RAMSEY_instance->cut_rmatind,RAMSEY_instance->cut_rmatval,RAMSEY_instance->CUT_CALL_BACK_STRATEGY);
 			if(RAMSEY_instance->status!=0){printf("CPXcutcallbackadd\n");exit(-1);}
+			record_callback_cut(RAMSEY_instance, false, cut_distances);
 
 			(*useraction_p)=CPX_CALLBACK_SET;
 
@@ -1017,6 +1405,30 @@ void RAMSEY_MODEL_3_parameter_setting(data *RAMSEY_instance)
 	if (RAMSEY_instance->status)
 	{
 		printf ("error for CPXsetlazyconstraintcallbackfunc\n");
+	}
+
+	// Partial-colouring propagator: registered ONLY when PARAM_OPTIONS==2 (2 is unused by any
+	// historic script or model; the (6,6) campaign command lines pass 1 here). Legacy-safe:
+	// with any other value (0 and the historic 1 included) nothing is registered and the code
+	// path is exactly the historic one.
+	if(RAMSEY_instance->PARAM_OPTIONS==2 || RAMSEY_instance->PARAM_OPTIONS==3)
+	{
+		if(RAMSEY_instance->PARAM_SIZE_GRAPH<=127)
+		{
+			RAMSEY_instance->status = CPXsetbranchcallbackfunc(RAMSEY_instance->env_MODEL_3,mybranchcallback_PARTIAL_PRUNING_MODEL_3,RAMSEY_instance);
+			if (RAMSEY_instance->status)
+			{
+				printf ("error for CPXsetbranchcallbackfunc\n");
+			}
+			else
+			{
+				cout << "\n***PARTIAL_PRUNING_PROPAGATOR_ACTIVE (PARAM_OPTIONS=" << RAMSEY_instance->PARAM_OPTIONS << (RAMSEY_instance->PARAM_OPTIONS==3? ", fast integral pre-check ON":"") << ")***\n" << endl;
+			}
+		}
+		else
+		{
+			cout << "\n***PARTIAL_PRUNING_PROPAGATOR_SKIPPED (PARAM_SIZE_GRAPH>127)***\n" << endl;
+		}
 	}
 
 
@@ -1232,6 +1644,21 @@ double RAMSEY_MODEL_3_solve(data *RAMSEY_instance)
 	cout << "RAMSEY_time ->\t" << RAMSEY_time << endl;
 	cout << "lpstat ->\t" << RAMSEY_instance->lpstat << endl;
 	cout << "nodecount ->\t" << RAMSEY_instance->nodecount << endl;
+
+	if(RAMSEY_instance->PARAM_OPTIONS==2 || RAMSEY_instance->PARAM_OPTIONS==3)
+	{
+		cout << "pp_calls ->\t" << RAMSEY_instance->pp_calls << endl;
+		cout << "pp_prunes_blue ->\t" << RAMSEY_instance->pp_prunes_blue << endl;
+		cout << "pp_prunes_red ->\t" << RAMSEY_instance->pp_prunes_red << endl;
+		long long pp_prunes = RAMSEY_instance->pp_prunes_blue + RAMSEY_instance->pp_prunes_red;
+		cout << "pp_avg_fixed_at_prune ->\t" << (pp_prunes? (double)RAMSEY_instance->pp_fixed_sum/pp_prunes : 0.0) << endl;
+		cout << "pp_max_fixed_at_prune ->\t" << RAMSEY_instance->pp_max_fixed_at_prune << endl;
+		cout << "pp_avg_depth_at_prune ->\t" << (pp_prunes? (double)RAMSEY_instance->pp_depth_sum/pp_prunes : 0.0) << endl;
+		cout << "pp_fast_calls ->\t" << RAMSEY_instance->pp_fast_calls << endl;
+		cout << "pp_fast_hits_blue ->\t" << RAMSEY_instance->pp_fast_hits_blue << endl;
+		cout << "pp_fast_hits_red ->\t" << RAMSEY_instance->pp_fast_hits_red << endl;
+		cout << "time_propagator ->\t" << RAMSEY_instance->time_propagator << endl;
+	}
 	cout << "time_clique_BB ->\t" << RAMSEY_instance->time_clique_BB << endl;
 	cout << "time_clique_cplex ->\t" << RAMSEY_instance->time_clique_cplex << endl;
 	cout << "n_clique_calls_red ->\t" << RAMSEY_instance->n_clique_calls_red << endl;
@@ -1251,6 +1678,33 @@ double RAMSEY_MODEL_3_solve(data *RAMSEY_instance)
 	cout << "n_minimization_successes_blue\t" << RAMSEY_instance->n_minimization_successes_blue << endl;
 	cout << "n_minimization_successes_red\t" << RAMSEY_instance->n_minimization_successes_red << endl;
 	cout << "time_minimization\t" << RAMSEY_instance->time_minimization << endl;
+	cout << "time_minimization_rebuild\t" << RAMSEY_instance->time_minimization_rebuild << endl;
+	cout << "time_minimization_cliquecheck\t" << RAMSEY_instance->time_minimization_cliquecheck << endl;
+	cout << "n_variable_MODEL_3 (max possible distance)\t" << RAMSEY_instance->n_variable_MODEL_3 << endl;
+	if (RAMSEY_instance->n_jumps_minimized_red > 0)
+	{
+		cout << "avg_removed_jump_distance_red\t" << (double)RAMSEY_instance->sum_removed_jump_distance_red / RAMSEY_instance->n_jumps_minimized_red << endl;
+	}
+	cout << "min_removed_jump_distance_red\t" << RAMSEY_instance->min_removed_jump_distance_red << endl;
+	cout << "max_removed_jump_distance_red\t" << RAMSEY_instance->max_removed_jump_distance_red << endl;
+	cout << "n_jump_attempts_red\t" << RAMSEY_instance->n_jump_attempts_red << endl;
+	if (RAMSEY_instance->n_jump_attempts_red > 0)
+	{
+		cout << "jump_success_rate_red\t" << (double)RAMSEY_instance->n_jumps_minimized_red / RAMSEY_instance->n_jump_attempts_red << endl;
+	}
+	cout << "n_jump_attempts_red_lowhalf\t" << RAMSEY_instance->n_jump_attempts_red_lowhalf << endl;
+	cout << "n_jump_attempts_red_highhalf\t" << RAMSEY_instance->n_jump_attempts_red_highhalf << endl;
+	cout << "n_jumps_minimized_red_lowhalf\t" << RAMSEY_instance->n_jumps_minimized_red_lowhalf << endl;
+	cout << "n_jumps_minimized_red_highhalf\t" << RAMSEY_instance->n_jumps_minimized_red_highhalf << endl;
+	if (RAMSEY_instance->n_jump_attempts_red_lowhalf > 0)
+		cout << "success_rate_lowhalf\t" << (double)RAMSEY_instance->n_jumps_minimized_red_lowhalf / RAMSEY_instance->n_jump_attempts_red_lowhalf << endl;
+	if (RAMSEY_instance->n_jump_attempts_red_highhalf > 0)
+		cout << "success_rate_highhalf\t" << (double)RAMSEY_instance->n_jumps_minimized_red_highhalf / RAMSEY_instance->n_jump_attempts_red_highhalf << endl;
+	if (RAMSEY_instance->LOAD_CUTS_FROM_FILE == -100)
+	{
+		cout << "recorded_unique_cuts_blue\t" << RAMSEY_instance->RECORDED_CUTS_M.size() << endl;
+		cout << "recorded_unique_cuts_red\t" << RAMSEY_instance->RECORDED_CUTS_N.size() << endl;
+	}
 
 	if(SOL_FOUND)
 	{
@@ -1543,149 +1997,145 @@ void RAMSEY_MODEL_3_free(data *RAMSEY_instance)
 }
 
 
+namespace
+{
+void prepare_loaded_cut(data *RAMSEY_instance, const cut_line& line, bool blue,
+		vector<int>& indices, vector<double>& coefficients, double& rhs, char& sense)
+{
+	sense = blue ? 'L' : 'G';
+	if (line.clique_num_elements == 0)
+	{
+		// Compatibility with the original support format.
+		rhs = blue ? line.num_elements - 1 : 1.0;
+		for (int j = 0; j < line.num_elements; ++j)
+		{
+			const int index = line.values[j] - 1;
+			if (index < 0 || index >= RAMSEY_instance->n_variable_MODEL_3)
+			{
+				cout << "Invalid distance index " << line.values[j] << " in cut file" << endl;
+				exit(-1);
+			}
+			indices.push_back(index);
+			coefficients.push_back(1.0);
+		}
+		return;
+	}
+
+	vector<int> distances;
+	for (int i = 0; i < line.clique_num_elements; ++i)
+	{
+		const int vertex = line.clique_values[i] - 1;
+		if (vertex < 0 || vertex >= RAMSEY_instance->PARAM_SIZE_GRAPH)
+		{
+			cout << "Invalid clique vertex " << line.clique_values[i] << " in cut file" << endl;
+			exit(-1);
+		}
+		for (int j = i + 1; j < line.clique_num_elements; ++j)
+		{
+			const int other_vertex = line.clique_values[j] - 1;
+			if (other_vertex < 0 || other_vertex >= RAMSEY_instance->PARAM_SIZE_GRAPH)
+			{
+				cout << "Invalid clique vertex " << line.clique_values[j] << " in cut file" << endl;
+				exit(-1);
+			}
+			distances.push_back(mapping(RAMSEY_instance, vertex, other_vertex) + 1);
+		}
+	}
+	vector<int> multiplicity(RAMSEY_instance->n_variable_MODEL_3, 0);
+	for (size_t j = 0; j < distances.size(); ++j)
+		multiplicity[distances[j] - 1]++;
+	const int pair_count = distances.size();
+	const int clique_size = (int)((1.0 + sqrt(1.0 + 8.0 * pair_count)) / 2.0 + 1e-9);
+	if (clique_size * (clique_size - 1) / 2 != pair_count)
+	{
+		cout << "A distance-multiset row does not contain all clique pairs" << endl;
+		exit(-1);
+	}
+	const int target = blue ? RAMSEY_instance->PARAM_M : RAMSEY_instance->PARAM_N;
+	if (clique_size < target)
+	{
+		cout << "A recorded clique is smaller than its target" << endl;
+		exit(-1);
+	}
+	const int edges = edge_number(clique_size);
+	const int turan_rhs = blue ? ex_value(clique_size, target)
+		: edges - ex_value(clique_size, target);
+	const int unit_rhs = blue ? edges - (clique_size - target) - 1
+		: clique_size - target + 1;
+	rhs = RAMSEY_instance->PARAM_STRONGER_CUTS == 1 ? turan_rhs : unit_rhs;
+	const int coefficient_cap = RAMSEY_instance->PARAM_STRONGER_CUTS == 1
+		? (blue ? edges - turan_rhs : turan_rhs)
+		: clique_size - target + 1;
+	if (blue && RAMSEY_instance->PARAM_COVER_CUTS == 1)
+	{
+		rhs -= edges;
+	}
+	for (int index = 0; index < RAMSEY_instance->n_variable_MODEL_3; ++index)
+	{
+		if (multiplicity[index] == 0) continue;
+		const double coefficient = RAMSEY_instance->PARAM_COVER_CUTS == 1
+			? min(multiplicity[index], coefficient_cap) : multiplicity[index];
+		indices.push_back(index);
+		coefficients.push_back(coefficient);
+		if (blue && RAMSEY_instance->PARAM_COVER_CUTS == 1)
+		{
+			rhs += coefficient;
+		}
+	}
+}
+
+int add_loaded_cut_pool(data *RAMSEY_instance, cut_data *cuts, bool blue, const char *name)
+{
+	if (!cuts->loaded) return 0;
+	cout << "\nAdding cuts from " << name << "..." << endl;
+	int added = 0;
+	for (int i = 0; i < cuts->num_lines; ++i)
+	{
+		vector<int> indices;
+		vector<double> coefficients;
+		double rhs;
+		char sense;
+		prepare_loaded_cut(RAMSEY_instance, cuts->lines[i], blue, indices, coefficients, rhs, sense);
+		RAMSEY_instance->rcnt = 1;
+		RAMSEY_instance->nzcnt = indices.size();
+		RAMSEY_instance->rhs = (double*) calloc(1, sizeof(double));
+		RAMSEY_instance->sense = (char*) calloc(1, sizeof(char));
+		RAMSEY_instance->rmatbeg = (int*) calloc(1, sizeof(int));
+		RAMSEY_instance->rmatind = (int*) calloc(RAMSEY_instance->nzcnt, sizeof(int));
+		RAMSEY_instance->rmatval = (double*) calloc(RAMSEY_instance->nzcnt, sizeof(double));
+		RAMSEY_instance->rhs[0] = rhs;
+		RAMSEY_instance->sense[0] = sense;
+		for (int j = 0; j < RAMSEY_instance->nzcnt; ++j)
+		{
+			RAMSEY_instance->rmatind[j] = indices[j];
+			RAMSEY_instance->rmatval[j] = coefficients[j];
+		}
+		RAMSEY_instance->status = CPXaddrows(RAMSEY_instance->env_MODEL_3, RAMSEY_instance->lp_MODEL_3,
+				0, 1, RAMSEY_instance->nzcnt, RAMSEY_instance->rhs, RAMSEY_instance->sense,
+				RAMSEY_instance->rmatbeg, RAMSEY_instance->rmatind, RAMSEY_instance->rmatval, NULL, NULL);
+		if (RAMSEY_instance->status != 0)
+		{
+			cout << "error in CPXaddrows for " << name << endl;
+			exit(-1);
+		}
+		added++;
+		free(RAMSEY_instance->rmatbeg);
+		free(RAMSEY_instance->rmatval);
+		free(RAMSEY_instance->rmatind);
+		free(RAMSEY_instance->rhs);
+		free(RAMSEY_instance->sense);
+	}
+	cout << "Added " << added << " cuts from " << name << endl;
+	return added;
+}
+}
+
 /***********************************************************************************/
 void add_cuts_from_file(data *RAMSEY_instance)
 /***********************************************************************************/
 {
-	int cuts_M_added = 0;
-	int cuts_N_added = 0;
-
-	// Add cuts from CUTS_M (blue cliques - <= constraints)
-	if (RAMSEY_instance->CUTS_M.loaded)
-	{
-		cout << "\nAdding cuts from CUTS_M..." << endl;
-
-		for (int i = 0; i < RAMSEY_instance->CUTS_M.num_lines; i++)
-		{
-			int num_vars = RAMSEY_instance->CUTS_M.lines[i].num_elements;
-
-			// Allocate constraint arrays
-			RAMSEY_instance->rcnt = 1;
-			RAMSEY_instance->nzcnt = num_vars;
-			RAMSEY_instance->rhs = (double*) calloc(RAMSEY_instance->rcnt, sizeof(double));
-			RAMSEY_instance->sense = (char*) calloc(RAMSEY_instance->rcnt, sizeof(char));
-			RAMSEY_instance->rmatbeg = (int*) calloc(RAMSEY_instance->rcnt, sizeof(int));
-			RAMSEY_instance->rmatind = (int*) calloc(RAMSEY_instance->nzcnt, sizeof(int));
-			RAMSEY_instance->rmatval = (double*) calloc(RAMSEY_instance->nzcnt, sizeof(double));
-
-			// RHS = sum of all variables - 1
-			RAMSEY_instance->rhs[0] = num_vars - 1;
-			RAMSEY_instance->sense[0] = 'L';  // <= constraint
-			RAMSEY_instance->rmatbeg[0] = 0;
-
-			// Set variables (convert from 1-based in file to 0-based for CPLEX)
-			for (int j = 0; j < num_vars; j++)
-			{
-				int var_index = RAMSEY_instance->CUTS_M.lines[i].values[j] - 1;  // Convert to 0-based
-				RAMSEY_instance->rmatind[j] = var_index;
-
-				// Sanity check: verify index is within valid range
-				if (var_index < 0 || var_index >= RAMSEY_instance->n_variable_MODEL_3)
-				{
-					cout << "ERROR: Invalid variable index " << var_index
-							<< " (from value " << RAMSEY_instance->CUTS_M.lines[i].values[j] << ")"
-							<< " in CUTS_M line " << i
-							<< " (valid range: 0-" << (RAMSEY_instance->n_variable_MODEL_3 - 1) << ")" << endl;
-					exit(-1);
-				}
-
-				RAMSEY_instance->rmatval[j] = 1.0;
-			}
-
-			// Add constraint to CPLEX
-			RAMSEY_instance->status = CPXaddrows(RAMSEY_instance->env_MODEL_3, RAMSEY_instance->lp_MODEL_3,
-					0, RAMSEY_instance->rcnt, RAMSEY_instance->nzcnt,
-					RAMSEY_instance->rhs, RAMSEY_instance->sense,
-					RAMSEY_instance->rmatbeg, RAMSEY_instance->rmatind, RAMSEY_instance->rmatval,
-					NULL, NULL);
-
-			if (RAMSEY_instance->status != 0)
-			{
-				printf("error in CPXaddrows for CUTS_M\n");
-				exit(-1);
-			}
-
-			cuts_M_added++;
-
-			// Free temporary arrays
-			free(RAMSEY_instance->rmatbeg);
-			free(RAMSEY_instance->rmatval);
-			free(RAMSEY_instance->rmatind);
-			free(RAMSEY_instance->rhs);
-			free(RAMSEY_instance->sense);
-		}
-
-		cout << "Added " << cuts_M_added << " cuts from CUTS_M" << endl;
-	}
-
-	// Add cuts from CUTS_N (red cliques - >= constraints)
-	if (RAMSEY_instance->CUTS_N.loaded)
-	{
-		cout << "\nAdding cuts from CUTS_N..." << endl;
-
-		for (int i = 0; i < RAMSEY_instance->CUTS_N.num_lines; i++)
-		{
-			int num_vars = RAMSEY_instance->CUTS_N.lines[i].num_elements;
-
-			// Allocate constraint arrays
-			RAMSEY_instance->rcnt = 1;
-			RAMSEY_instance->nzcnt = num_vars;
-			RAMSEY_instance->rhs = (double*) calloc(RAMSEY_instance->rcnt, sizeof(double));
-			RAMSEY_instance->sense = (char*) calloc(RAMSEY_instance->rcnt, sizeof(char));
-			RAMSEY_instance->rmatbeg = (int*) calloc(RAMSEY_instance->rcnt, sizeof(int));
-			RAMSEY_instance->rmatind = (int*) calloc(RAMSEY_instance->nzcnt, sizeof(int));
-			RAMSEY_instance->rmatval = (double*) calloc(RAMSEY_instance->nzcnt, sizeof(double));
-
-			// RHS = 1
-			RAMSEY_instance->rhs[0] = 1.0;
-			RAMSEY_instance->sense[0] = 'G';  // >= constraint
-			RAMSEY_instance->rmatbeg[0] = 0;
-
-			// Set variables (convert from 1-based in file to 0-based for CPLEX)
-			for (int j = 0; j < num_vars; j++)
-			{
-				int var_index = RAMSEY_instance->CUTS_N.lines[i].values[j] - 1;  // Convert to 0-based
-				RAMSEY_instance->rmatind[j] = var_index;
-
-				// Sanity check: verify index is within valid range
-				if (var_index < 0 || var_index >= RAMSEY_instance->n_variable_MODEL_3)
-				{
-					cout << "ERROR: Invalid variable index " << var_index
-							<< " (from value " << RAMSEY_instance->CUTS_N.lines[i].values[j] << ")"
-							<< " in CUTS_N line " << i
-							<< " (valid range: 0-" << (RAMSEY_instance->n_variable_MODEL_3 - 1) << ")" << endl;
-					exit(-1);
-				}
-
-				RAMSEY_instance->rmatval[j] = 1.0;
-			}
-
-			// Add constraint to CPLEX
-			RAMSEY_instance->status = CPXaddrows(RAMSEY_instance->env_MODEL_3, RAMSEY_instance->lp_MODEL_3,
-					0, RAMSEY_instance->rcnt, RAMSEY_instance->nzcnt,
-					RAMSEY_instance->rhs, RAMSEY_instance->sense,
-					RAMSEY_instance->rmatbeg, RAMSEY_instance->rmatind, RAMSEY_instance->rmatval,
-					NULL, NULL);
-
-			if (RAMSEY_instance->status != 0)
-			{
-				printf("error in CPXaddrows for CUTS_N\n");
-				exit(-1);
-			}
-
-			cuts_N_added++;
-
-			// Free temporary arrays
-			free(RAMSEY_instance->rmatbeg);
-			free(RAMSEY_instance->rmatval);
-			free(RAMSEY_instance->rmatind);
-			free(RAMSEY_instance->rhs);
-			free(RAMSEY_instance->sense);
-		}
-
-		cout << "Added " << cuts_N_added << " cuts from CUTS_N" << endl;
-	}
-
+	const int cuts_M_added = add_loaded_cut_pool(RAMSEY_instance, &RAMSEY_instance->CUTS_M, true, "CUTS_M");
+	const int cuts_N_added = add_loaded_cut_pool(RAMSEY_instance, &RAMSEY_instance->CUTS_N, false, "CUTS_N");
 	if (cuts_M_added > 0 || cuts_N_added > 0)
 	{
 		cout << "\nTotal cuts added from files: " << (cuts_M_added + cuts_N_added) << endl;
@@ -1809,6 +2259,7 @@ void RAMSEY_MODEL_3_load(data *RAMSEY_instance)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Add cuts from files (if loaded)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	initialize_cut_recording(RAMSEY_instance);
 	add_cuts_from_file(RAMSEY_instance);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
