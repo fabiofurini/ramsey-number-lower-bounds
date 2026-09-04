@@ -40,7 +40,11 @@ The large-scale computational campaign reported in the paper used CPLEX 22.1.0.0
 ramsey-number-lower-bounds/
 ├── checker/                    # independent (m,n)-coloring checker
 ├── code/
-│   └── solver/                 # executable package for the paper's models
+│   ├── solver/                 # executable package for the paper's models
+│   ├── source/                 # solver source, for inspection
+│   └── NEW-OPTIONS.md          # optional search additions, off by default
+├── circulant-engine/
+│   └── source/                 # standalone exhaustive search over distance orbits
 ├── lower-bounds/
 │   ├── certificates/           # graph certificates
 │   ├── matrices/               # coloured PNG distance matrices
