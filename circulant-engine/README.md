@@ -37,6 +37,51 @@ edge of the new orbit, and by rotation and reflection we may assume it uses `{0,
 each assignment it is necessary and sufficient to ask whether that small induced graph contains a
 `K_(k-2)`. The search assigns distances in order and backtracks whenever the answer is yes.
 
+## How it is implemented
+
+The search itself is a plain depth-first assignment of the distances in increasing order: give the
+next distance a colour, apply the anchored test, and backtrack as soon as the test finds a forbidden
+clique. When the two targets are equal the first distance is fixed to one colour, since exchanging
+the colours maps a colouring to a colouring (`--no-colour-symmetry` disables this reduction).
+
+Everything expensive happens inside the anchored test, so that is where the implementation effort
+went:
+
+- **Sets are sized at run time.** A colour class is a bitset of `ceil(t/64)` 64-bit words, allocated
+  for the order actually requested. Neighbourhoods, rotations, intersections and population counts
+  work word by word over that length.
+- **A compact kernel for small orders.** When the graph fits a small fixed number of machine words
+  the same interface dispatches to a scalar implementation that keeps a colour class in registers and
+  passes candidate sets by value, so a clique query performs no allocation at all. Above that size
+  the multiword representation takes over automatically; the choice is made from the order, not from a
+  compile-time switch.
+- **Only the requested bookkeeping.** Clique witnesses are built only when tracing is on, and an
+  unbudgeted run uses a separate recursion without work-counter checks, so the counters used to tune
+  the hybrid policy cost nothing when they are not asked for.
+- **Native code generation.** The Makefile compiles with `-O3 -march=native` and hardware population
+  count instructions, so the binary should be rebuilt on the machine that runs it rather than copied
+  between different processors.
+
+### No limit on the graph order
+
+This is the practical difference from the reference implementation. `genCyc` stores a colour class in
+one or two machine words: its set layer provides 64-bit and 128-bit variants, and the scan loop stops
+at that width, so it cannot be run above order 128. Here the number of words is computed from `t`,
+which removes the ceiling entirely: the same executable decides order 60 and order 400, the only cost
+being one extra word per 64 additional vertices.
+
+Above-128 behaviour is exercised deliberately: the automated tests cover the word-boundary orders
+127, 128, 129 and 130 and run the bitsets past 500 bits, stored colourings at orders 160, 196 and 361
+are re-verified through `--replay-matrix`, and the exact-oracle adapter is checked on induced graphs
+with 200 candidate vertices, where it must both find a triangle and certify that a triangle-free
+graph has none. Incidentally, the `128` appearing in the imported clique type is a bound on the
+conflicts allocated for its internal bound computation, not a limit on the number of vertices.
+
+On the orders where both programs can run, the two searches agree exactly: at the empty `(6,6)`
+instances of orders 69 and 72 this engine visits the same nodes and the same colour branches as
+`genCyc`, and its running time is within a few per cent of it — which is the useful statement,
+because it means the comparison of the two is a comparison of implementations, not of search trees.
+
 ## How the residual query is answered
 
 That question is the only expensive part, and the engine offers three policies:
