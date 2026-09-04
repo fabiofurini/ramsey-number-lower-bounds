@@ -19,7 +19,7 @@ This repository provides the computational material needed to rerun the mathemat
 | [`code/`](code/README.md) | The executable package for rerunning the paper's models to search for new lower bounds or compute circulant Ramsey numbers, with complete instructions and input/output documentation. |
 | [`checker/`](checker/README.md) | The independent checker for deciding whether a graph certificate is an (m,n)-coloring. |
 | [`lower-bounds/`](lower-bounds/README.md) | Graph certificates and browser-renderable coloured circular-distance matrices. |
-| [`circulant-engine/`](circulant-engine/README.md) | A standalone exhaustive search over circular-distance orbits, without an LP: an independent reimplementation of the algorithm of Goedgebeur and Van Overberghe, credited there, used as a second engine and as a cross-check of the branch-and-cut. |
+| [`circulant-engine/`](circulant-engine/README.md) | An independent reimplementation of **genCyc**, the circulant generator of Goedgebeur and Van Overberghe (credited there): a standalone exhaustive search over circular-distance orbits, without an LP, generic in the graph order, used as a second engine and as a cross-check of the branch-and-cut. |
 
 ## Start here
 
@@ -45,7 +45,7 @@ ramsey-number-lower-bounds/
 │   ├── source/                 # solver source, for inspection
 │   └── NEW-OPTIONS.md          # optional search additions, off by default
 ├── circulant-engine/
-│   └── source/                 # standalone exhaustive search over distance orbits
+│   └── source/                 # genCyc reimplementation: exhaustive search over distance orbits
 ├── lower-bounds/
 │   ├── certificates/           # graph certificates
 │   ├── matrices/               # coloured PNG distance matrices
