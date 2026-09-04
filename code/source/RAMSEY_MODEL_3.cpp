@@ -61,6 +61,10 @@ static int pp_kclique_wit(ppset_t cand, ppset_t N0, int depth, int n, int *wit)
 
 // Complete K_k detector for a FULLY coloured colour class (fixedD = all its distances):
 // fills verts[0..k-1] with the vertices of a monochromatic K_k if one exists.
+// Upper bound on the vertices of a clique this propagator can be asked for:
+// the whole feature is gated to graph orders <= 127.
+#define PP_MAX_CLIQUE 128
+
 static int pp_colour_find_kk(ppset_t fixedD, int k, int n, int *verts)
 {
 	if(fixedD==0){ return 0; }
@@ -70,7 +74,7 @@ static int pp_colour_find_kk(ppset_t fixedD, int k, int n, int *verts)
 	while(dd)
 	{
 		int d=pp_ctz(dd); dd^=pp_bit(d);
-		int wit[16];
+		int wit[PP_MAX_CLIQUE];
 		if(pp_kclique_wit(N0 & pp_rotate(N0,d,n), N0, k-2, n, wit))
 		{
 			verts[0]=0; verts[1]=d;
@@ -498,7 +502,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 			{
 				if(RAMSEY_instance->X_CALLBACK[i]>0.5){ fixedD|=pp_bit(i+1); }
 			}
-			int pp_verts[16];
+			int pp_verts[PP_MAX_CLIQUE];
 			for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++){ RAMSEY_instance->CLIQUE_SOL[i]=0; }
 			if(pp_colour_find_kk(fixedD,RAMSEY_instance->PARAM_M,RAMSEY_instance->PARAM_SIZE_GRAPH,pp_verts))
 			{
@@ -881,7 +885,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_3(CPXCENVptr env,void *cbdata,int wherefr
 			{
 				if(RAMSEY_instance->X_CALLBACK[i]<0.5){ fixedD|=pp_bit(i+1); }
 			}
-			int pp_verts[16];
+			int pp_verts[PP_MAX_CLIQUE];
 			for(int i=0;i<RAMSEY_instance->PARAM_SIZE_GRAPH;i++){ RAMSEY_instance->CLIQUE_SOL[i]=0; }
 			if(pp_colour_find_kk(fixedD,RAMSEY_instance->PARAM_N,RAMSEY_instance->PARAM_SIZE_GRAPH,pp_verts))
 			{
