@@ -121,7 +121,7 @@ input 4 from `3` to `5`. The command line is the same 33 inputs, documented in
 | 16 | Cover cuts. `1` uses the support form of the two families, `0` the multiplicity form, in which a distance occurring several times inside `S` carries its multiplicity. The support form is the stronger of the two. |
 | 18, 19 | Triangle and quadrangle constraints. Enumerated with 0 as the smallest vertex of the inducing set, which is legitimate by the translation argument above. No distance is folded, so the sums `s+u` and `s+u+v` appear directly rather than through a modular reduction. |
 | 20 | The post-solve check. Recommended: it verifies the coloring found, and it does not assume anything about the class. |
-| 31 | Cut files. `0` off, `1` loads a pool for this instance, `-100` records one. Pools of this model carry an `_od` token in their file name so that they can never be mixed with circulant pools, whose coefficients mean something different. Because cuts are hereditary here, a recorded pool can be reused at a larger order by renaming the file to that order. |
+| 31 | Cut files. `0` off, `1` loads a pool for this instance, `-100` records one. Pools of this model carry a `_dist` token in their file name so that they can never be mixed with circulant pools, whose coefficients mean something different. Because cuts are hereditary here, a recorded pool can be reused at a larger order by renaming the file to that order. |
 | 32 | Cut minimization, with the values documented in [Optional search additions](NEW-OPTIONS.md). The strided variants `4` and `5` were tuned on circular distances; they remain valid here, but their rationale does not carry over. |
 
 Every other input keeps its documented meaning.
@@ -136,7 +136,7 @@ A (3,3)-coloring on 5 vertices, 60-second limit, post-solve check on:
 
 ### Output
 
-The coloring is written to `colorings/col_m<m>_n<n>_SIZE<t>_od_br<b>_id<id>.txt`. Its `JUMPS` line
+The coloring is written to `colorings/col_m<m>_n<n>_SIZE<t>_dist_br<b>_id<id>.txt`. Its `JUMPS` line
 lists the **blue linear distances**, one-based; the `MATRIX` block is the full adjacency matrix, and
 is Toeplitz rather than circulant. Everything else in [Reading the output](OUTPUT.md) is unchanged.
 

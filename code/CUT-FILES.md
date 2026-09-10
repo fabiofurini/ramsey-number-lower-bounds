@@ -80,11 +80,11 @@ directory:
 CUTS/t<t>_m<m>_n<n>_id<id>_blue.txt          input 4 = 3
 CUTS/t<t>_m<m>_n<n>_id<id>_red.txt
 
-CUTS/t<t>_m<m>_n<n>_id<id>_od_blue.txt       input 4 = 5
-CUTS/t<t>_m<m>_n<n>_id<id>_od_red.txt
+CUTS/t<t>_m<m>_n<n>_id<id>_dist_blue.txt     input 4 = 5
+CUTS/t<t>_m<m>_n<n>_id<id>_dist_red.txt
 ```
 
-The `_od` token exists so that a pool of the linear-distance model can never be loaded as a
+The `_dist` token exists so that a pool of the linear-distance model can never be loaded as a
 circulant pool, or the other way round: the file names simply do not collide. Note that `<id>` is
 input 33, so a loading run must use the same run identifier as the run that recorded the pool, or
 rename the file.
@@ -110,7 +110,7 @@ Only with input 4 = `5`. Record at order `t`, then rename both files to the targ
 ```bash
 ./RAMSEY 16 3 6 5 1 0 300 1 0 1 300 10 200000 0 1 1 -1 0 1 1 0 0 0 0 1 0 0 1 0 1 -100 1 4242
 for c in blue red; do
-  cp CUTS/t16_m3_n6_id4242_od_$c.txt CUTS/t17_m3_n6_id4242_od_$c.txt
+  cp CUTS/t16_m3_n6_id4242_dist_$c.txt CUTS/t17_m3_n6_id4242_dist_$c.txt
 done
 ./RAMSEY 17 3 6 5 1 0 300 1 0 1 300 10 200000 0 1 1 -1 0 1 1 0 0 0 0 1 0 0 1 0 1 1 1 4242
 ```

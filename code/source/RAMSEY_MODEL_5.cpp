@@ -1986,7 +1986,7 @@ double RAMSEY_MODEL_5_solve(data *RAMSEY_instance)
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		char dummy_file[10000];
-		sprintf(dummy_file,"colorings/col_m%d_n%d_SIZE%d_od_br%d_id%d.txt",RAMSEY_instance->PARAM_M,RAMSEY_instance->PARAM_N,RAMSEY_instance->PARAM_SIZE_GRAPH, RAMSEY_instance->BRANCHING_STRATEGY, RAMSEY_instance->ID_TEST);
+		sprintf(dummy_file,"colorings/col_m%d_n%d_SIZE%d_dist_br%d_id%d.txt",RAMSEY_instance->PARAM_M,RAMSEY_instance->PARAM_N,RAMSEY_instance->PARAM_SIZE_GRAPH, RAMSEY_instance->BRANCHING_STRATEGY, RAMSEY_instance->ID_TEST);
 
 		cout << dummy_file << endl;
 

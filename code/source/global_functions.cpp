@@ -449,9 +449,9 @@ string cut_file_name(data *RAMSEY_instance, bool blue)
 /***********************************************************************************/
 {
 	// MODEL 5 pools are keyed on LINEAR distances and must never be mixed with the circulant
-	// pools of MODEL 3, so their names carry an _od token.  Any other value of PARAM_ALGO builds
+	// pools of MODEL 3, so their names carry a _dist token.  Any other value of PARAM_ALGO builds
 	// exactly the historic name, so old pools keep loading.
-	const char *tag = (RAMSEY_instance->PARAM_ALGO == 5) ? "_od" : "";
+	const char *tag = (RAMSEY_instance->PARAM_ALGO == 5) ? "_dist" : "";
 
 	stringstream filename_stream;
 	filename_stream << "CUTS/t" << RAMSEY_instance->PARAM_SIZE_GRAPH
