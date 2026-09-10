@@ -15,29 +15,148 @@ its command line.
 
 ## Part 1 — How the method works
 
+### The state and the constraint pool
+
 The search works directly on the circulant distance vector: one binary entry per circular distance
-`1, ..., floor(t/2)`, blue or red. A move flips one distance. The objective is not a linear
-relaxation but a weighted count of **violated supports**, where a support is a set of distances that
-must not all be blue, or must not all be red — the same clique-avoidance conditions the
-branch-and-cut separates, held in a pool rather than in an LP. Flips are evaluated incrementally, so
-one iteration costs a scan of the supports touching the flipped distance.
+`1, ..., floor(t/2)`, blue or red. A move flips one entry, so the neighbourhood of the current point
+has exactly `floor(t/2)` candidates.
 
-Three mechanisms drive it:
+There is no linear relaxation. What the search keeps instead is a **pool of supports**. A support is
+a colour together with a set of distances, and it records a condition the coloring must not meet:
+a blue support with distance set `S` is *violated* when every distance of `S` is blue, a red support
+when every distance of `S` is red. These are the same clique-avoidance conditions the branch-and-cut
+separates, held in a list rather than in an LP. Supports are deduplicated on insertion, so the same
+colour and distance set is never held twice.
 
-- a **tabu tenure**, drawn from a range, forbidding a distance from being flipped back immediately;
-- a **stagnation counter**, which perturbs several distances at once when the best score has not
-  improved for a while;
-- optional **adaptive weights**, which raise the penalty on supports that keep being violated, so
-  the search stops circling the same obstruction.
+### How a move is evaluated
 
-The support pool is not fixed. It starts from all triangle supports and grows: every so often the
-search calls the branch-and-cut's own red separator on the current distance vector, and any red
-clique it finds becomes a new support. The heuristic and the exact method therefore share one
-separation routine.
+Each support carries a counter `q`: the number of its distances that currently have the colour which
+*saves* it. For a blue support, `q` counts how many of its distances are red. So:
 
-When the score reaches zero the search does not trust it. It runs an exact verification, searching
-for a blue clique of size `m` and a red clique of size `n` with the same clique solver the models
-use, and only if both searches come up empty does it write a certificate.
+- `q = 0` means the support is fully violated: every distance has the forbidden colour;
+- `q = 1` means one distance away from being violated;
+- `q >= 2` means comfortably satisfied.
+
+Each support contributes a penalty that depends only on its own `q` and its own weight:
+
+```
+penalty(q) = weight           if q = 0
+             weight * beta    if q = 1
+             0                if q >= 2
+```
+
+The coefficient `beta` for near violations exists in the code but is not reachable from the command
+line, where it stays `0`. In this build, therefore, the score is exactly the **sum of the weights of
+the fully violated supports**, and a score of zero means no support in the pool is violated.
+
+The score is **maintained, not recomputed**. Two structures make that possible: every support stores
+its current `q`, and every distance stores the list of supports that contain it. Flipping distance
+`d` can only change the counters of the supports in `d`'s list, and each of those changes by exactly
+one, up or down depending on the flip direction and the support's colour. So the score after the flip
+is the current score plus the sum, over that list alone, of `penalty(q +/- 1) - penalty(q)`.
+
+The consequence is what makes the search practical: evaluating a candidate move costs work
+proportional to **how many supports contain that one distance**, not to the size of the pool. The
+pool may hold thousands of supports and a flip still touches only a slice of it. Applying the chosen
+move repeats the same arithmetic and commits the counters, so evaluation and application share one
+code path and cannot drift apart.
+
+#### A worked example
+
+Take `t = 13`, so the distances are `1, ..., 6`, and take `m = 3`, so no three vertices may be all
+blue. The vertices `{0, 1, 3}` have circular distances `1`, `2` and `3`, and they form a triangle,
+so the pool contains the blue support `{1, 2, 3}`: those three distances must not all be blue.
+
+Suppose the current vector has `1` and `2` blue and `3` red. Then for that support `q = 1`, because
+exactly one of its distances, namely `3`, has the colour that saves it. Its penalty is `0`, and it
+contributes nothing to the score.
+
+Now consider flipping distance `3` to blue. Distance `3` belongs to several supports, and only those
+are inspected; for our support the counter would go from `q = 1` to `q = 0`, its penalty from `0` to
+its weight, so the candidate score is the current score plus that weight. If instead we consider
+flipping distance `5`, which does not appear in this support at all, the support is not even looked
+at: its counter cannot change.
+
+That is the whole evaluation. The search does this for each of the six distances, picks the smallest
+resulting score among the admissible ones, and flips.
+
+### How a move is chosen
+
+At each iteration every one of the `floor(t/2)` flips is evaluated as above, and the best is taken.
+Two rules qualify that:
+
+- **tabu.** A distance whose tenure has not expired is skipped, so the search cannot immediately
+  undo what it just did. The exception is *aspiration*: a tabu distance is considered anyway if its
+  candidate score is strictly better than the best score seen so far in the run.
+- **last resort.** This distance space is small, so it can happen that every distance is tabu at
+  once. In that case the tabu condition is dropped for that iteration and the best move is taken
+  regardless, rather than leaving the search with nothing to do.
+
+Ties on the best candidate score are broken uniformly at random, which is where the seed enters.
+
+### One iteration, in order
+
+Written out, the loop is short. `t/2` below is the number of distances.
+
+```text
+before the loop:  call the separator once, so the pool is not empty
+                  remember the current vector as the best so far
+
+repeat until the time limit or the iteration limit:
+
+    if the score is zero:
+        call the separator; if it returned a new support, start the next iteration
+        otherwise run the exact verification:
+            feasible -> write the certificate and stop, this is the only way to succeed
+            not feasible -> the verifier hands back the clique it found;
+                            add it as a support and continue
+                            (a zero score with nothing new to add would be a bug,
+                             and the code refuses to continue in that case)
+
+    every <sep_period> iterations: call the separator and fold in what it finds
+
+    evaluate all t/2 flips incrementally
+    pick the best admissible one, breaking ties at random
+    flip it, and make that distance tabu for a random tenure in [tenure_min, tenure_max]
+
+    if the score improved on the best so far:
+        remember this vector, and call the separator on it
+
+    every <weight_period> iterations: raise the weight of every violated support
+    if <stagnation> iterations passed with no improvement: perturb
+```
+
+Two points are worth reading off that order. The separator is called at four different moments —
+once at the start, periodically, on every improvement, and whenever the score hits zero — so the
+pool is enriched exactly when the search is doing well or claims to be done, not at random. And the
+exact verification is the **only** authority that can declare success: reaching score zero merely
+triggers it.
+
+### Getting unstuck
+
+Two further mechanisms act on the search rather than on a single move.
+
+**Perturbation.** When the best score has not improved for the configured number of iterations, a
+random subset of distances of the configured size is flipped at once, through the same incremental
+machinery.
+
+**Adaptive weights.** When enabled, every so often the weight of each *fully violated* support is
+increased by the configured amount. An obstruction that survives many iterations therefore becomes
+progressively more expensive, and the search is pushed away from the region that keeps producing it,
+instead of circling it. Supports that are currently satisfied are left untouched.
+
+### Growing the pool, and the final check
+
+The pool is not fixed. It starts from all triangle supports and grows: every so often the search
+calls the branch-and-cut's own red separator on the current distance vector, and any red clique it
+finds becomes a new support, whose `q` and penalty are folded into the score on insertion. The
+heuristic and the exact method therefore share one separation routine.
+
+This is also why a score of zero is not yet an answer. It means only that nothing *in the pool* is
+violated, and the pool is whatever separation has produced so far. So when the score reaches zero
+the search runs an exact verification, searching for a blue clique of size `m` and a red clique of
+size `n` with the same clique solver the models use, and only if both searches come up empty does it
+write a certificate.
 
 ### Restrictions
 
