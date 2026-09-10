@@ -43,7 +43,9 @@ ramsey-number-lower-bounds/
 ├── code/
 │   ├── solver/                 # executable package for the paper's models
 │   ├── source/                 # solver source, for inspection
-│   └── NEW-OPTIONS.md          # optional search additions, off by default
+│   ├── NEW-OPTIONS.md          # optional search additions, off by default
+│   ├── DISTANCE-MODEL.md       # input 4 = 5: linear-distance model, added after the paper
+│   └── TABU-SEARCH.md          # input 4 = 6: tabu search, added after the paper
 ├── circulant-engine/
 │   └── source/                 # genCyc reimplementation: exhaustive search over distance orbits
 ├── lower-bounds/

@@ -18,8 +18,8 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 1 | Sets the number of vertices `t`; use a positive integer. |
 | 2 | Sets the forbidden blue clique size `m`; use a positive integer. |
 | 3 | Sets the forbidden red clique size `n`; use a positive integer. |
-| 4 | Selects the formulation from the paper: `1` for the edge model; `3` for the distance model. |
-| 5 | Selects the optional search additions of the distance model: `0` or `1` for the published behaviour; `2` enables the partial-colouring propagator; `3` enables it together with the integral pre-check. See [Optional search additions](NEW-OPTIONS.md). |
+| 4 | Selects what to run: `1` for the paper's edge model; `3` for the paper's distance model; `5` for the linear-distance model, see [The linear-distance model](DISTANCE-MODEL.md); `6` for the tabu search, see [The tabu search](TABU-SEARCH.md). Value `6` is recognised only on the shorter command line that page describes, because the heuristic does not use the branch-and-cut inputs. |
+| 5 | Selects the optional search additions of the distance models, that is inputs 4 = `3` and 4 = `5`: `0` or `1` for the published behaviour; `2` enables the partial-colouring propagator; `3` enables it together with the integral pre-check. See [Optional search additions](NEW-OPTIONS.md), and [The linear-distance model](DISTANCE-MODEL.md) for how the same two settings work there. |
 | 6 | Controls the circulant restriction: `1` enables it; `0` disables it. When input 4 is `3`, use `1`. |
 | 7 | Sets the total time limit in seconds; use a positive integer. |
 | 8 | Controls stronger cuts: `1` enables them; `0` disables them. |
@@ -68,6 +68,11 @@ For the value and the meaning of every input, see
 [Default RAMSEY parameters](DEFAULT-PARAMETERS.md). Inputs 5 and 32 also accept values that switch on
 search additions introduced after the paper; they are off in the default configuration and are
 described in [Optional search additions](NEW-OPTIONS.md).
+
+Input 4 likewise accepts two values that were added after the paper, each documented on its own
+page: `5` selects [the linear-distance model](DISTANCE-MODEL.md), a formulation over a larger class
+than the circulant one, and `6` selects [the tabu search](TABU-SEARCH.md), a heuristic with its own
+shorter command line. Neither is used by the default configuration above.
 
 ## Example
 

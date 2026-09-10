@@ -71,7 +71,7 @@ public:
 	int   PARAM_SIZE_GRAPH;
 	int   PARAM_M;
 	int   PARAM_N;
-	int   PARAM_ALGO;//1 for the feasibility model and 2 the generalized mode algo 3 quaglie
+	int   PARAM_ALGO;//1 for the feasibility model and 2 the generalized mode algo 3 quaglie; 5 = as 3 but LINEAR distances (Toeplitz) instead of circulant. The tabu search is 6 and lives only on the short 18-argument command line, because it is a heuristic and not a formulation.
 	int   PARAM_OPTIONS;//with ALGO 2, set it to 1 to impose theta <= m -1
 	int   PARAM_CIRCULANT;//1 to impose circulant constraints
 	double  PARAM_TIME_LIMIT;
@@ -120,8 +120,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////CPLEX/////////////////////////////////////
-	CPXENVptr env_clique,env_MODEL_1,env_MODEL_2,env_MODEL_3,env_MODEL_4;
-	CPXLPptr lp_clique,lp_MODEL_1,lp_MODEL_2,lp_MODEL_3,lp_MODEL_4;
+	CPXENVptr env_clique,env_MODEL_1,env_MODEL_2,env_MODEL_3,env_MODEL_4,env_MODEL_5;
+	CPXLPptr lp_clique,lp_MODEL_1,lp_MODEL_2,lp_MODEL_3,lp_MODEL_4,lp_MODEL_5;
 	int status,ccnt,rcnt,nzcnt,lpstat,nodecount,numrows,numcols;
 	int* rmatbeg,*rmatind,*cmatbeg, *cmatind;
 	double *rmatval,*cmatval,*rngval,*obj, *lb, *ub,*rhs,coef,objval,bestobjval;
@@ -184,11 +184,15 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 	int n_variable_MODEL_4;
 	double *X_MODEL_4;
+
+	// MODEL 5 (linear distances / Toeplitz, PARAM_ALGO = 5 on the 34-argument line): one variable per LINEAR distance
+	// d = 1..t-1, so n_variable_MODEL_5 = PARAM_SIZE_GRAPH - 1.
+	int n_variable_MODEL_5;
+	double *X_MODEL_5;
 	////////////////////////////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////////////////////////
-	int n_variable_MODEL_5;
-	double *X_MODEL_5;
+	// (there was a pair of unused MODEL_5 fields here; the tabu search never touched them)
 	////////////////////////////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -516,6 +520,12 @@ public:
 	long long pp_depth_sum;          // sum over prunes of the CPLEX node depth
 	int       pp_max_fixed_at_prune; // max #fixed distance variables seen at a prune
 	double    time_propagator;       // total seconds spent inside the propagator callback
+	// MODEL 5 only: the two colour masks the propagator fills at every node, as dynamic word
+	// arrays of (PARAM_SIZE_GRAPH+63)/64 words.  Allocated once from the graph order, so the
+	// propagator has NO limit on the order and no per-node allocation.
+	unsigned long long *pp_maskB;
+	unsigned long long *pp_maskR;
+
 	double   *pp_lb;                 // scratch: node local lower bounds (n_variable_MODEL_3)
 	double   *pp_ub;                 // scratch: node local upper bounds
 	// PARAM_OPTIONS==3 adds a complete bitset pre-check on integral candidates in the lazy

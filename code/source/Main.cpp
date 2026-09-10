@@ -16,6 +16,8 @@ using namespace std;
 #include "RAMSEY_MODEL_2.h"
 #include "RAMSEY_MODEL_3.h"
 #include "RAMSEY_MODEL_4.h"
+#include "RAMSEY_TABU_SEARCH.h"
+#include "RAMSEY_MODEL_5.h"
 
 
 /***********************************************************************************/
@@ -25,6 +27,50 @@ int main(int argc, char** argv)
 
 	data RAMSEY_instance;
 
+	// The tabu search (input 4 = 6) is a heuristic, not a formulation: it has its own compact
+	// parameter list and bypasses all branch-and-cut setup.
+	// RAMSEY t m n 6 time seed max_iter tenure_min tenure_max stagnation perturb
+	//        separation_period heur_restarts heur_iterations weight_period weight_increment id_test
+	// Selector 5 is still accepted here, with a notice: that was the tabu search's value before
+	// the linear-distance formulation took the slot, and the archived tabu campaign scripts use it.
+	if (argc == 18 && (atoi(argv[4]) == 6 || atoi(argv[4]) == 5))
+	{
+		if (atoi(argv[4]) == 5)
+		{
+			cout << "\nNOTE: on this short command line the tabu search is now input 4 = 6;"
+			     << " 5 is still accepted and is what you got.\n";
+		}
+		RAMSEY_instance.PARAM_SIZE_GRAPH = atoi(argv[1]);
+		RAMSEY_instance.PARAM_M = atoi(argv[2]);
+		RAMSEY_instance.PARAM_N = atoi(argv[3]);
+		RAMSEY_instance.PARAM_ALGO = 6;
+		RAMSEY_instance.PARAM_CIRCULANT = 1;
+		RAMSEY_instance.PARAM_TIME_LIMIT = atof(argv[5]);
+		RAMSEY_instance.RANDOM_SEED = atoi(argv[6]);
+		RAMSEY_instance.ID_TEST = atoi(argv[17]);
+
+		ramsey_tabu::TabuConfig tabu_config;
+		tabu_config.order = RAMSEY_instance.PARAM_SIZE_GRAPH;
+		tabu_config.blue_target = RAMSEY_instance.PARAM_M;
+		tabu_config.red_target = RAMSEY_instance.PARAM_N;
+		tabu_config.time_limit_seconds = RAMSEY_instance.PARAM_TIME_LIMIT;
+		tabu_config.seed = static_cast<unsigned int>(RAMSEY_instance.RANDOM_SEED);
+		tabu_config.max_iterations = atoll(argv[7]);
+		tabu_config.tabu_tenure_min = atoi(argv[8]);
+		tabu_config.tabu_tenure_max = atoi(argv[9]);
+		tabu_config.stagnation_limit = atoll(argv[10]);
+		tabu_config.perturbation_size = atoi(argv[11]);
+		tabu_config.separation_period = atoll(argv[12]);
+		RAMSEY_instance.PARAM_NUM_RESTARTS_MNTS = atoi(argv[13]);
+		RAMSEY_instance.PARAM_NUM_ITERATIONS_MNTS = atoi(argv[14]);
+		tabu_config.adaptive_weight_period = atoll(argv[15]);
+		tabu_config.adaptive_weight_increment = atof(argv[16]);
+
+		cout << "\n****RAMSEY TABU SEARCH ALGORITHM 6****\n";
+		RAMSEY_TABU_SEARCH_solve(&RAMSEY_instance, tabu_config);
+		cout << "\nDONE!\n\n";
+		return 0;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +112,18 @@ int main(int argc, char** argv)
 		RAMSEY_instance.LOAD_CUTS_FROM_FILE = atoi(argv[31]);
 		RAMSEY_instance.MINIMIZE_CUTS = atoi(argv[32]);
 		RAMSEY_instance.ID_TEST = atoi(argv[33]);
+
+		// Selector numbering: on this 34-argument line the formulations are 1, 2, 3, 4 and 5,
+		// with 5 the linear-distance (Toeplitz) model.  The tabu search is 6, and it only exists
+		// on the short 18-argument line, because it is a heuristic and not a formulation.
+		// During development the linear-distance model was 6; that value is refused here rather
+		// than reinterpreted, so no old command line can quietly run something else.
+		if (RAMSEY_instance.PARAM_ALGO == 6)
+		{
+			cout << "\n**WRONG INPUT** input 4 = 6 now selects the tabu search, which takes the"
+			     << " short 18-argument command line. The linear-distance model is input 4 = 5.\n";
+			exit(-1);
+		}
 
 		srand(RAMSEY_instance.RANDOM_SEED);
 
@@ -158,12 +216,12 @@ int main(int argc, char** argv)
 	}
 	else if (RAMSEY_instance.LOAD_CUTS_FROM_FILE == -100)
 	{
-		if (RAMSEY_instance.PARAM_ALGO != 3)
+		if (RAMSEY_instance.PARAM_ALGO != 3 && RAMSEY_instance.PARAM_ALGO != 5)
 		{
-			cout << "LOAD_CUTS_FROM_FILE = -100 is supported only by MODEL 3\n";
+			cout << "LOAD_CUTS_FROM_FILE = -100 is supported only by MODEL 3 and MODEL 5\n";
 			exit(-1);
 		}
-		cout << "\nRecording newly generated MODEL 3 no-clique cuts to CUTS/\n";
+		cout << "\nRecording newly generated no-clique cuts of MODEL " << RAMSEY_instance.PARAM_ALGO << " to CUTS/\n";
 	}
 	else
 	{
@@ -231,6 +289,28 @@ int main(int argc, char** argv)
 		RAMSEY_MODEL_4_solve(&RAMSEY_instance);
 
 		RAMSEY_MODEL_4_free(&RAMSEY_instance);
+	}
+
+	if(RAMSEY_instance.PARAM_ALGO==5)
+	{
+		//DISTANCE (Toeplitz), NOT circulant: the colour of {i,j} depends on |i-j|.
+		//The class is hereditary in the order, so a single infeasible order is a threshold.
+
+		cout << "\n\n****RAMSEY BRANCH-AND-CUT ALGORITHM 5 (distance / Toeplitz)****\n";
+
+		if(RAMSEY_instance.PARAM_CIRCULANT!=0)
+		{
+			cout << "NOTE: input 6 (PARAM_CIRCULANT) is meaningless for MODEL 5 and is forced to 0\n";
+		}
+		// Forced, not merely ignored: PARAM_CIRCULANT==1 makes the CPLEX-based separator fix
+		// vertex 0 into the clique, a reduction that belongs to vertex-transitive graphs.
+		RAMSEY_instance.PARAM_CIRCULANT=0;
+
+		RAMSEY_MODEL_5_load(&RAMSEY_instance);
+
+		RAMSEY_MODEL_5_solve(&RAMSEY_instance);
+
+		RAMSEY_MODEL_5_free(&RAMSEY_instance);
 	}
 
 	/////////////////////////////////////

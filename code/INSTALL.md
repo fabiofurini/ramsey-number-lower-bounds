@@ -65,5 +65,7 @@ chmod +x ramsey_link_with_cplex_glibc228.sh
 This links `RAMSEY.dynamic.glibc228.o` instead of `RAMSEY.dynamic.o`; everything else (requirements, checks, usage) is identical.
 
 Note that this alternative object is still the earlier build: it reproduces the paper's default
-configuration exactly, but it does not contain the optional search additions described in
-[Optional search additions](NEW-OPTIONS.md). Use the default object if you need those.
+configuration exactly, but it does not contain anything added after the paper — neither the optional
+search additions of [Optional search additions](NEW-OPTIONS.md), nor
+[the linear-distance model](DISTANCE-MODEL.md) of input 4 = `5`, nor
+[the tabu search](TABU-SEARCH.md) of input 4 = `6`. Use the default object if you need any of them.

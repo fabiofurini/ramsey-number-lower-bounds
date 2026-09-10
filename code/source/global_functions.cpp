@@ -448,11 +448,17 @@ int randNum(int min,  int max)
 string cut_file_name(data *RAMSEY_instance, bool blue)
 /***********************************************************************************/
 {
+	// MODEL 5 pools are keyed on LINEAR distances and must never be mixed with the circulant
+	// pools of MODEL 3, so their names carry an _od token.  Any other value of PARAM_ALGO builds
+	// exactly the historic name, so old pools keep loading.
+	const char *tag = (RAMSEY_instance->PARAM_ALGO == 5) ? "_od" : "";
+
 	stringstream filename_stream;
 	filename_stream << "CUTS/t" << RAMSEY_instance->PARAM_SIZE_GRAPH
 				<< "_m" << RAMSEY_instance->PARAM_M
 				<< "_n" << RAMSEY_instance->PARAM_N
 				<< "_id" << RAMSEY_instance->ID_TEST
+				<< tag
 				<< (blue ? "_blue.txt" : "_red.txt");
 	return filename_stream.str();
 }
