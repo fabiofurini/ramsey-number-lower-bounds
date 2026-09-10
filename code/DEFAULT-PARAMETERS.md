@@ -45,7 +45,7 @@ Run the solver from `code/solver/`:
 | 28 | `1` | Use seed 1. |
 | 29 | `0` | Use CPLEX's default variable-selection rule. |
 | 30 | `1` | Run each solver process with one CPLEX thread. |
-| 31 | `0` | No cut-file input or output. |
+| 31 | `0` | No cut-file input or output. Two further values were added after the paper and are not part of this default: `1` loads a recorded cut pool into the formulation and `-100` records one while solving, both for the distance models only. See [Recording and reusing cut pools](CUT-FILES.md). |
 | 32 | `1` | Minimize a separated cut before adding it, repeating until a full pass removes nothing. Values `2`--`5` select other minimization strategies; see [Optional search additions](NEW-OPTIONS.md). |
 | 33 | instance-specific | Identify the run and its output files. |
 

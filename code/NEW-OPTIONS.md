@@ -10,6 +10,10 @@ Two inputs govern the additions described here:
 - input **5**, which enables the partial-colouring propagator and the integral pre-check;
 - input **32**, which selects how a separated cut is minimised.
 
+Input **31** is a third addition, with its own page:
+[recording and reusing cut pools](CUT-FILES.md), which lets a run write down the inequalities it
+separated and a later run start from them.
+
 Input **4** also accepts two values added after the paper, each with its own page:
 [the linear-distance model](DISTANCE-MODEL.md) at `5`, a formulation over a class strictly larger
 than the circulant one, and [the tabu search](TABU-SEARCH.md) at `6`, a heuristic rather than a

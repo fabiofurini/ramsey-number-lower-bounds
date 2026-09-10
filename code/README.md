@@ -14,7 +14,7 @@ The large-scale experiments reported in the paper used CPLEX 22.1.0.0. The distr
 
 ### Optional additions
 
-Three pages document behaviour added **after** the paper. All of it is switched off unless you ask
+Four pages document behaviour added **after** the paper. All of it is switched off unless you ask
 for it, and with the default values of [Default RAMSEY parameters](DEFAULT-PARAMETERS.md) the solver
 follows exactly the same path as before, node for node. These pages are only needed if you want to
 depart from that configuration.
@@ -28,6 +28,9 @@ depart from that configuration.
    settles the question.
 6. [The tabu search](TABU-SEARCH.md): input 4 = `6`, a heuristic over the circulant distance space,
    with its own shorter command line. It can produce a certificate but never an exclusion.
+7. [Recording and reusing cut pools](CUT-FILES.md): what input 31 can write and read, the file
+   format, and why a pool of the linear-distance model can be reused at a larger order while a
+   circulant one cannot.
 
 The solver produces graph colorings. A resulting graph certificate can be verified independently with the repository's [(m,n)-coloring checker](../checker/README.md).
 

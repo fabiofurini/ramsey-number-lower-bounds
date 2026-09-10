@@ -205,6 +205,16 @@ int main(int argc, char** argv)
 	/////////////////////////////////////
 	if (RAMSEY_instance.LOAD_CUTS_FROM_FILE == 1)
 	{
+		// Only the two distance models install a loaded pool into their formulation: the rows are
+		// indexed by distance variables, which the edge-space models do not have.  Reading the
+		// file for any other model would be a silent no-op, so say so loudly instead.
+		if (RAMSEY_instance.PARAM_ALGO != 3 && RAMSEY_instance.PARAM_ALGO != 5)
+		{
+			cout << "\n**WARNING** LOAD_CUTS_FROM_FILE = 1 has no effect with MODEL "
+			     << RAMSEY_instance.PARAM_ALGO
+			     << ": only MODEL 3 and MODEL 5 install cut pools. The pool is ignored.\n";
+		}
+
 		cout << "\n**************************************\n";
 		cout << "Loading cuts from files...\n";
 

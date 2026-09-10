@@ -45,7 +45,7 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 28 | Sets the random seed; use an integer and record it for reproducibility. |
 | 29 | Selects the CPLEX branching variable rule: `-1` minimum infeasibility; `0` default; `1` maximum infeasibility; `2` pseudo-cost; `3` strong branching; `4` pseudo-reduced-cost. |
 | 30 | Sets the number of CPLEX threads; use a positive integer. |
-| 31 | Controls the cut files; use `0`, because external cut files are not included. `1` loads a pool for this instance and `-100` records one, both experimental and off by default. |
+| 31 | Controls the cut files; use `0`, because external cut files are not included. `1` loads a pool for this instance and `-100` records one, both experimental and off by default, and both supported by the distance models only. See [Recording and reusing cut pools](CUT-FILES.md). |
 | 32 | Selects cut minimization: `0` disables it; `1` is the published default (heuristic, repeated to a fixed point); `2` is exact; `3` is a single heuristic pass; `4` and `5` are strided single passes. See [Optional search additions](NEW-OPTIONS.md). |
 | 33 | Sets a unique integer identifying the run and its output files. |
 
