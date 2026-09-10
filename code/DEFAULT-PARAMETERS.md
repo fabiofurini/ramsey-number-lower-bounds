@@ -18,9 +18,9 @@ Run the solver from `code/solver/`:
 | 1 | instance-specific | Order of the complete graph to be coloured. |
 | 2 | `3` | Avoid a blue clique of order 3. |
 | 3 | instance-specific | Avoid a red clique of the requested order. |
-| 4 | `3` | Select the distance-space formulation. |
-| 5 | `1` | Published behaviour. Values `2` and `3` switch on the optional search additions (partial-colouring propagator, integral pre-check); see [Optional search additions](NEW-OPTIONS.md). |
-| 6 | `1` | Impose the circulant restriction. |
+| 4 | `3` | Select the distance-space formulation. Values added after the paper: `5` selects [the linear-distance model](DISTANCE-MODEL.md), over a class strictly larger than the circulant one; `6` selects [the tabu search](TABU-SEARCH.md), which is a heuristic and takes its own shorter command line. Neither is part of this default. |
+| 5 | `1` | Published behaviour. Values `2` and `3` switch on the optional search additions (partial-colouring propagator, integral pre-check); see [Optional search additions](NEW-OPTIONS.md). They apply to both distance-space formulations, input 4 = `3` and input 4 = `5`. |
+| 6 | `1` | Impose the circulant restriction. Meaningless with input 4 = `5`, which forces it to `0`; see [The linear-distance model](DISTANCE-MODEL.md). |
 | 7 | `7200` | Allow at most 7,200 seconds for the clique routine. |
 | 8 | `1` | Use the exact Tur\'an right-hand side in clique cuts. |
 | 9 | `0` | Use the internal clique-separation route rather than a CPLEX separation model. |

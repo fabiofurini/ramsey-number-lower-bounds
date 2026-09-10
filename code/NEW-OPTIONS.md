@@ -5,10 +5,16 @@ configuration. Everything described here is switched off unless you ask for it, 
 command in [Default RAMSEY parameters](DEFAULT-PARAMETERS.md) is unchanged: with those values the
 solver follows exactly the same path as before, node for node.
 
-Two inputs govern the additions:
+Two inputs govern the additions described here:
 
 - input **5**, which enables the partial-colouring propagator and the integral pre-check;
 - input **32**, which selects how a separated cut is minimised.
+
+Input **4** also accepts two values added after the paper, each with its own page:
+[the linear-distance model](DISTANCE-MODEL.md) at `5`, a formulation over a class strictly larger
+than the circulant one, and [the tabu search](TABU-SEARCH.md) at `6`, a heuristic rather than a
+formulation. The two inputs described below apply to both distance-space formulations, that is to
+input 4 = `3` and input 4 = `5`.
 
 Both act only on the distance model (input 4 = `3`), the formulation used for the circulant results.
 
