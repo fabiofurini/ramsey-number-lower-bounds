@@ -2,6 +2,51 @@
 #include "RAMSEY_MODEL_5.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+// WHY_IS_CIRCULANT_MUST_BE_ZERO
+//
+// Every call below to the COPT-BG clique routine passes 0 for its `is_circulant` argument.  The
+// question "why not force it to 1?" has a precise answer, so it is recorded once here rather than
+// asserted at each call site.
+//
+// What the flag makes the routine do is apply the reduction
+//
+//         omega(G) >= TARGET      <=>      omega(N(v)) >= TARGET-1
+//
+// at one anchor vertex v, searching only inside N(v) and adding v to the answer.  That equivalence
+// is NOT true for an arbitrary v: it needs v to lie in some clique of size TARGET.  In a
+// vertex-transitive graph every vertex does, which is why the flag is sound for circulants and why
+// the library's own comment there reads "any vertex would do here".
+//
+// A Toeplitz graph is not vertex-transitive, and the reduction is valid only at the two ends.  If
+// S is a clique then so are S - min(S) and S + (t-1-max(S)), because translation preserves every
+// |i-j| and keeps the set inside {0,...,t-1}: so SOME clique of maximum size contains vertex 0,
+// and some contains vertex t-1, but nothing of the sort holds for the vertices in between.
+//
+// Measured, t = 11, blue distances {2,3}, red target 5.  The red graph has omega = 5, yet
+// 1 + omega(N_red(v)) is 5 only for v in {0,1,4,5,6,9,10} and is 4 for v in {2,3,7,8}.  So at an
+// anchor of the second kind the reduction concludes "no K_5" while a K_5 exists.
+//
+// And the anchor is not ours to choose: the routine sorts the graph and then anchors at its own
+// last vertex.  Probed directly, with no branch-and-cut involved (scratchpad probe.cpp): on that
+// instance is_circulant = 0 returns the clique {0,1,5,9,10} of size 5, while is_circulant = 1
+// returns size 1, the trivial {0}, which is its way of saying "target not found".  The
+// branch-and-cut then accepts the invalid colouring and reports it FEASIBLE.  Across the
+// brute-force suite the flag produces 10 invalid colourings out of 154 instances, against 0 with
+// the flag off (RESULTS/phase_s_is_circulant_1.csv in the campaign folder).
+//
+// So the reduction is usable here, but only at an anchor we control, and that is exactly what the
+// PARAM_OPTIONS==3 detector further down does: it anchors at vertex 0, where translation makes the
+// argument valid, and is complete because of it.  The flag cannot be forced because it hands the
+// choice of anchor to a routine that assumes every choice is equivalent.  Extending our own
+// anchored detector to the ordinary separation path is the way to recover the saving; passing 1 is
+// not.
+//
+// Related: CLIQUE_CPLEX.cpp fixes vertex 0 into the clique when PARAM_CIRCULANT==1 -- that one IS
+// a legitimate anchor here -- but the restriction is written for the circulant case, so Main.cpp
+// forces that input to 0 for this model rather than relying on it.
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 // Partial-colouring propagator for MODEL 5 (distance / Toeplitz; t <= 127).
 //
 // The graph of one colour is T_t(D) with D the distances fixed to that colour: {i,j} is an edge
@@ -721,20 +766,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 								RAMSEY_instance->PARAM_M,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -749,20 +781,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 								RAMSEY_instance->PARAM_SIZE_GRAPH,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -865,20 +884,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 												RAMSEY_instance->PARAM_M,
 												0,//RAMSEY_instance->PARAM_MNTS,
 												0,//RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -893,20 +899,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 												RAMSEY_instance->PARAM_M,
 												RAMSEY_instance->PARAM_MNTS,
 												RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1158,20 +1151,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 								RAMSEY_instance->PARAM_N,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1185,20 +1165,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 								RAMSEY_instance->PARAM_SIZE_GRAPH,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1328,20 +1295,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 												RAMSEY_instance->PARAM_N,
 												0,//RAMSEY_instance->PARAM_MNTS,
 												0,//RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1356,20 +1310,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: MUST be 0 for MODEL 5, but NOT for the reason one might guess.
-								                                          Fixing one vertex of the clique is perfectly legitimate here: a clique of a
-								                                          Toeplitz graph can be translated so that its smallest vertex is 0, or its
-								                                          largest is t-1, because translation preserves every |i-j|.  MODEL 5's own
-								                                          propagator rests on exactly that argument.
-								                                          The flag is unsound with THIS routine, which is written for vertex-transitive
-								                                          graphs: it sorts and prepares the subproblem from the neighbourhood of vertex 0
-								                                          -- its own comment there reads "any vertex would do here" -- and then searches
-								                                          the neighbourhood of the last vertex, which agree only up to a rotation.
-								                                          With the flag on it silently reports no clique where one exists and the solver
-								                                          accepts an invalid colouring.  Reproduced 2026-09-10 on (3,5) at t=11 with blue
-								                                          distances {2,3}: the red K_5 on {0,1,5,6,10} is never found, although both
-								                                          N_red(0) and N_red(10) contain the required K_4, so no anchoring choice
-								                                          explains the miss. */
+												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
 												RAMSEY_instance->PARAM_N,
 												RAMSEY_instance->PARAM_MNTS,
 												RAMSEY_instance->PARAM_TOUT_MNTS,

@@ -46,15 +46,27 @@ As in the paper. Given an integral candidate, the corresponding graph is built, 
 clique of the forbidden size is searched for, and if one is found the inequality of its distance set
 is added.
 
-One point deserves care, because it is easy to get backwards. **Anchoring the search at a single
-vertex is legitimate in this class too.** A clique of a Toeplitz graph can be translated so that its
-smallest vertex is 0, or its largest is `t-1`, since translation preserves every difference `|i-j|`;
-the propagator of input 5 rests on precisely that. What does not carry over is the *implementation*
-of the reduction in the clique routine used by the separator, which is written for vertex-transitive
-graphs and prepares the subproblem from one vertex while searching another's neighbourhood — sound
-only up to a rotation. This model therefore asks that routine for a general search, and the
-consequence is a cost, not a loss of strength: the separator does more work than it does in the
-circulant case.
+One point deserves care, because it is easy to get backwards, and the answer is more specific than
+it first looks. The clique routine used by the separator offers a reduction that anchors the search
+at one vertex `v`, searching only inside `N(v)` and adding `v` to the answer:
+
+```
+omega(G) >= target    <=>    omega(N(v)) >= target - 1
+```
+
+That equivalence needs `v` to lie in some clique of the target size. In a **circulant** graph every
+vertex does, by vertex-transitivity, so any anchor will do and the reduction is safe. In a
+**Toeplitz** graph it holds at the two ends only: translating a clique by `-min(S)` puts one at
+vertex `0`, translating by `t-1-max(S)` puts one at vertex `t-1`, and nothing of the sort holds for
+the vertices in between. A small measured example, at `t = 11` with blue distances `{2,3}` and red
+target 5: the red graph has a `K_5`, yet `1 + omega(N(v))` is only 4 for `v` in `{2,3,7,8}`, so at
+such an anchor the reduction concludes that no `K_5` exists.
+
+So anchoring is legitimate in this class — at `0` or at `t-1`, and the propagator of input 5 uses
+exactly that, which is why it is complete. What cannot be used is the routine's own reduction,
+because the anchor is chosen by its internal ordering rather than by us. This model therefore asks
+that routine for a general search over all vertices. The consequence is a cost, not a loss of
+strength: the separator does more work than in the circulant case.
 
 ### Why this class behaves differently
 
