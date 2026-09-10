@@ -44,9 +44,17 @@ must be. The Turán right-hand sides of the paper apply unchanged, and are used 
 
 As in the paper. Given an integral candidate, the corresponding graph is built, a monochromatic
 clique of the forbidden size is searched for, and if one is found the inequality of its distance set
-is added. The clique search must range over all vertices here: a Toeplitz graph is not
-vertex-transitive, so the reduction that anchors the search at one prescribed vertex, legitimate for
-circulant graphs, does not apply.
+is added.
+
+One point deserves care, because it is easy to get backwards. **Anchoring the search at a single
+vertex is legitimate in this class too.** A clique of a Toeplitz graph can be translated so that its
+smallest vertex is 0, or its largest is `t-1`, since translation preserves every difference `|i-j|`;
+the propagator of input 5 rests on precisely that. What does not carry over is the *implementation*
+of the reduction in the clique routine used by the separator, which is written for vertex-transitive
+graphs and prepares the subproblem from one vertex while searching another's neighbourhood — sound
+only up to a rotation. This model therefore asks that routine for a general search, and the
+consequence is a cost, not a loss of strength: the separator does more work than it does in the
+circulant case.
 
 ### Why this class behaves differently
 
@@ -81,7 +89,7 @@ input 4 from `3` to `5`. The command line is the same 33 inputs, documented in
 | Input | What it does in this model |
 | ---: | --- |
 | 4 | Selects the model. Use `5`. During development this formulation was `6`; that value is now refused with a message, rather than reinterpreted, so that an older command line cannot quietly run something else. |
-| 6 | The circulant restriction. **Meaningless here and forced to `0`.** With it set, the CPLEX separation model fixes vertex 0 into the clique, which is sound only for vertex-transitive graphs. The solver prints a notice and overrides the value, so no setting of input 6 can make the search unsound. |
+| 6 | The circulant restriction. **Meaningless here and forced to `0`.** With it set, the CPLEX separation model constrains its clique search in a way that is written for the circulant case. The solver prints a notice and overrides the value, so no setting of input 6 can affect the search in this model. |
 | 5 | The partial-colouring propagator and the integral pre-check of [Optional search additions](NEW-OPTIONS.md), with the same values: `0` or `1` historic behaviour, `2` the propagator, `3` the propagator plus the pre-check. The exact test they use is different here: a Toeplitz graph contains a `K_k` if and only if the subgraph induced on its own distance set contains a `K_(k-1)`, because a clique can be translated so that its smallest vertex becomes 0. Unlike the circulant implementation there is **no limit on the graph order**. |
 | 8 | Stronger cuts. `1` uses the Turán right-hand sides, `0` the weaker unit ones, exactly as documented. |
 | 9 | The separation route. `0` uses the internal clique solver, `1` the CPLEX separation model. Both search over all vertices in this model. |

@@ -303,7 +303,10 @@ int main(int argc, char** argv)
 			cout << "NOTE: input 6 (PARAM_CIRCULANT) is meaningless for MODEL 5 and is forced to 0\n";
 		}
 		// Forced, not merely ignored: PARAM_CIRCULANT==1 makes the CPLEX-based separator fix
-		// vertex 0 into the clique, a reduction that belongs to vertex-transitive graphs.
+		// vertex 0 into the clique.  Fixing a vertex is in fact legitimate in this class too
+		// (translate the clique so its smallest vertex is 0), but the restriction is written
+		// for the circulant case and must not be relied on here; see the long note at the
+		// clique-solver call sites in RAMSEY_MODEL_5.cpp.
 		RAMSEY_instance.PARAM_CIRCULANT=0;
 
 		RAMSEY_MODEL_5_load(&RAMSEY_instance);
