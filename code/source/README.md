@@ -15,6 +15,17 @@ This directory contains the original C++ source of the RAMSEY solver: the branch
 | `RAMSEY_TABU_CORE.cpp`/`.h` | The search itself: incremental scoring of a one-distance flip, tabu tenure, stagnation and perturbation, optional adaptive weights. |
 | `check_solution.cpp`/`.h` | Independent post-solve verification of a found coloring. |
 
+> [!IMPORTANT]
+> A correctness trap worth knowing before reading the separation code. The clique routine takes an
+> `is_circulant` argument, and it is sound **only for vertex-transitive graphs**: it applies the
+> reduction "a clique of size `q` exists iff the neighbourhood of an anchor contains one of size
+> `q-1`", choosing the anchor internally, and that reduction needs the anchor to lie in some clique
+> of size `q`. Circulant graphs satisfy this at every vertex; Toeplitz graphs only at `0` and
+> `t-1`. Passing it for a graph that is not vertex-transitive makes the separator miss cliques
+> silently, so the solver emits an invalid coloring and calls it feasible. `RAMSEY_MODEL_5.cpp`
+> passes `0` everywhere and explains why in its `WHY_IS_CIRCULANT_MUST_BE_ZERO` note; the models of
+> the paper are circulant throughout and pass `1` correctly.
+
 ## Why this can't be built from this repository alone
 
 Every file here includes headers from **BitGraph** and **coptBG**, the graph and clique-search libraries by Pablo San Segundo (CSIC-UPM). Those libraries are GPL-3.0 and, as explained in [`../../NOTICE.md`](../../NOTICE.md), their source is not published in this repository. Without them, nothing here compiles.

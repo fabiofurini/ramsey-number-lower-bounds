@@ -46,6 +46,17 @@ As in the paper. Given an integral candidate, the corresponding graph is built, 
 clique of the forbidden size is searched for, and if one is found the inequality of its distance set
 is added.
 
+> [!WARNING]
+> The clique routine's `is_circulant` option must **not** be switched on for this model. It applies
+> a reduction that is valid only at an anchor vertex belonging to some clique of the target size,
+> and it picks that anchor itself. In a circulant graph every vertex qualifies; here only vertices
+> `0` and `t-1` do. With the option on, the separator reports no clique where one exists and the
+> solver then accepts an **invalid coloring while reporting it feasible**: measured, ten invalid
+> colorings out of 154 brute-force-checked instances, against none with it off. The model passes
+> `0` at every call site and forces input 6 to `0`; nothing in the command line can turn this back
+> on. Full explanation below and in the `WHY_IS_CIRCULANT_MUST_BE_ZERO` note in
+> [`source/RAMSEY_MODEL_5.cpp`](source/RAMSEY_MODEL_5.cpp).
+
 One point deserves care, because it is easy to get backwards, and the answer is more specific than
 it first looks. The clique routine used by the separator offers a reduction that anchors the search
 at one vertex `v`, searching only inside `N(v)` and adding `v` to the answer:
