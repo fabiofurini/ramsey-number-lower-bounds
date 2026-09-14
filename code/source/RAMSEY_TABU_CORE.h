@@ -11,6 +11,7 @@
 namespace ramsey_tabu {
 
 enum class Color { Blue, Red };
+enum class DistanceGeometry { Linear = 0, Circulant = 1 };
 
 struct SupportSeed {
     Color color;
@@ -22,6 +23,8 @@ struct TabuConfig {
     int order = 0;
     int blue_target = 3;
     int red_target = 0;
+    DistanceGeometry geometry = DistanceGeometry::Circulant;
+    int small_clique_mask = 1; // bit 0 = blue, bit 1 = red; interpreted by the adapter
     unsigned int seed = 1;
     long long max_iterations = 100000;
     double time_limit_seconds = 60.0;
@@ -47,6 +50,7 @@ struct RunResult {
     long long iterations = 0;
     long long separation_calls = 0;
     long long verification_calls = 0;
+    long long pool_epochs = 0;
     double final_score = 0.0;
     double best_score = 0.0;
     std::vector<std::uint8_t> best_distances; // 1 = blue, 0 = red
@@ -60,6 +64,11 @@ public:
     explicit DistanceSpaceTabuSearch(const TabuConfig& config);
 
     static int circular_distance(int order, int u, int v);
+    static int linear_distance(int order, int u, int v);
+    static int edge_distance(int order, int u, int v, DistanceGeometry geometry);
+    static int number_of_distances(int order, DistanceGeometry geometry);
+    static std::vector<SupportSeed> enumerate_small_clique_supports(
+        int order, int clique_size, Color color, DistanceGeometry geometry);
     static std::vector<SupportSeed> enumerate_triangle_supports(int order, Color color);
 
     bool add_support(const SupportSeed& seed);
@@ -95,8 +104,8 @@ private:
     int q_for(const Support& support) const;
     double penalty(const Support& support, int q) const;
     void rebuild_counters();
-    void add_all(const std::vector<SupportSeed>& seeds);
-    void update_weights();
+    std::size_t add_all(const std::vector<SupportSeed>& seeds);
+    bool update_weights();
     int choose_move(const std::vector<long long>& tabu_until,
                     long long iteration,
                     double best_score) const;

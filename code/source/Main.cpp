@@ -30,10 +30,11 @@ int main(int argc, char** argv)
 	// The tabu search (input 4 = 6) is a heuristic, not a formulation: it has its own compact
 	// parameter list and bypasses all branch-and-cut setup.
 	// RAMSEY t m n 6 time seed max_iter tenure_min tenure_max stagnation perturb
-	//        separation_period heur_restarts heur_iterations weight_period weight_increment id_test
+	//        separation_period heur_restarts heur_iterations weight_period weight_increment
+	//        geometry small_clique_mask id_test
 	// Selector 5 is still accepted here, with a notice: that was the tabu search's value before
 	// the linear-distance formulation took the slot, and the archived tabu campaign scripts use it.
-	if (argc == 18 && (atoi(argv[4]) == 6 || atoi(argv[4]) == 5))
+	if ((argc == 18 || argc == 20) && (atoi(argv[4]) == 6 || atoi(argv[4]) == 5))
 	{
 		if (atoi(argv[4]) == 5)
 		{
@@ -44,15 +45,33 @@ int main(int argc, char** argv)
 		RAMSEY_instance.PARAM_M = atoi(argv[2]);
 		RAMSEY_instance.PARAM_N = atoi(argv[3]);
 		RAMSEY_instance.PARAM_ALGO = 6;
-		RAMSEY_instance.PARAM_CIRCULANT = 1;
+		const int geometry_mode = argc == 20 ? atoi(argv[17]) : 1;
+		const int small_clique_mask = argc == 20 ? atoi(argv[18]) : 1;
+		if (RAMSEY_instance.PARAM_M < 3 || RAMSEY_instance.PARAM_N < 3 ||
+			(geometry_mode != 0 && geometry_mode != 1) ||
+			(small_clique_mask < 0 || small_clique_mask > 3))
+		{
+			cout << "\n**WRONG TABU INPUT** require m,n >= 3, geometry in {0,1}, and small_clique_mask in {0,1,2,3}.\n";
+			return -1;
+		}
+		if (((small_clique_mask & 1) != 0 && RAMSEY_instance.PARAM_M != 3 && RAMSEY_instance.PARAM_M != 4) ||
+			((small_clique_mask & 2) != 0 && RAMSEY_instance.PARAM_N != 3 && RAMSEY_instance.PARAM_N != 4))
+		{
+			cout << "\n**WRONG TABU INPUT** complete small-clique enumeration is available only for K3 and K4.\n";
+			return -1;
+		}
+		RAMSEY_instance.PARAM_CIRCULANT = geometry_mode;
 		RAMSEY_instance.PARAM_TIME_LIMIT = atof(argv[5]);
 		RAMSEY_instance.RANDOM_SEED = atoi(argv[6]);
-		RAMSEY_instance.ID_TEST = atoi(argv[17]);
+		RAMSEY_instance.ID_TEST = atoi(argv[argc == 20 ? 19 : 17]);
 
 		ramsey_tabu::TabuConfig tabu_config;
 		tabu_config.order = RAMSEY_instance.PARAM_SIZE_GRAPH;
 		tabu_config.blue_target = RAMSEY_instance.PARAM_M;
 		tabu_config.red_target = RAMSEY_instance.PARAM_N;
+		tabu_config.geometry = geometry_mode == 1 ? ramsey_tabu::DistanceGeometry::Circulant
+															 : ramsey_tabu::DistanceGeometry::Linear;
+		tabu_config.small_clique_mask = small_clique_mask;
 		tabu_config.time_limit_seconds = RAMSEY_instance.PARAM_TIME_LIMIT;
 		tabu_config.seed = static_cast<unsigned int>(RAMSEY_instance.RANDOM_SEED);
 		tabu_config.max_iterations = atoll(argv[7]);

@@ -119,6 +119,10 @@ The summary files allow a counterexample to be matched with the complete command
 
 The solver's own solution check is useful during a run. For an independent verification of a reported result, create a graph certificate from the coloring and use the repository's [(m,n)-coloring checker](../checker/README.md).
 
+## Tabu-search certificates
+
+The short tabu-search interface writes `tabu_m...` (circulant) or `tabu_linear_m...` (linear-distance) certificates in `colorings/`.  They start with `order`, `geometry`, `blue_distances`, and `red_distances`; distance entries are one-based.  The `geometry` line is essential: a linear certificate has `t-1` variables and must not be expanded with circular wrap-around.  The documented small validation campaign converts both forms to DIMACS and checks them independently; see [The tabu search](TABU-SEARCH.md).
+
 ## Additional statistics from the optional search additions
 
 If input 5 is `2` or `3`, the run also prints the propagator and pre-check counters

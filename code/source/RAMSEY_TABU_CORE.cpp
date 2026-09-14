@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <stdexcept>
 
@@ -20,13 +21,13 @@ DistanceSpaceTabuSearch::DistanceSpaceTabuSearch(const TabuConfig& config)
     if (config_.tabu_tenure_min < 1 || config_.tabu_tenure_max < config_.tabu_tenure_min) {
         throw std::invalid_argument("Invalid tabu-tenure interval");
     }
-    const int number_of_distances = config_.order / 2;
-    distances_.assign(number_of_distances, 0);
+    const int distance_count = number_of_distances(config_.order, config_.geometry);
+    distances_.assign(distance_count, 0);
     std::bernoulli_distribution initial_color(config_.initial_blue_probability);
     for (std::uint8_t& value : distances_) {
         value = initial_color(rng_) ? 1 : 0;
     }
-    incidence_.resize(number_of_distances);
+    incidence_.resize(distance_count);
 }
 
 int DistanceSpaceTabuSearch::circular_distance(int order, int u, int v) {
@@ -35,22 +36,79 @@ int DistanceSpaceTabuSearch::circular_distance(int order, int u, int v) {
 }
 
 std::vector<SupportSeed> DistanceSpaceTabuSearch::enumerate_triangle_supports(int order, Color color) {
+    return enumerate_small_clique_supports(order, 3, color, DistanceGeometry::Circulant);
+}
+
+int DistanceSpaceTabuSearch::linear_distance(int order, int u, int v) {
+    if (order < 3 || u < 0 || u >= order || v < 0 || v >= order || u == v) {
+        throw std::invalid_argument("Invalid endpoints for a linear distance");
+    }
+    return std::abs(u - v);
+}
+
+int DistanceSpaceTabuSearch::edge_distance(int order, int u, int v, DistanceGeometry geometry) {
+    if (geometry == DistanceGeometry::Circulant) {
+        return circular_distance(order, u, v);
+    }
+    if (geometry == DistanceGeometry::Linear) {
+        return linear_distance(order, u, v);
+    }
+    throw std::invalid_argument("Unknown distance geometry");
+}
+
+int DistanceSpaceTabuSearch::number_of_distances(int order, DistanceGeometry geometry) {
     if (order < 3) {
         throw std::invalid_argument("The circulant order must be at least 3");
     }
+    if (geometry == DistanceGeometry::Circulant) {
+        return order / 2;
+    }
+    if (geometry == DistanceGeometry::Linear) {
+        return order - 1;
+    }
+    throw std::invalid_argument("Unknown distance geometry");
+}
+
+std::vector<SupportSeed> DistanceSpaceTabuSearch::enumerate_small_clique_supports(
+    int order, int clique_size, Color color, DistanceGeometry geometry) {
+    if (clique_size != 3 && clique_size != 4) {
+        throw std::invalid_argument("Only K3 and K4 support families can be pre-enumerated");
+    }
+    if (order < clique_size) {
+        return std::vector<SupportSeed>();
+    }
+    const int distance_count = number_of_distances(order, geometry);
 
     std::set<std::vector<std::uint16_t>> unique_supports;
-    for (int u = 1; u < order; ++u) {
-        for (int v = u + 1; v < order; ++v) {
-            std::vector<std::uint16_t> support = {
-                static_cast<std::uint16_t>(circular_distance(order, 0, u)),
-                static_cast<std::uint16_t>(circular_distance(order, 0, v)),
-                static_cast<std::uint16_t>(circular_distance(order, u, v))};
-            std::sort(support.begin(), support.end());
-            support.erase(std::unique(support.begin(), support.end()), support.end());
-            unique_supports.insert(support);
+    std::vector<int> vertices(1, 0);
+    const auto record_support = [&]() {
+        std::vector<std::uint16_t> support;
+        for (int i = 0; i < clique_size; ++i) {
+            for (int j = i + 1; j < clique_size; ++j) {
+                const int distance = edge_distance(order, vertices[i], vertices[j], geometry);
+                if (distance < 1 || distance > distance_count) {
+                    throw std::logic_error("Clique support contains a distance outside its geometry");
+                }
+                support.push_back(static_cast<std::uint16_t>(distance));
+            }
         }
-    }
+        std::sort(support.begin(), support.end());
+        support.erase(std::unique(support.begin(), support.end()), support.end());
+        unique_supports.insert(support);
+    };
+    std::function<void(int)> extend = [&](int first) {
+        if (static_cast<int>(vertices.size()) == clique_size) {
+            record_support();
+            return;
+        }
+        const int missing = clique_size - static_cast<int>(vertices.size());
+        for (int vertex = first; vertex <= order - missing; ++vertex) {
+            vertices.push_back(vertex);
+            extend(vertex + 1);
+            vertices.pop_back();
+        }
+    };
+    extend(1);
 
     std::vector<SupportSeed> result;
     result.reserve(unique_supports.size());
@@ -70,7 +128,7 @@ bool DistanceSpaceTabuSearch::add_support(const SupportSeed& seed) {
                             support.distances.end());
     for (std::uint16_t distance : support.distances) {
         if (distance == 0 || distance > distances_.size()) {
-            throw std::invalid_argument("A support contains an invalid circular distance");
+            throw std::invalid_argument("A support contains an invalid distance for the active geometry");
         }
     }
     const int color_key = support.color == Color::Blue ? 0 : 1;
@@ -93,7 +151,7 @@ std::size_t DistanceSpaceTabuSearch::support_count() const {
 
 void DistanceSpaceTabuSearch::set_distances(const std::vector<std::uint8_t>& distances) {
     if (distances.size() != distances_.size()) {
-        throw std::invalid_argument("Distance-vector size does not match the circulant order");
+        throw std::invalid_argument("Distance-vector size does not match the active geometry");
     }
     for (std::uint8_t value : distances) {
         if (value > 1) {
@@ -194,23 +252,30 @@ bool DistanceSpaceTabuSearch::debug_check_invariants() const {
     return true;
 }
 
-void DistanceSpaceTabuSearch::add_all(const std::vector<SupportSeed>& seeds) {
+std::size_t DistanceSpaceTabuSearch::add_all(const std::vector<SupportSeed>& seeds) {
+    std::size_t added = 0;
     for (const SupportSeed& seed : seeds) {
-        add_support(seed);
+        if (add_support(seed)) {
+            ++added;
+        }
     }
+    return added;
 }
 
-void DistanceSpaceTabuSearch::update_weights() {
+bool DistanceSpaceTabuSearch::update_weights() {
     if (config_.adaptive_weight_increment <= 0.0) {
-        return;
+        return false;
     }
+    bool changed = false;
     for (Support& support : supports_) {
         if (support.q == 0) {
             score_ -= penalty(support, support.q);
             support.weight += config_.adaptive_weight_increment;
             score_ += penalty(support, support.q);
+            changed = true;
         }
     }
+    return changed;
 }
 
 int DistanceSpaceTabuSearch::choose_move(const std::vector<long long>& tabu_until,
@@ -268,6 +333,7 @@ RunResult DistanceSpaceTabuSearch::run(const SeparationCallback& separate,
     const auto start = std::chrono::steady_clock::now();
     add_all(separate(distances_));
     ++result.separation_calls;
+    result.pool_epochs = 1;
 
     std::vector<std::uint8_t> best = distances_;
     double best_score = score_;
@@ -286,10 +352,13 @@ RunResult DistanceSpaceTabuSearch::run(const SeparationCallback& separate,
             // are satisfied.  First invoke the same red separator used during
             // search; an inexpensive newly found conflict avoids an immediate
             // exact verification.
-            const std::size_t before_separation = supports_.size();
-            add_all(separate(distances_));
+            const std::size_t added_by_separation = add_all(separate(distances_));
             ++result.separation_calls;
-            if (supports_.size() > before_separation) {
+            if (added_by_separation > 0) {
+                best = distances_;
+                best_score = score_;
+                last_improvement = iteration;
+                ++result.pool_epochs;
                 continue;
             }
 
@@ -304,17 +373,24 @@ RunResult DistanceSpaceTabuSearch::run(const SeparationCallback& separate,
                 result.best_distances = distances_;
                 return result;
             }
-            const std::size_t before = supports_.size();
-            add_all(verification.violated_supports);
-            if (supports_.size() == before) {
+            if (add_all(verification.violated_supports) == 0) {
                 throw std::runtime_error("The verifier rejected a zero-score state without returning a new support");
             }
+            best = distances_;
+            best_score = score_;
+            last_improvement = iteration;
+            ++result.pool_epochs;
         }
 
         const bool periodic_separation = config_.separation_period > 0 &&
             iteration > 0 && iteration % config_.separation_period == 0;
         if (periodic_separation) {
-            add_all(separate(distances_));
+            if (add_all(separate(distances_)) > 0) {
+                best = distances_;
+                best_score = score_;
+                last_improvement = iteration;
+                ++result.pool_epochs;
+            }
             ++result.separation_calls;
         }
 
@@ -330,13 +406,23 @@ RunResult DistanceSpaceTabuSearch::run(const SeparationCallback& separate,
             best_score = score_;
             best = distances_;
             last_improvement = iteration;
-            add_all(separate(distances_));
+            if (add_all(separate(distances_)) > 0) {
+                best = distances_;
+                best_score = score_;
+                last_improvement = iteration;
+                ++result.pool_epochs;
+            }
             ++result.separation_calls;
         }
 
         if (config_.adaptive_weight_period > 0 && iteration > 0 &&
             iteration % config_.adaptive_weight_period == 0) {
-            update_weights();
+            if (update_weights()) {
+                best = distances_;
+                best_score = score_;
+                last_improvement = iteration;
+                ++result.pool_epochs;
+            }
         }
         if (config_.stagnation_limit > 0 && iteration - last_improvement >= config_.stagnation_limit) {
             perturb();

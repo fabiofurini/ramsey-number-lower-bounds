@@ -1,4 +1,4 @@
-# The tabu search (input 4 = `6`)
+# The generic tabu search (input 4 = `6`)
 
 This page documents a heuristic that is **not** part of the paper. It is selected only when you ask
 for it, and it does not touch the branch-and-cut: the values of input 4 that the paper uses, `1` and
@@ -15,11 +15,25 @@ its command line.
 
 ## Part 1 — How the method works
 
+### 2026 generic and two-geometry update
+
+The search now works for arbitrary forbidden clique sizes `(m,n) >= (3,3)`, in either a circulant
+or a linear-distance (Toeplitz) graph.  The geometry has one binary variable per distance: `floor(t/2)`
+for circulant graphs and exactly `t-1` for linear-distance graphs.  The linear mode deliberately
+disables the circulant-only reduction inside the clique separator; this is required for soundness,
+because Toeplitz graphs are not vertex-transitive.
+
+Two optional complete initial pools can be requested: all K3 supports and/or all K4 supports.  This
+lets a run enumerate a small target on either colour and focus dynamic separation on the other target.
+The mask is `0` for neither, `1` for blue only, `2` for red only, and `3` for both; a selected side
+must have target clique size 3 or 4.  All non-selected targets are handled dynamically and every
+claimed coloring is still verified exactly on both colors.
+
 ### The state and the constraint pool
 
-The search works directly on the circulant distance vector: one binary entry per circular distance
-`1, ..., floor(t/2)`, blue or red. A move flips one entry, so the neighbourhood of the current point
-has exactly `floor(t/2)` candidates.
+The search works directly on a distance vector: one binary entry per circular distance
+`1, ..., floor(t/2)` in circulant mode, or per ordinary difference `1, ..., t-1` in linear mode,
+blue or red. A move flips one entry, so the neighbourhood has exactly the number of active variables.
 
 There is no linear relaxation. What the search keeps instead is a **pool of supports**. A support is
 a colour together with a set of distances, and it records a condition the coloring must not meet:
@@ -147,10 +161,10 @@ instead of circling it. Supports that are currently satisfied are left untouched
 
 ### Growing the pool, and the final check
 
-The pool is not fixed. It starts from all triangle supports and grows: every so often the search
-calls the branch-and-cut's own red separator on the current distance vector, and any red clique it
-finds becomes a new support, whose `q` and penalty are folded into the score on insertion. The
-heuristic and the exact method therefore share one separation routine.
+The pool is not fixed. It can start from all selected K3/K4 supports and grows: every so often the
+search calls the branch-and-cut clique separator on each colour whose small pool was not selected,
+and any clique it finds becomes a support. The heuristic and the exact method therefore share the
+same separation routines.
 
 This is also why a score of zero is not yet an answer. It means only that nothing *in the pool* is
 violated, and the pool is whatever separation has produced so far. So when the score reaches zero
@@ -160,29 +174,28 @@ write a certificate.
 
 ### Restrictions
 
-Two, both enforced in the code, which prints a message and stops:
-
-- the circulant restriction must be on, since the search works in the circulant distance space;
-- the forbidden blue clique size must be `3`, so the search covers the `R(3,n)` family only.
+`m` and `n` must each be at least 3.  Complete enumeration is intentionally limited to K3/K4: if a
+mask selects blue (red), the corresponding `m` (`n`) must be 3 or 4.  This is a performance choice,
+not a restriction on the dynamic search, which handles all other targets.
 
 ---
 
 ## Part 2 — The parameters
 
-This heuristic takes its own **18-input** command line, not the 33 inputs of the models, because
+This heuristic takes its own **19-input** command line (20 arguments including `./RAMSEY`), not the 33 inputs of the models, because
 most of those inputs configure a branch-and-cut that is not used here. The argument count is what
 tells the two apart, so input 4 = `6` is only recognised on the short line.
 
 ```bash
-./RAMSEY <t> 3 <n> 6 <time> <seed> <max_iter> <tenure_min> <tenure_max> \
+./RAMSEY <t> <m> <n> 6 <time> <seed> <max_iter> <tenure_min> <tenure_max> \
          <stagnation> <perturb> <sep_period> <heur_restarts> <heur_iters> \
-         <weight_period> <weight_increment> <test_id>
+         <weight_period> <weight_increment> <geometry> <small_clique_mask> <test_id>
 ```
 
 | # | Effect and possible values |
 | ---: | --- |
 | 1 | Sets the number of vertices `t`; use a positive integer. |
-| 2 | Sets the forbidden blue clique size `m`; must be `3`. |
+| 2 | Sets the forbidden blue clique size `m`; use an integer at least 3. |
 | 3 | Sets the forbidden red clique size `n`; use a positive integer. |
 | 4 | Selects the tabu search: use `6`. On this short command line the earlier value `5` is still accepted, with a notice. |
 | 5 | Sets the time limit in seconds; the search stops at the limit and reports whether it found a coloring. |
@@ -197,7 +210,9 @@ tells the two apart, so input 4 = `6` is only recognised on the short line.
 | 14 | Sets the number of iterations per restart for that clique search. |
 | 15 | Sets the adaptive-weight period: how many iterations between two weight updates. Use `0` to disable adaptive weights, which is the baseline. |
 | 16 | Sets the adaptive-weight increment, as a real number: how much the penalty of a still-violated support grows at each update. Ignored when input 15 is `0`. |
-| 17 | Sets a unique integer identifying the run and its output files. |
+| 17 | Selects geometry: `1` circulant (`floor(t/2)` variables), `0` linear-distance (`t-1` variables). |
+| 18 | Selects complete small-clique enumeration: `0` neither color, `1` blue only, `2` red only, `3` both. A selected target must be K3 or K4. |
+| 19 | Sets a unique integer identifying the run and its output files. |
 
 The three groups worth tuning first are the tenure range (inputs 8 and 9), which controls how long
 the search is kept away from a distance it has just changed; the stagnation pair (inputs 10 and 11),
@@ -211,13 +226,13 @@ returning to the same obstruction.
 A (3,3)-coloring on 5 vertices, ten seconds, seed 1:
 
 ```bash
-./RAMSEY 5 3 3 6 10 1 1000 3 5 200 2 10 1 100 0 0.0 950001
+./RAMSEY 5 3 3 6 10 1 1000 3 5 200 2 10 1 100 0 0.0 1 3 950001
 ```
 
 A larger run on `R(3,8)`, twenty seconds, adaptive weights off:
 
 ```bash
-./RAMSEY 20 3 8 6 20 1 20000 7 14 5000 4 100 5 10000 0 0.0 6001
+./RAMSEY 20 3 8 6 20 1 20000 7 14 5000 4 100 5 10000 0 0.0 1 1 6001
 ```
 
 ### Output
@@ -228,12 +243,13 @@ the clique-solver call counts broken down by which routine succeeded, and finall
 was found.
 
 When one is found the certificate goes to
-`colorings/tabu_m<m>_n<n>_SIZE<t>_id<id>.txt`, listing the order, the blue circular distances and
-the red ones. For an independent verification, expand those distances into the blue graph, write it
+`colorings/tabu_m<m>_n<n>_SIZE<t>_id<id>.txt` in circulant mode or
+`colorings/tabu_linear_m<m>_n<n>_SIZE<t>_id<id>.txt` in linear mode, listing the order, geometry,
+blue distances and red distances. For an independent verification, expand those distances into the blue graph, write it
 in DIMACS edge format and pass it to the repository's
 [(m,n)-coloring checker](../checker/README.md), as [Reading the output](OUTPUT.md) describes. The
-coloring is circulant by construction, so the checker's circulant-reduction input may be set to `1`;
-as its own page notes, that input asks the checker to exploit the property, it does not verify it.
+circulant coloring may use the checker's circulant-reduction input `1`; linear certificates must use
+`0`. As its own page notes, that input asks the checker to exploit the property, it does not verify it.
 
 Because the search is randomised, two runs with different seeds may return different colorings, and
 one may find nothing where the other succeeds. Report the seed and the full command with any result.

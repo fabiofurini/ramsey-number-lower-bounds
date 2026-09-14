@@ -26,9 +26,11 @@ depart from that configuration.
    strictly larger than the circulant one, in which the color of an edge depends on `|i-j|` rather
    than on the circular distance. Hereditary in the graph order, so a single infeasible order
    settles the question.
-6. [The tabu search](TABU-SEARCH.md): input 4 = `6`, a heuristic over the circulant distance space,
-   with its own shorter command line. It can produce a certificate but never an exclusion.
-7. [Recording and reusing cut pools](CUT-FILES.md): what input 31 can write and read, the file
+6. [The tabu search](TABU-SEARCH.md): input 4 = `6`, a generic heuristic for circulant and
+   linear-distance colorings, with its own shorter command line. It can produce a certificate but never an exclusion.
+7. [Generic tabu validation](TABU-SEARCH-VALIDATION.md): independently checked small cases for the
+   generic targets, complete K3/K4 pools, and both geometries.
+8. [Recording and reusing cut pools](CUT-FILES.md): what input 31 can write and read, the file
    format, and why a pool of the linear-distance model can be reused at a larger order while a
    circulant one cannot.
 
