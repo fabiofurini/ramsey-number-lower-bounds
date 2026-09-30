@@ -46,15 +46,14 @@ As in the paper. Given an integral candidate, the corresponding graph is built, 
 clique of the forbidden size is searched for, and if one is found the inequality of its distance set
 is added.
 
-> [!WARNING]
-> The clique routine's `is_circulant` option must **not** be switched on for this model. It applies
-> a reduction that is valid only at an anchor vertex belonging to some clique of the target size,
-> and it picks that anchor itself. In a circulant graph every vertex qualifies; here only vertices
-> `0` and `t-1` do. With the option on, the separator reports no clique where one exists and the
-> solver then accepts an **invalid coloring while reporting it feasible**: measured, ten invalid
-> colorings out of 154 brute-force-checked instances, against none with it off. The model passes
-> `0` at every call site and forces input 6 to `0`; nothing in the command line can turn this back
-> on. Full explanation below and in the `WHY_IS_CIRCULANT_MUST_BE_ZERO` note in
+> [!IMPORTANT]
+> The clique routine's anchored reduction is now used by this model, but at an anchor **we** fix,
+> not one the routine picks. The argument it takes is an `int`: `1` is the circulant behaviour of
+> the paper, unchanged; `-1` is this model's mode, which anchors at vertex `t-1`; `0` disables the
+> reduction. Passing `1` here is still wrong and still produces invalid colorings — measured, ten
+> out of 154 brute-force-checked instances — because the routine would then choose the anchor after
+> its own sorting and can land on an interior vertex. Input 6 remains forced to `0`; nothing in the
+> command line selects the anchor. Full explanation below and in the `ANCHOR_MODE` note in
 > [`source/RAMSEY_MODEL_5.cpp`](source/RAMSEY_MODEL_5.cpp).
 
 One point deserves care, because it is easy to get backwards, and the answer is more specific than
@@ -73,11 +72,21 @@ the vertices in between. A small measured example, at `t = 11` with blue distanc
 target 5: the red graph has a `K_5`, yet `1 + omega(N(v))` is only 4 for `v` in `{2,3,7,8}`, so at
 such an anchor the reduction concludes that no `K_5` exists.
 
-So anchoring is legitimate in this class — at `0` or at `t-1`, and the propagator of input 5 uses
-exactly that, which is why it is complete. What cannot be used is the routine's own reduction,
-because the anchor is chosen by its internal ordering rather than by us. This model therefore asks
-that routine for a general search over all vertices. The consequence is a cost, not a loss of
-strength: the separator does more work than in the circulant case.
+So anchoring is legitimate in this class — at `0` or at `t-1` — and the propagator of input 5 uses
+exactly that, which is why it is complete. The separator now uses it too. What made the routine's
+own reduction unusable was never the reduction but the choice of anchor: the routine sorts the graph
+and then anchors at whatever sits last.
+
+The fix keeps the sorting and removes the choice. The routine sorts the neighbourhood of one vertex,
+and only the vertices inside that neighbourhood are permuted, so a vertex outside it cannot move. In
+circulant mode it sorts `N(0)` and anchors at the last position, which is safe because every vertex
+is a valid anchor. In this model's mode it sorts `N(t-1)` instead: `t-1` is never its own neighbour,
+so it stays at the last position and is the anchor, where translation makes the reduction valid. All
+of COPT's ordering, bounds, MNTS and CliSAT machinery is untouched — it simply no longer decides
+which vertex is fixed.
+
+The gain is the one the circulant case already had: the exact search runs on `G[N(t-1)]` for
+`target - 1` instead of on the whole graph for `target`.
 
 ### Why this class behaves differently
 
@@ -112,7 +121,7 @@ input 4 from `3` to `5`. The command line is the same 33 inputs, documented in
 | Input | What it does in this model |
 | ---: | --- |
 | 4 | Selects the model. Use `5`. During development this formulation was `6`; that value is now refused with a message, rather than reinterpreted, so that an older command line cannot quietly run something else. |
-| 6 | The circulant restriction. **Meaningless here and forced to `0`.** With it set, the CPLEX separation model constrains its clique search in a way that is written for the circulant case. The solver prints a notice and overrides the value, so no setting of input 6 can affect the search in this model. |
+| 6 | The circulant restriction. **Meaningless here and forced to `0`.** With it set, the CPLEX separation model constrains its clique search in a way that is written for the circulant case. The solver prints a notice and overrides the value, so no setting of input 6 can affect the search in this model. This input does not control the clique routine's anchor, which this model fixes at `t-1` on its own; see the warning above. |
 | 5 | The partial-colouring propagator and the integral pre-check of [Optional search additions](NEW-OPTIONS.md), with the same values: `0` or `1` historic behaviour, `2` the propagator, `3` the propagator plus the pre-check. The exact test they use is different here: a Toeplitz graph contains a `K_k` if and only if the subgraph induced on its own distance set contains a `K_(k-1)`, because a clique can be translated so that its smallest vertex becomes 0. Unlike the circulant implementation there is **no limit on the graph order**. |
 | 8 | Stronger cuts. `1` uses the Turán right-hand sides, `0` the weaker unit ones, exactly as documented. |
 | 9 | The separation route. `0` uses the internal clique solver, `1` the CPLEX separation model. Both search over all vertices in this model. |
@@ -159,3 +168,21 @@ One outcome of that campaign is worth stating, because it says what the larger c
 practice: on the pairs decided so far the linear-distance threshold equals the circulant one in every
 case but `(4,8)`, where it exceeds it by one, and no new lower bound on any classical Ramsey number
 followed.
+
+#### The fixed anchor
+
+The change of the clique routine's anchor was validated separately, since it touches the exact
+separation itself rather than the formulation.
+
+| Check | Result |
+| --- | --- |
+| The `t=11`, blue `{2,3}`, red target 5 counterexample | the anchored mode returns a valid `K_5`; the circulant mode still returns "not found", which is why it must not be used here |
+| Every Toeplitz graph for `t = 5..12` — all `2^(t-1)` distance sets, targets 3 to 7 — against an independent brute-force `omega` | 20,400 cases, no mismatch, and every returned clique verified pairwise in original vertex numbering |
+| Circulant regression, `t = 5..16`, all jump sets, targets 3 to 6, before and after the change | 3,024 cases, output identical |
+| The exhaustive small-instance suite above, rerun end to end | 364 instance-arm combinations, no mismatch, every certificate accepted by the checker |
+
+On the clique call itself the anchored mode is 3 to 7 times faster than the unreduced one when the
+target does not exist, which is the case the exact search has to work for. How much of that reaches
+the solver depends on the instance: across the recorded campaigns only about 4% of separation calls
+reach the exact search at all, the rest being answered by the heuristics, so runs dominated by the
+branch-and-bound tree rather than by exact separation are not expected to change materially.

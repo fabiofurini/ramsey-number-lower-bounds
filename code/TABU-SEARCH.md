@@ -19,9 +19,10 @@ its command line.
 
 The search now works for arbitrary forbidden clique sizes `(m,n) >= (3,3)`, in either a circulant
 or a linear-distance (Toeplitz) graph.  The geometry has one binary variable per distance: `floor(t/2)`
-for circulant graphs and exactly `t-1` for linear-distance graphs.  The linear mode deliberately
-disables the circulant-only reduction inside the clique separator; this is required for soundness,
-because Toeplitz graphs are not vertex-transitive.
+for circulant graphs and exactly `t-1` for linear-distance graphs.  The linear mode asks the clique separator to
+anchor its reduction at vertex `t-1` rather than let the routine pick the anchor itself; that is
+required for soundness, because Toeplitz graphs are not vertex-transitive and only the two ends are
+valid anchors.  See [the distance model's note](DISTANCE-MODEL.md#separation).
 
 Two optional complete initial pools can be requested: all K3 supports and/or all K4 supports.  This
 lets a run enumerate a small target on either colour and focus dynamic separation on the other target.

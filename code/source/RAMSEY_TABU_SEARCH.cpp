@@ -100,7 +100,9 @@ double RAMSEY_TABU_SEARCH_solve(data* RAMSEY_instance,
         std::cerr << "A complete small-clique pool is available only for K3 and K4" << std::endl;
         return -1.0;
     }
-    const bool is_circulant = tabu_config.geometry == DistanceGeometry::Circulant;
+    // 1 = circulant (every vertex is a valid anchor); -1 = linear/Toeplitz
+    // (anchor fixed at vertex t-1, valid by translation).
+    const int is_circulant = (tabu_config.geometry == DistanceGeometry::Circulant) ? 1 : -1;
 
     const int order = RAMSEY_instance->PARAM_SIZE_GRAPH;
     std::vector<std::vector<int>> graph(order, std::vector<int>(order, 0));

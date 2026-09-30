@@ -313,7 +313,7 @@ public:
 	(
 			int** fixing,
 			double* solution,
-			bool circulant,
+			int circulant,		/* 0 = no anchored reduction; 1 = circulant; -1 = distance/Toeplitz (anchor at vertex N-1) */
 			int TARGET /* ramsey m or ramsey n */,
 			bool flag_MNTS,
 			double TOUT_MNTS,
@@ -421,7 +421,7 @@ public:
 	(
 			int** fixing,
 			double* solution,
-			bool circulant,
+			int circulant,		/* 0 = no anchored reduction; 1 = circulant; -1 = distance/Toeplitz (anchor at vertex N-1) */
 			int TARGET /* ramsey m or ramsey n */,
 			bool flag_MNTS,
 			double TOUT_MNTS,

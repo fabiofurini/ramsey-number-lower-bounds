@@ -25,7 +25,9 @@ depart from that configuration.
 5. [The linear-distance model](DISTANCE-MODEL.md): input 4 = `5`, a formulation over a class
    strictly larger than the circulant one, in which the color of an edge depends on `|i-j|` rather
    than on the circular distance. Hereditary in the graph order, so a single infeasible order
-   settles the question.
+   settles the question. Its exact separation anchors the clique search at vertex `t-1`, which is
+   valid in this class by translation; the page explains why the anchor cannot be left to the
+   clique routine's own ordering.
 6. [The tabu search](TABU-SEARCH.md): input 4 = `6`, a generic heuristic for circulant and
    linear-distance colorings, with its own shorter command line. It can produce a certificate but never an exclusion.
 7. [Generic tabu validation](TABU-SEARCH-VALIDATION.md): independently checked small cases for the

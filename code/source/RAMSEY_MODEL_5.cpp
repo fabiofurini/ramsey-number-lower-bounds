@@ -1,5 +1,6 @@
 
 #include "RAMSEY_MODEL_5.h"
+#include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // WHY_IS_CIRCULANT_MUST_BE_ZERO
@@ -45,6 +46,32 @@
 // a legitimate anchor here -- but the restriction is written for the circulant case, so Main.cpp
 // forces that input to 0 for this model rather than relying on it.
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// ANCHOR_MODE
+//
+// The anchored reduction  omega(G) >= q  <=>  omega(N(a)) >= q-1  needs the anchor a to lie in
+// some clique of size q.  In a Toeplitz graph translation gives this for a = 0 and for a = t-1
+// (S - min(S) and S + (t-1-max(S)) are cliques of the same size), and for no vertex in between.
+//
+// Historically this model passed 0, disabling the reduction altogether, because the library
+// picked the anchor itself AFTER sorting and could land on an interior vertex.  The library now
+// takes an int: 1 keeps the circulant behaviour unchanged, and -1 sorts the neighbourhood of
+// t-1 instead of that of 0.  Only the vertices inside the sorted neighbourhood are permuted, so
+// t-1 -- which is never its own neighbour -- stays at position N-1 and remains the anchor.
+// The reduction is then applied at a vertex we control, and it is valid here.
+//
+// Set RAMSEY_MODEL5_ANCHOR=0 in the environment to fall back to the unreduced search for A/B
+// checks; any other value, or none, uses the anchored mode.
+///////////////////////////////////////////////////////////////////////////////////////////////
+static int model5_clique_anchor_mode()
+{
+	static const int mode = [] {
+		const char* e = getenv("RAMSEY_MODEL5_ANCHOR");
+		return (e != NULL && e[0] == '0' && e[1] == '\0') ? 0 : -1;
+	}();
+	return mode;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Partial-colouring propagator for MODEL 5 (distance / Toeplitz; t <= 127).
@@ -766,7 +793,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+								model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 								RAMSEY_instance->PARAM_M,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -781,7 +808,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+								model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 								RAMSEY_instance->PARAM_SIZE_GRAPH,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -884,7 +911,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+												model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 												RAMSEY_instance->PARAM_M,
 												0,//RAMSEY_instance->PARAM_MNTS,
 												0,//RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -899,7 +926,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+												model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 												RAMSEY_instance->PARAM_M,
 												RAMSEY_instance->PARAM_MNTS,
 												RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1151,7 +1178,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+								model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 								RAMSEY_instance->PARAM_N,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1165,7 +1192,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 						(
 								RAMSEY_instance->edge_fixing,
 								RAMSEY_instance->CLIQUE_SOL,
-								0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+								model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 								RAMSEY_instance->PARAM_SIZE_GRAPH,
 								RAMSEY_instance->PARAM_MNTS,
 								RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1295,7 +1322,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+												model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 												RAMSEY_instance->PARAM_N,
 												0,//RAMSEY_instance->PARAM_MNTS,
 												0,//RAMSEY_instance->PARAM_TOUT_MNTS,
@@ -1310,7 +1337,7 @@ int CPXPUBLIC mycutcallback_LAZY_MODEL_5(CPXCENVptr env,void *cbdata,int wherefr
 										(
 												RAMSEY_instance->edge_fixing_TEMP,
 												RAMSEY_instance->CLIQUE_SOL_TEMP,
-												0,   /* is_circulant: must be 0 here, see WHY_IS_CIRCULANT_MUST_BE_ZERO above */
+												model5_clique_anchor_mode(),   /* -1 = anchor fixed at vertex t-1, valid by translation; see ANCHOR_MODE above */
 												RAMSEY_instance->PARAM_N,
 												RAMSEY_instance->PARAM_MNTS,
 												RAMSEY_instance->PARAM_TOUT_MNTS,
