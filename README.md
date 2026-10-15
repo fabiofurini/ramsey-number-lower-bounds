@@ -2,7 +2,7 @@
 
 **[Explore the interactive project website ↗](https://ramsey-numbers.deepwand3.chatgpt.site/)**
 
-Browse graph constructions from 5 to 410 vertices, experiment with circulant colourings, and explore the paper’s results and downloadable certificates.
+Browse explicit graph constructions, experiment with circulant colourings, and explore the paper’s results and downloadable certificates. Read the [method in detail](https://ramsey-numbers.deepwand3.chatgpt.site/method.html).
 
 > Accompanying computational material for the paper *An Integer Programming Approach to Compute Lower Bounds for Ramsey Numbers Using Circulant Graphs*.
 
