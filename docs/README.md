@@ -7,6 +7,7 @@ The files in this directory are the website source and the published website. Th
 ## Edit a page
 
 - `index.html`: Ramsey definition, R(4,4) counterexample, graph families, circulant builder and colouring laboratory.
+- `known-numbers.html`: exact classical values, Radziszowski survey citation, circulant study values and their proof procedure.
 - `gallery.html`: blue graph gallery and explanation of complements and lower bounds.
 - `results.html`: paper results and certificate downloads.
 - `method.html`: the mathematical and computational method.

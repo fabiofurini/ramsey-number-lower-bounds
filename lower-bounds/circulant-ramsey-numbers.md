@@ -1,8 +1,9 @@
 # Circulant Ramsey numbers
 
 These graph certificates prove lower bounds for the circulant Ramsey numbers
-$R_C(m,n)$ — the smallest graph order at which no circulant $(m,n)$-coloring
-exists — reported in the paper's *Computational Study on Circulant Ramsey
+$R_C(m,n)$ — one more than the largest graph order admitting a circulant
+$(m,n)$-coloring, equivalently the threshold beyond which no such coloring
+exists at any order — reported in the paper's *Computational Study on Circulant Ramsey
 Numbers* section, for $m=3,4,5$. Each certificate proves only the
 lower-bound side $R_C(m,n)\ge N+1$; it is not a certificate for the matching
 upper bound. The exact value $R_C(m,n)=N+1$ is established in the paper by

@@ -15,17 +15,17 @@
     ctx.beginPath();ctx.arc(width/2,width/2,radius*1.055,0,2*Math.PI);ctx.strokeStyle='#dedfd4';ctx.lineWidth=width/800;ctx.stroke();
     let edges=0;
     ctx.strokeStyle='#2e5e86';
-    ctx.lineWidth=scale*(n<=17?1.6:n<=35?1.25:1);
+    ctx.lineWidth=scale*(n<=17?1.15:n<=35?.85:.55);
     ctx.beginPath();
     for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
       if(graph.distances[RamseyGraph.distance(a,b,n)-1]===0){ctx.moveTo(points[a].x,points[a].y);ctx.lineTo(points[b].x,points[b].y);edges++;}
     }
     ctx.stroke();
     ctx.fillStyle='#3b5360';
-    for(const p of points){ctx.beginPath();ctx.arc(p.x,p.y,scale*(n<=17?2.7:n<=35?2:1.6),0,Math.PI*2);ctx.fill();}
+    for(const p of points){ctx.beginPath();ctx.arc(p.x,p.y,scale*(n<=17?2.2:n<=35?1.6:1.2),0,Math.PI*2);ctx.fill();}
     return edges;
   }
-  RAMSEY_DATA.gallery.forEach(graph=>{
+  RAMSEY_DATA.gallery.filter(graph=>graph.order<=51).forEach(graph=>{
     const button=document.createElement('button');button.type='button';button.className='gallery-card';
     button.setAttribute('aria-label',`Enlarge the ${graph.order}-vertex construction for R(${graph.m},${graph.n})`);
     const top=document.createElement('div');top.className='gallery-card-top';

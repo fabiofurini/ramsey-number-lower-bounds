@@ -19,7 +19,7 @@
   <header class="site-header"><div class="wrap header-inner">
     <a class="brand" href="index.html" aria-label="Ramsey, home"><img src="assets/favicon.svg" width="29" height="29" alt="">Ramsey<span>a research project</span></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">☰</span></button>
-    <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="gallery.html" aria-current="page">Graph gallery</a><a href="results.html">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
+    <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="known-numbers.html">Known numbers</a><a href="gallery.html" aria-current="page">Graph gallery</a><a href="results.html">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
   </div></header>
   <main id="main">
     <section class="method-page-head wrap">
@@ -35,10 +35,10 @@
         <article><span class="eyebrow">03 / Lower bound</span><h2>Read the counterexample.</h2><p>Both conditions hold on N vertices, so the colouring proves R(m,n) ≥ N+1. The drawing illustrates the construction; the source certificate supports independent verification.</p></article>
       </div>
       <div class="gallery-worked-example"><h3>The 17-vertex example</h3><p>For R(4,4), the blue graph has no clique of four vertices and no independent set of four vertices. The latter condition excludes a red K<sub>4</sub>. This gives a counterexample on 17 vertices and proves <strong>R(4,4) ≥ 18</strong>.</p><p>The five-vertex and 17-vertex colourings are classical introductory examples. The gallery also includes constructions from the project’s certificate collection; the paper’s 25 improved R(3,n) bounds are listed on the <a href="results.html">results page</a>.</p></div>
-      <div class="gallery-heading"><h3>From 5 to 56 vertices</h3><span>Increasing orders · Blue colour class shown</span></div>
+      <div class="gallery-heading"><h3>From 5 to 51 vertices</h3><span>Increasing orders · Blue colour class shown</span></div>
       <div id="graph-gallery" class="graph-gallery" aria-label="Constructions of increasing graph order"></div>
       <p class="gallery-note">Each graph belongs to the indicated R(m,n) problem. Blue edges are shown; the red graph is their complement. Select a graph to enlarge it.</p>
-      <p class="gallery-note">The numbers 5 to 56 count vertices, not Ramsey numbers. Each card states its own target R(m,n) and the lower bound it establishes. Select a drawing to enlarge it, inspect its source, or open it in the interactive demo.</p>
+      <p class="gallery-note">The numbers 5 to 51 count vertices, not Ramsey numbers. Each card states its own target R(m,n) and the lower bound it establishes. Select a drawing to enlarge it, inspect its source, or open it in the interactive demo.</p>
     </section>
   </main>
   <dialog id="gallery-dialog" aria-labelledby="gallery-dialog-title"><div class="dialog-heading"><h2 id="gallery-dialog-title"></h2><button class="button secondary" id="close-gallery" type="button">Close ×</button></div><p id="gallery-dialog-description"></p><canvas id="gallery-canvas" width="1000" height="1000" role="img"></canvas><a id="gallery-try-example" class="button primary">Try this construction ↗</a><br><a id="gallery-certificate" class="text-link">View the source certificate ↗</a></dialog>

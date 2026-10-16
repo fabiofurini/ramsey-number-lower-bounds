@@ -1,6 +1,6 @@
 <!doctype html><html lang="it"><meta charset="utf-8"><title>Ramsey — verifica interazioni</title><h1>Verifica della pagina locale</h1><pre id="report">In corso…</pre><script>
 function loadPage(path){return new Promise(resolve=>{const frame=document.createElement('iframe');frame.style='width:1200px;height:900px';frame.title=path;frame.addEventListener('load',()=>resolve(frame),{once:true});frame.src='../../docs/'+path;document.body.append(frame);});}
-Promise.all(['index.html','results.html','gallery.html','method.html','index.html?example=56'].map(loadPage)).then(([frame,resultFrame,galleryFrame,methodFrame,directFrame])=>{
+Promise.all(['index.html','results.html','gallery.html','method.html','index.html?example=56','known-numbers.html'].map(loadPage)).then(([frame,resultFrame,galleryFrame,methodFrame,directFrame,knownFrame])=>{
  const report=document.getElementById('report'),lines=[];
  function check(ok,label){if(!ok)throw Error(label);lines.push('PASS '+label);}
  try{
@@ -35,12 +35,12 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   $('navigation').firstElementChild.click();check(!$('navigation').classList.contains('open'),'Chiusura del menu alla navigazione');
   const gd=galleryFrame.contentDocument,$g=id=>gd.getElementById(id);
   const cards=[...gd.querySelectorAll('.gallery-card')];
-  check(cards.length===12,'Dodici costruzioni nella galleria');
+  check(cards.length===11,'Undici costruzioni nella galleria');
   const orders=cards.map(c=>Number(c.querySelector('strong').textContent));
   check(orders.every((n,i)=>i===0||n>orders[i-1]),'Ordini strettamente crescenti nella galleria');
-  check(orders[0]===5&&orders.at(-1)===56,'Galleria limitata a 56 vertici');
-  cards.at(-1).click();check($g('gallery-dialog').open&&$g('gallery-dialog-title').textContent.includes('56'),'Ingrandimento della costruzione più grande');
-  check($g('gallery-certificate').getAttribute('href').endsWith('R_5_6_graphSize_56.clq'),'Certificato corretto dalla galleria');
+  check(orders[0]===5&&orders.at(-1)===51,'Galleria limitata a 51 vertici');
+  cards.at(-1).click();check($g('gallery-dialog').open&&$g('gallery-dialog-title').textContent.includes('51'),'Ingrandimento della costruzione più grande');
+  check($g('gallery-certificate').getAttribute('href').endsWith('R_4_8_graphSize_51.clq'),'Certificato corretto dalla galleria');
   $g('close-gallery').click();check(!$g('gallery-dialog').open,'Chiusura della galleria');
   check($('example-select').children.length===13,'Tredici costruzioni modificabili');
   for(const example of w.RAMSEY_DATA.examples){
@@ -63,9 +63,9 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check(d.getElementById('circulant-builder').compareDocumentPosition(d.getElementById('colouring'))&w.Node.DOCUMENT_POSITION_FOLLOWING,'Costruzione del grafo prima della colorazione');
   check(directFrame.contentDocument.getElementById('example-select').value==='56'&&directFrame.contentDocument.getElementById('blue-count').textContent==='0'&&directFrame.contentDocument.getElementById('red-count').textContent==='0','Apertura diretta dalla galleria sul preset a 56 vertici');
   check(methodFrame.contentDocument.getElementById('formulation'),'Metodo matematico ancora nella pagina dedicata');
-  check($g('gallery-try-example').getAttribute('href')==='index.html?example=56#explore','Collegamento dalla galleria all’esempio modificabile');
-  for(const page of [d,rd,gd,methodFrame.contentDocument]){
-   check(page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
+  check($g('gallery-try-example').getAttribute('href')==='index.html?example=51#explore','Collegamento dalla galleria all’esempio modificabile');
+  for(const page of [d,rd,gd,methodFrame.contentDocument,knownFrame.contentDocument]){
+   check(page.querySelector('nav a[href="known-numbers.html"]')&&page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
   }
   check($('builder-order').value==='17'&&$('builder-order').max==='56','Costruttore iniziale su 17 vertici, modificabile fino a 56');
   check($('builder-graph').querySelectorAll('.vertex-dot').length===17&&$('builder-graph').querySelectorAll('.graph-edge').length===68,'Grafo blu iniziale per R(4,4): 17 vertici e 68 archi');
@@ -76,6 +76,15 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check($('builder-graph').querySelectorAll('.graph-edge').length===0,'Costruzione del grafo senza archi');
   $('builder-use').click();check($('blue-count').textContent==='0'&&$('red-count').textContent==='15','Complemento rosso completo: quindici K4 su sei vertici');
   change('example-select','17');check($('blue-count').textContent==='0'&&$('red-count').textContent==='0','Ritorno all’esempio R(4,4) originale');
+  const kd=knownFrame.contentDocument;
+  check(kd.querySelectorAll('#ordinary-values tbody tr').length===9,'Nove valori esatti ordinari con fonte bibliografica');
+  check(kd.querySelectorAll('.circulant-values tbody tr').length===26,'Ventisei valori circolanti riportati nello studio');
+  check(kd.querySelectorAll('.circulant-values tr[data-status="new"]').length===8,'Otto nuovi valori circolanti');
+  check(kd.querySelectorAll('.circulant-values tr[data-status="reproduced"]').length===12,'Dodici risultati computazionali riprodotti');
+  check(kd.querySelectorAll('.circulant-values tr[data-status="classical"]').length===6,'Sei valori circolanti classici');
+  check(kd.querySelector('.circulant-values tr[data-m="3"][data-n="6"]').dataset.value==='17','Distinzione R_C(3,6)=17 da R(3,6)=18');
+  check(kd.querySelectorAll('.circulant-values a[download]').length===20,'Certificati costruttivi per tutti i venti risultati computazionali');
+  check(d.querySelector('.hero-definition-example .example-citation a').href.endsWith('/sur.pdf#page=7'),'Citazione del survey subito accanto all’esempio R(4,4)');
   report.textContent=lines.join('\n')+'\nALL CHECKS PASSED';document.body.dataset.status='passed';
  }catch(e){report.textContent=lines.join('\n')+'\nFAIL '+e.message;document.body.dataset.status='failed';}
 });

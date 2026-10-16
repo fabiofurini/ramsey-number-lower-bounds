@@ -181,3 +181,28 @@
 
 .builder-visual .graph-edge{stroke-dasharray:none;stroke-width:1.7;opacity:.8}
 @media(max-width:600px){.graph-gallery{grid-template-columns:1fr;gap:22px}.gallery-card{padding:18px}.gallery-card-top strong{font-size:31px}.gallery-card-top span,.gallery-card-bottom{font-size:13px}.gallery-card-proof{font-size:14px}}
+
+/* Reference page: clear status, provenance and readable numerical tables. */
+.hero-definition-example .example-citation{font-size:13px;line-height:1.75;margin-top:12px}.example-citation a,.reference-source a{color:var(--red);text-decoration:underline;text-underline-offset:3px}
+.reference-jumps{display:flex;flex-wrap:wrap;gap:12px 25px;margin-top:30px;font-size:14px;color:var(--red)}
+.reference-section>h2,.reference-circulant h2{margin-bottom:28px}
+.reference-lead{font-size:16px;line-height:1.9;color:var(--muted);max-width:950px}
+.reference-source{font-size:14px;line-height:1.85;color:var(--muted);max-width:1000px;margin:22px 0}
+.reference-table{max-width:900px;margin:25px 0 42px}.reference-table table{font-size:16px;white-space:normal}
+.reference-table tbody th{font-family:var(--serif);font-size:20px;letter-spacing:0;text-transform:none;color:var(--ink);border-bottom:1px solid var(--line);padding:16px 17px;font-weight:400}
+.reference-table td{font-size:17px}.reference-table td:last-child{text-align:left;font-size:15px}.reference-table td:nth-child(2){color:var(--red);font-weight:600}
+.exact-values-table{max-width:600px}.exact-values-table td:last-child{font-size:22px}.reference-featured{background:var(--red-soft)}
+.reference-open{margin-top:45px}.reference-open h3{margin-bottom:15px}.reference-open>p{font-size:15px;color:var(--muted)}
+.reference-bound-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:25px 0}
+.reference-bound-cards p{padding:23px 18px;border:1px solid var(--line);border-radius:5px;background:var(--paper);font-family:var(--serif);font-size:25px;margin:0;text-align:center}
+.reference-circulant{background:#eeeae1;border-block:1px solid var(--line)}.reference-circulant h3{margin-top:38px}
+.reference-example{padding:25px 28px;border:1px solid var(--line);background:var(--paper);border-radius:5px;margin:28px 0;max-width:1000px}
+.reference-example h3{margin:0 0 16px}.reference-example p{font-size:15px;line-height:1.9;color:var(--muted);margin:0}
+.reference-badge{display:block;font-family:var(--sans);font-size:11px;line-height:1.6;color:var(--muted);margin-top:5px}
+.reference-badge.new{color:var(--red);font-weight:600}.reference-table td a{color:var(--red);text-decoration:underline;text-underline-offset:3px}
+.reference-computation{max-width:950px}.further-reading{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1150px){.site-header nav{gap:16px}.site-header nav a{font-size:13px}}
+@media(max-width:900px) and (min-width:761px){.site-header nav{gap:11px}.site-header nav a{font-size:12px}.site-header nav .nav-github{padding:7px 10px}}
+@media(max-width:760px){.reference-bound-cards,.further-reading{grid-template-columns:1fr}.reference-example{padding:22px 20px}.reference-table table{font-size:15px}.reference-table th,.reference-table td{padding:13px 10px}.reference-table tbody th{font-size:18px;padding:14px 10px}.reference-table td:last-child{font-size:14px}.reference-table thead th{font-size:11px}.reference-badge{font-size:11px}.reference-jumps{gap:12px 20px}.reference-bound-cards p{font-size:26px}}
+
+@media(max-width:760px){.exact-values-table td:last-child{font-size:21px}}
