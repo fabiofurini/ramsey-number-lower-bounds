@@ -1,0 +1,82 @@
+<!doctype html><html lang="it"><meta charset="utf-8"><title>Ramsey — verifica interazioni</title><h1>Verifica della pagina locale</h1><pre id="report">In corso…</pre><script>
+function loadPage(path){return new Promise(resolve=>{const frame=document.createElement('iframe');frame.style='width:1200px;height:900px';frame.title=path;frame.addEventListener('load',()=>resolve(frame),{once:true});frame.src='../../docs/'+path;document.body.append(frame);});}
+Promise.all(['index.html','results.html','gallery.html','method.html','index.html?example=56'].map(loadPage)).then(([frame,resultFrame,galleryFrame,methodFrame,directFrame])=>{
+ const report=document.getElementById('report'),lines=[];
+ function check(ok,label){if(!ok)throw Error(label);lines.push('PASS '+label);}
+ try{
+  const w=frame.contentWindow,d=frame.contentDocument,$=id=>d.getElementById(id);
+  const change=(id,value)=>{$(id).value=value;$(id).dispatchEvent(new w.Event('change'));};
+  check(d.documentElement.lang==='en','English page language');
+  check($('hero-graph').querySelectorAll('circle.vertex-dot').length===17,'17 vertici nella costruzione illustrata');
+  check($('blue-count').textContent==='0'&&$('red-count').textContent==='0','Costruzione (4,4) valida su 17 vertici');
+  check($('distance-controls').children.length===8,'Otto classi circolari su 17 vertici');
+  $('distance-controls').firstElementChild.click();
+  check(Number($('blue-count').textContent.replaceAll(',',''))+Number($('red-count').textContent.replaceAll(',',''))>0,'Una modifica fa comparire clique vietate');
+  $('show-clique').click();check($('interactive-graph').querySelector('polygon')!==null,'Visualizzazione del testimone');
+  $('reset-example').click();check($('show-clique').disabled,'Ripristino del certificato');
+  change('example-select','5');check($('blue-count').textContent==='0'&&$('red-count').textContent==='0','R(3,3): colorazione valida su 5 vertici');
+  check($('distance-controls').children.length===2,'Due distanze circolari su 5 vertici');
+  const edge=$('interactive-graph').querySelector('[role=button]');edge.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+  check(!$('show-clique').disabled,'Modifica dell’arco tramite tastiera');
+  change('example-select','6');check(!$('show-clique').disabled,'Triangolo monocromatico su 6 vertici');
+  const rd=resultFrame.contentDocument,$r=id=>rd.getElementById(id);
+  const changeResult=(id,value)=>{$r(id).value=value;$r(id).dispatchEvent(new resultFrame.contentWindow.Event('change'));};
+  check($r('result-select').children.length===25,'Tutti i risultati importati');
+  check($r('result-grid').children.length===135,'135 distanze del certificato su 271 vertici');
+  $r('result-grid').firstElementChild.click();check($r('distance-info').textContent.includes('271 edges'),'Ispezione della classe di distanza');
+  changeResult('result-select','49');check($r('result-formula').textContent==='R(3,49) ≥ 411','Risultato R(3,49) senza errore di una unità');
+  check($r('result-grid').children.length===205,'205 distanze su 410 vertici');
+  $r('result-grid').lastElementChild.click();check($r('distance-info').textContent.includes('205 edges'),'Classe antipodale di ordine pari');
+  check($r('certificate-link').getAttribute('href').includes('R_3_49_graphSize_410.clq'),'Download del certificato corretto');
+  check($r('results-table').querySelectorAll('tr:not([hidden])').length===6,'Tabella compatta iniziale');
+  $r('expand-results').click();check($r('results-table').querySelectorAll('tr:not([hidden])').length===25,'Espansione della tabella');
+  $r('expand-results').click();check($r('results-table').querySelectorAll('tr:not([hidden])').length===6,'Chiusura della tabella');
+  d.querySelector('.menu-toggle').click();check($('navigation').classList.contains('open'),'Apertura del menu mobile');
+  $('navigation').firstElementChild.click();check(!$('navigation').classList.contains('open'),'Chiusura del menu alla navigazione');
+  const gd=galleryFrame.contentDocument,$g=id=>gd.getElementById(id);
+  const cards=[...gd.querySelectorAll('.gallery-card')];
+  check(cards.length===12,'Dodici costruzioni nella galleria');
+  const orders=cards.map(c=>Number(c.querySelector('strong').textContent));
+  check(orders.every((n,i)=>i===0||n>orders[i-1]),'Ordini strettamente crescenti nella galleria');
+  check(orders[0]===5&&orders.at(-1)===56,'Galleria limitata a 56 vertici');
+  cards.at(-1).click();check($g('gallery-dialog').open&&$g('gallery-dialog-title').textContent.includes('56'),'Ingrandimento della costruzione più grande');
+  check($g('gallery-certificate').getAttribute('href').endsWith('R_5_6_graphSize_56.clq'),'Certificato corretto dalla galleria');
+  $g('close-gallery').click();check(!$g('gallery-dialog').open,'Chiusura della galleria');
+  check($('example-select').children.length===13,'Tredici costruzioni modificabili');
+  for(const example of w.RAMSEY_DATA.examples){
+   change('example-select',String(example.order));
+   const total=Number($('blue-count').textContent.replaceAll(',',''))+Number($('red-count').textContent.replaceAll(',',''));
+   check(example.order===6?total>0:total===0,`Controllo esatto del preset a ${example.order} vertici`);
+  }
+  check($('blue-count-label').textContent==='blue K₅ cliques'&&$('red-count-label').textContent==='red K₆ cliques','Target distinti per R(5,6)');
+  check($('distance-controls').children.length===28,'28 distanze modificabili su 56 vertici');
+  d.querySelector('.example-shortcut[data-order="8"]').click();
+  check($('example-select').value==='8'&&$('red-count-label').textContent==='red K₄ cliques','Selezione rapida e target asimmetrici');
+  check(!d.querySelector('section#method')&&d.querySelector('a[href="method.html"]'),'Metodo in una pagina separata');
+  check(parseFloat(w.getComputedStyle(d.querySelector('.art-label')).fontSize)>=12,'Didascalia principale leggibile');
+  for(let mask=0;mask<8;mask++){
+   const red=new Set([1,2,3].filter(x=>(mask&(1<<(x-1)))!==0));
+   const q=w.RamseyGraph.cliques(6,3,red);check(q.red.length+q.blue.length>0,`R(3,3)=6, insieme delle distanze ${mask}`);
+  }
+  check(!d.getElementById('results')&&!d.getElementById('graph-gallery'),'Risultati e galleria spostati nelle rispettive pagine');
+  check(d.querySelector('main').children[1].id==='explore','Parte interattiva subito dopo l’introduzione');
+  check(d.getElementById('circulant-builder').compareDocumentPosition(d.getElementById('colouring'))&w.Node.DOCUMENT_POSITION_FOLLOWING,'Costruzione del grafo prima della colorazione');
+  check(directFrame.contentDocument.getElementById('example-select').value==='56'&&directFrame.contentDocument.getElementById('blue-count').textContent==='0'&&directFrame.contentDocument.getElementById('red-count').textContent==='0','Apertura diretta dalla galleria sul preset a 56 vertici');
+  check(methodFrame.contentDocument.getElementById('formulation'),'Metodo matematico ancora nella pagina dedicata');
+  check($g('gallery-try-example').getAttribute('href')==='index.html?example=56#explore','Collegamento dalla galleria all’esempio modificabile');
+  for(const page of [d,rd,gd,methodFrame.contentDocument]){
+   check(page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
+  }
+  check($('builder-order').value==='17'&&$('builder-order').max==='56','Costruttore iniziale su 17 vertici, modificabile fino a 56');
+  check($('builder-graph').querySelectorAll('.vertex-dot').length===17&&$('builder-graph').querySelectorAll('.graph-edge').length===68,'Grafo blu iniziale per R(4,4): 17 vertici e 68 archi');
+  $('builder-use').click();check($('example-select').value==='custom'&&$('blue-count').textContent==='0'&&$('red-count').textContent==='0','Trasferimento della costruzione valida R(4,4) alla colorazione');
+  $('builder-order').value='6';$('builder-order').dispatchEvent(new w.Event('input'));
+  check($('builder-graph').querySelectorAll('.graph-edge').length===3,'Classe antipodale su sei vertici: tre archi');
+  $('builder-distances').querySelector('[data-builder-distance="3"]').click();
+  check($('builder-graph').querySelectorAll('.graph-edge').length===0,'Costruzione del grafo senza archi');
+  $('builder-use').click();check($('blue-count').textContent==='0'&&$('red-count').textContent==='15','Complemento rosso completo: quindici K4 su sei vertici');
+  change('example-select','17');check($('blue-count').textContent==='0'&&$('red-count').textContent==='0','Ritorno all’esempio R(4,4) originale');
+  report.textContent=lines.join('\n')+'\nALL CHECKS PASSED';document.body.dataset.status='passed';
+ }catch(e){report.textContent=lines.join('\n')+'\nFAIL '+e.message;document.body.dataset.status='failed';}
+});
+</script></html>

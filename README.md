@@ -1,8 +1,8 @@
 # Ramsey Number Lower Bounds
 
-**[Explore the interactive project website ↗](https://ramsey-numbers.deepwand3.chatgpt.site/)**
+**[Explore the interactive project website ↗](https://fabiofurini.github.io/ramsey-number-lower-bounds/)**
 
-Browse explicit graph constructions, experiment with circulant colourings, and explore the paper’s results and downloadable certificates. Read the [method in detail](https://ramsey-numbers.deepwand3.chatgpt.site/method.html).
+Browse explicit graph constructions, experiment with circulant colourings, and explore the paper’s results and downloadable certificates. Read the [method in detail](https://fabiofurini.github.io/ramsey-number-lower-bounds/method.html).
 
 > Accompanying computational material for the paper *An Integer Programming Approach to Compute Lower Bounds for Ramsey Numbers Using Circulant Graphs*.
 
@@ -16,10 +16,13 @@ This repository provides the computational material needed to rerun the mathemat
 
 <p align="center"><em>A circulant (4,4)-colouring of K<sub>17</sub>. The two complementary colour classes both avoid a clique of order 4.</em></p>
 
+The website source is in [`docs/`](docs/README.md). Edit those files to update the pages; GitHub Pages publishes this folder automatically from `main`.
+
 ## Contents
 
 | Directory | What it contains |
 | --- | --- |
+| [`docs/`](docs/README.md) | Public interactive website: pages, graph demos, assets and certificate copies, published with GitHub Pages. |
 | [`code/`](code/README.md) | The executable package for rerunning the paper's models to search for new lower bounds or compute circulant Ramsey numbers, with complete instructions and input/output documentation. |
 | [`checker/`](checker/README.md) | The independent checker for deciding whether a graph certificate is an (m,n)-coloring. |
 | [`lower-bounds/`](lower-bounds/README.md) | Graph certificates and browser-renderable coloured circular-distance matrices. |

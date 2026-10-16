@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ramsey visual review</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:0;display:block}</style></head><body><iframe title="Local website review"></iframe><script>
+const params=new URLSearchParams(location.search),section=params.get('section')||'home';
+const frame=document.querySelector('iframe');if(params.has('width'))frame.style.width=params.get('width')+'px';const page=section.startsWith('gallery')?'gallery':section.startsWith('results')?'results':section==='method'?'method':'index';frame.src='../../docs/'+page+'.html';
+frame.addEventListener('load',()=>{
+ const w=frame.contentWindow,d=frame.contentDocument;
+ d.documentElement.style.scrollBehavior='auto';
+ if(params.has('example')){const s=d.getElementById('example-select');s.value=params.get('example');s.dispatchEvent(new w.Event('change'));}
+ const target=section==='builder'?d.getElementById('circulant-builder'):section==='intro'?d.getElementById('explore'):section==='edit'?d.querySelector('.editable-heading'):section==='gallery'?d.querySelector('.gallery-heading'):section==='results'?d.getElementById('results'):null;
+ if(target)w.scrollTo({top:target.getBoundingClientRect().top+w.scrollY-110,behavior:'instant'});
+ if(params.has('modal'))[...d.querySelectorAll('.gallery-card')].find(card=>card.querySelector('strong').textContent===params.get('modal'))?.click();
+ setTimeout(()=>{
+  const offending=[...d.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>d.documentElement.clientWidth+1&&w.getComputedStyle(el).position!=='absolute'&&!el.closest('.table-scroll')).slice(0,12).map(el=>({tag:el.tagName,id:el.id,class:el.getAttribute('class'),right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width}));
+  const result={viewport:w.innerWidth,client:d.documentElement.clientWidth,frameWidth:frame.clientWidth,pageWidth:d.documentElement.scrollWidth,overflow:d.documentElement.scrollWidth>w.innerWidth,captionFont:d.querySelector('.art-label')?w.getComputedStyle(d.querySelector('.art-label')).fontSize:null,offending};
+  document.body.dataset.qa=JSON.stringify(result);document.body.dataset.ready='true';
+ },200);
+});
+</script></body></html>

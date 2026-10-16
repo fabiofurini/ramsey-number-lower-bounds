@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Results — Ramsey</title>
+  <meta name="description" content="Explore the paper’s 25 Ramsey number lower bounds and download independently checkable graph certificates.">
+  <meta name="theme-color" content="#faf8f4">
+  <link rel="canonical" href="https://fabiofurini.github.io/ramsey-number-lower-bounds/results.html">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/data.js" defer></script>
+  <script src="assets/results.js" defer></script>
+  <script src="assets/navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="brand" href="index.html" aria-label="Ramsey, home"><img src="assets/favicon.svg" width="29" height="29" alt="">Ramsey<span>a research project</span></a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">☰</span></button>
+    <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="gallery.html">Graph gallery</a><a href="results.html" aria-current="page">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
+  </div></header>
+  <main id="main">
+    <section class="method-page-head wrap">
+      <a href="index.html#explore" class="text-link">← Back to the interactive colourings</a>
+      <p class="eyebrow">Results / From the paper</p>
+      <h1>Lower bounds.<br><em>Explicit evidence.</em></h1>
+      <p class="method-page-lead">Each construction avoids a blue triangle and a red clique of the prescribed size. A verified graph on N vertices proves R(3,n) ≥ N+1.</p>
+      <p class="page-context">These are the results reported in the accompanying paper. They are presented with their certificates and do not constitute a live list of world records.</p>
+    </section>
+    <div class="research-strip"><div class="wrap strip-inner"><span class="strip-intro">From the paper</span><div><strong>25</strong><span>improved lower bounds</span></div><div><strong>410</strong><span>vertices in the largest construction</span></div><div><strong>8</strong><span>new values in the circulant class</span></div><a href="index.html#project">Paper and authors <span aria-hidden="true">↗</span></a></div></div>
+    <section class="results-section results-page-section" id="results" aria-labelledby="results-title"><div class="wrap section">
+      <div class="section-head"><div><p class="eyebrow">The constructions</p><h2 id="results-title">Every bound has<br>a graph behind it.</h2></div><p>The paper improves lower bounds for 25 numbers R(3,n). Each construction comes with a certificate: an explicit graph that can be checked independently.</p></div>
+      <div class="result-feature">
+        <div class="result-story"><label class="field-label" for="result-select">Explore a result from the paper</label><select id="result-select"></select><p class="result-formula" id="result-formula"></p><p id="result-explanation"></p><div class="result-metrics"><div><strong id="result-order"></strong><span>vertices</span></div><div><strong id="result-edges"></strong><span>edges in total</span></div><div><strong id="result-distances"></strong><span>distance classes</span></div></div><a id="certificate-link" class="button primary" download>Download certificate <span aria-hidden="true">↓</span></a><p class="small muted">DIMACS format · The file describes the red graph; the blue graph is its complement.</p></div>
+        <div class="distance-panel"><div class="panel-top"><p class="field-label">The colouring’s fingerprint</p><span id="distance-total" class="mono"></span></div><div id="result-grid" class="result-grid" aria-label="Distance class colours of the certificate"></div><p id="distance-info" class="distance-info" aria-live="polite">Each cell is a circular distance. Select one to inspect its role.</p><div class="grid-legend"><span><i class="swatch red"></i> Red: avoids K<sub id="red-target">37</sub></span><span><i class="swatch blue"></i> Blue: avoids K₃</span></div></div>
+      </div>
+      <div class="table-header"><h3>The paper’s 25 lower bounds</h3><a href="certificates/results.csv" download class="text-link">Download results as CSV <span aria-hidden="true">↓</span></a></div>
+      <div class="table-scroll"><table><caption class="sr-only">Lower bounds for R(3,n) reported in the paper</caption><thead><tr><th scope="col">Ramsey number</th><th scope="col">Vertices in the construction</th><th scope="col">Proven lower bound</th><th scope="col"><span class="sr-only">Certificate</span></th></tr></thead><tbody id="results-table"></tbody></table></div>
+      <button id="expand-results" type="button" class="button secondary expand-results" aria-expanded="false">Show all 25 results <span aria-hidden="true">↓</span></button>
+      <p class="source-note">Results reported in the paper and the <a href="https://github.com/fabiofurini/ramsey-number-lower-bounds/blob/main/lower-bounds/ramsey-number-lower-bounds.md">project repository</a>; this is not a live survey of world records. The certificates establish lower bounds, not exact values of unrestricted Ramsey numbers.</p>
+    </div></section>
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><a class="brand" href="index.html">Ramsey<span>colourings, symmetries, new bounds</span></a><p>An introduction to the research project.<br><a href="certificates/LICENSE.txt">Certificates: CC BY-NC-SA 4.0</a> · <a href="assets/SOFTWARE-LICENSE.txt">Website code: GPL-3.0-or-later</a></p><a class="back-top" href="#">Back to top ↑</a></div></footer>
+</body>
+</html>
