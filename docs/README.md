@@ -25,6 +25,8 @@ On GitHub, open a file, choose **Edit**, make the change and commit it to `main`
 
 The `gallery/`, `results/` and `method/` directories provide short URL redirects; edit the corresponding `.html` files above for the actual page content.
 
+After changing a CSS or JavaScript asset locally, run `python3 website-tools/version_assets.py` and commit the updated HTML files together with the assets. This refreshes their URLs so browsers load the matching version instead of reusing an older cached script or stylesheet.
+
 ## Preview locally
 
 From the repository root:
