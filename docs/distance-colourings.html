@@ -59,6 +59,13 @@
       </div>
       <div class="colouring-intro" id="colouring"><p class="eyebrow">03 / Turn the graph into a colouring</p><h2>One graph. Its complement.<br>A possible counterexample.</h2><p>Colour the selected edges blue and every missing edge red. Instead of choosing colours for all N(N−1)/2 edges, you now have just <strong>N−1 distance colours</strong>.</p><p>Avoid a blue clique on m vertices and a red clique on n vertices. If both conditions hold on N vertices, the colouring proves <strong>R(m,n) ≥ N+1</strong>. Change a distance below and see whether the counterexample survives.</p></div>
       <div class="editable-heading"><h3>Now change a construction</h3><p>In these small examples, every edit is checked exactly in your browser.</p></div>
+      <details class="math-note" id="prediction-exercise"><summary>Try a prediction exercise</summary><div>
+        <p>Start with a valid construction, such as the 5-vertex R(3,3) example or the 17-vertex R(4,4) example.</p>
+        <p><strong>1. Predict.</strong> Choose a distance before changing it. Which colour could gain a forbidden clique? Will one appear, and which vertices might form it?</p>
+        <p><strong>2. Change.</strong> Switch that distance’s colour, then compare the blue and red clique counts with your prediction.</p>
+        <p><strong>3. Inspect.</strong> If a forbidden clique appears, select <strong>Show a clique</strong> and examine its vertices and edges. Otherwise, explain why the colouring still avoids both forbidden sizes. Use <strong>Reset</strong> to try another prediction.</p>
+        <p><strong>Hint:</strong> Only the colour gaining edges can acquire new cliques; the other colour loses edges. The question is whether those new edges actually complete a forbidden clique.</p>
+      </div></details>
       <div id="example-shortcuts" class="example-shortcuts" aria-label="Choose an editable graph by its number of vertices"></div>
       <p id="circulant-summary" class="circulant-summary" aria-live="polite"></p>
       <div class="explorer">
