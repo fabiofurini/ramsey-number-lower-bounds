@@ -7,7 +7,7 @@ This repository contains software and research material under separate licenses.
 Copyright © 2026 Fabio Furini. The following software is released under the GNU General Public License v3.0 or later (full text in [`LICENSE`](LICENSE)):
 
 - all files in [`code/`](code/) and [`checker/`](checker/);
-- website HTML, CSS and JavaScript software in [`docs/`](docs/) (except the certificate-derived dataset `docs/assets/data.js`), and the development tools and tests in [`website-tools/`](website-tools/);
+- website HTML, CSS and JavaScript software in [`docs/`](docs/) (except the certificate-derived datasets `docs/assets/data.js` and `docs/assets/witness-data.js`), and the development tools and tests in [`website-tools/`](website-tools/);
 - the Python renderers in [`assets/render_circulant_colouring.py`](assets/render_circulant_colouring.py) and [`lower-bounds/tools/`](lower-bounds/tools/).
 
 The compiled solver objects (`code/solver/RAMSEY.dynamic.o`, `code/solver/RAMSEY.dynamic.glibc228.o`) and compiled checkers (`checker/Ramsey_checker`, `checker/Ramsey_checker_glibc228`, `checker/Ramsey_checker_macOS`) statically incorporate routines from two libraries by Pablo San Segundo (Intelligent Control Research Group, CSIC-UPM):
@@ -25,7 +25,7 @@ Copyright © 2026 Fabio Furini. The following original research material is rele
 
 - the graph certificates and coloured matrices in [`lower-bounds/certificates/`](lower-bounds/certificates/) and [`lower-bounds/matrices/`](lower-bounds/matrices/), and their accompanying Markdown documentation;
 - the visual and data files in [`assets/`](assets/), except for the Python renderer named above;
-- the certificate copies and result data in [`docs/certificates/`](docs/certificates/), the derived dataset `docs/assets/data.js`, and accompanying research illustrations and documentation in `docs/`.
+- the certificate copies and result data in [`docs/certificates/`](docs/certificates/), the derived datasets `docs/assets/data.js` and `docs/assets/witness-data.js`, and accompanying research illustrations and documentation in `docs/`.
 
 See [`lower-bounds/LICENSE`](lower-bounds/LICENSE) for the CC license notice and the link to the full legal code. The paper authors retain authorship of the accompanying research; hosting this repository in the `fabiofurini` GitHub account does not transfer ownership or alter authorship.
 

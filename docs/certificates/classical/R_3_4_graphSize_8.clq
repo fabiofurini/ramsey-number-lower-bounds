@@ -1,0 +1,21 @@
+c Classical illustrative representative reconstructed for the website.
+c Not a new Ramsey result or a claimed historical original.
+c Both forbidden clique sizes checked by exhaustive subset enumeration.
+c Listed edges are red; blue is the complement. Licence: CC BY-NC-SA 4.0.
+p edge 8 16
+e 1 3
+e 1 4
+e 1 6
+e 1 7
+e 2 4
+e 2 5
+e 2 7
+e 2 8
+e 3 5
+e 3 6
+e 3 8
+e 4 6
+e 4 7
+e 5 7
+e 5 8
+e 6 8

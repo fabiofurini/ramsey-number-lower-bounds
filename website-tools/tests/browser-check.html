@@ -39,9 +39,9 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   const orders=cards.map(c=>Number(c.querySelector('strong').textContent));
   check(orders.every((n,i)=>i===0||n>orders[i-1]),'Ordini strettamente crescenti nella galleria');
   check(orders[0]===5&&orders.at(-1)===51,'Galleria limitata a 51 vertici');
-  cards.at(-1).click();check($g('gallery-dialog').open&&$g('gallery-dialog-title').textContent.includes('51'),'Ingrandimento della costruzione più grande');
-  check($g('gallery-certificate').getAttribute('href').endsWith('R_4_8_graphSize_51.clq'),'Certificato corretto dalla galleria');
-  $g('close-gallery').click();check(!$g('gallery-dialog').open,'Chiusura della galleria');
+  check(cards.every(card=>card.querySelectorAll('canvas').length===2),'Ogni costruzione mostra entrambi i grafi, blu e rosso');
+  check(cards.at(-1).querySelector('a.blue').getAttribute('href')==='witness.html?m=4&n=8&colour=blue','La figura blu apre la propria pagina visuale');
+  check(cards.at(-1).querySelector('a.red').getAttribute('href')==='witness.html?m=4&n=8&colour=red','La figura rossa apre il complemento nella pagina visuale');
   check($('example-select').children.length===13,'Tredici costruzioni modificabili');
   for(const example of w.RAMSEY_DATA.examples){
    change('example-select',String(example.order));
@@ -63,7 +63,6 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check(d.getElementById('circulant-builder').compareDocumentPosition(d.getElementById('colouring'))&w.Node.DOCUMENT_POSITION_FOLLOWING,'Costruzione del grafo prima della colorazione');
   check(directFrame.contentDocument.getElementById('example-select').value==='56'&&directFrame.contentDocument.getElementById('blue-count').textContent==='0'&&directFrame.contentDocument.getElementById('red-count').textContent==='0','Apertura diretta dalla galleria sul preset a 56 vertici');
   check(methodFrame.contentDocument.getElementById('formulation'),'Metodo matematico ancora nella pagina dedicata');
-  check($g('gallery-try-example').getAttribute('href')==='index.html?example=51#explore','Collegamento dalla galleria all’esempio modificabile');
   for(const page of [d,rd,gd,methodFrame.contentDocument,knownFrame.contentDocument]){
    check(page.querySelector('nav a[href="known-numbers.html"]')&&page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
   }
@@ -83,8 +82,12 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check(kd.querySelectorAll('.circulant-values tr[data-status="reproduced"]').length===12,'Dodici risultati computazionali riprodotti');
   check(kd.querySelectorAll('.circulant-values tr[data-status="classical"]').length===6,'Sei valori circolanti classici');
   check(kd.querySelector('.circulant-values tr[data-m="3"][data-n="6"]').dataset.value==='17','Distinzione R_C(3,6)=17 da R(3,6)=18');
-  check(kd.querySelectorAll('.circulant-values a[download]').length===20,'Certificati costruttivi per tutti i venti risultati computazionali');
+  check(kd.querySelectorAll('.circulant-values a[download]').length===26,'Certificati scaricabili per tutti i ventisei witness');
   check(d.querySelector('.hero-definition-example .example-citation a').href.endsWith('/sur.pdf#page=7'),'Citazione del survey subito accanto all’esempio R(4,4)');
+  check(kd.querySelectorAll('.circulant-values .view-witness').length===26,'Ogni witness apre una pagina web visuale');
+  const comparison=kd.querySelector('.circulant-values tr[data-m="3"][data-n="13"] .ordinary-comparison');
+  check(comparison.dataset.lower==='61'&&comparison.dataset.upper==='68','Lower e upper bound ordinari affiancati a R_C(3,13)');
+  check(kd.querySelector('.circulant-values tr[data-m="3"][data-n="6"] .ordinary-comparison').dataset.lower==='18','Valore ordinario esatto accanto al valore circolante');
   report.textContent=lines.join('\n')+'\nALL CHECKS PASSED';document.body.dataset.status='passed';
  }catch(e){report.textContent=lines.join('\n')+'\nFAIL '+e.message;document.body.dataset.status='failed';}
 });

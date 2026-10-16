@@ -8,7 +8,9 @@ The files in this directory are the website source and the published website. Th
 
 - `index.html`: Ramsey definition, R(4,4) counterexample, graph families, circulant builder and colouring laboratory.
 - `known-numbers.html`: exact classical values, Radziszowski survey citation, circulant study values and their proof procedure.
-- `gallery.html`: blue graph gallery and explanation of complements and lower bounds.
+- `gallery.html`: paired blue/red graph gallery and explanation of complements and lower bounds.
+- `witness.html?m=3&n=13`: visual witness page, colour selection, zoom, distance inspection, SVG image export and certificate download.
+- `assets/witness-data.js`: 26 study and classical witness distance sets; rebuild with `python3 website-tools/build_witness_data.py`.
 - `results.html`: paper results and certificate downloads.
 - `method.html`: the mathematical and computational method.
 - `assets/style.css`: shared layout, colours, fonts and responsive rules.

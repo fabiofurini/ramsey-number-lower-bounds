@@ -74,7 +74,7 @@
       const d=distance(a,b,n),red=redDistances.has(d),highlight=witness.includes(a)&&witness.includes(b);
       if(display==='blue'&&red||display==='red'&&!red)continue;
       const attrs={x1:pts[a].x,y1:pts[a].y,x2:pts[b].x,y2:pts[b].y};
-      const line=svg('line',{...attrs,stroke:red?'#992d43':'#416b91','stroke-width':highlight?3.6:hero?1.2:n<=6?2.2:1.35,opacity:witness.length?(highlight?1:.13):hero?.62:.65,class:'graph-edge'});
+      const line=svg('line',{...attrs,'data-distance':d,stroke:red?'#992d43':'#416b91','stroke-width':highlight?3.6:hero?1.2:n<=6?2.2:1.35,opacity:witness.length?(highlight?1:.13):hero?.62:.65,class:'graph-edge'});
       if(!red&&!hero)line.setAttribute('stroke-dasharray','5 4');
       if(interactive){
         const group=svg('g',{class:'edge-button','data-edge':`${a}-${b}`,tabindex:'0',role:'button','aria-label':`Edge ${a+1}–${b+1}, distance ${d}, ${red?'red':'blue'}. Switch this distance.`});

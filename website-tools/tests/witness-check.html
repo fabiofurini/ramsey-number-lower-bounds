@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Witness viewer checks</title><pre id="report">Running…</pre><script>
+function loadPage(query){return new Promise(resolve=>{const frame=document.createElement('iframe');frame.style='width:1100px;height:900px';frame.title=query;frame.onload=()=>resolve(frame);frame.src='../../docs/witness.html?'+query;document.body.append(frame);});}
+(async()=>{
+ const lines=[],check=(ok,label)=>{if(!ok)throw Error(label);lines.push('PASS '+label);};
+ try{
+  const frames=await Promise.all(['m=3&n=13','m=3&n=20','m=4&n=5&colour=red','m=3&n=6','m=99&n=99'].map(loadPage));
+  for(const [index,frame] of frames.entries()){
+   const w=frame.contentWindow,d=frame.contentDocument,$=id=>d.getElementById(id);
+   if(index===4){check($('witness-content').hidden&&!$('witness-error').hidden,'Unknown witness has a useful error page');continue;}
+   const params=new URLSearchParams(new URL(w.location.href).search),row=w.RAMSEY_WITNESSES.find(r=>String(r.m)===params.get('m')&&String(r.n)===params.get('n'));
+   const certificate=await (await w.fetch('certificates/'+row.certificate)).text();
+   const red=Number(certificate.match(/^p\s+edge\s+\d+\s+(\d+)/m)[1]),total=row.order*(row.order-1)/2;
+   check($('witness-graph').querySelectorAll('.vertex-dot').length===row.order,'Correct vertex count: '+row.order);
+   for(const [colour,count] of [['blue',total-red],['red',red],['both',total]]){
+    $('witness-edges').value=colour;$('witness-edges').dispatchEvent(new w.Event('change'));
+    check($('witness-graph').querySelectorAll('.graph-edge').length===count,`${row.order} vertices: ${colour} edge count matches DIMACS certificate`);
+   }
+   $('witness-distances').firstElementChild.click();
+   check($('witness-graph').querySelectorAll('.selected-distance').length===row.order,'Distance highlighting: '+row.order+' edges');
+   $('witness-zoom-in').click();check($('witness-graph').style.width==='150%','Zoom enlarges drawing');
+   $('witness-reset-view').click();check($('witness-edges').value==='blue'&&$('witness-graph').style.width==='100%','Reset restores full blue graph');
+   check($('witness-download').href.endsWith(row.certificate),'Separate source certificate download');
+   let exported=null,filename=null;
+   const create=w.URL.createObjectURL,click=w.HTMLAnchorElement.prototype.click;
+   w.URL.createObjectURL=blob=>{exported=blob;return create.call(w.URL,blob);};
+   w.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
+   $('witness-image').click();w.HTMLAnchorElement.prototype.click=click;w.URL.createObjectURL=create;
+   const image=await exported.text();check(exported.type==='image/svg+xml'&&image.includes('<svg')&&image.includes('#fffefa')&&filename.endsWith('.svg'),'Download graph image exports a standalone SVG');
+  }
+  document.getElementById('report').textContent=lines.join('\n')+'\nALL CHECKS PASSED';document.body.dataset.status='passed';
+ }catch(error){document.getElementById('report').textContent=lines.join('\n')+'\nFAIL '+error.message;document.body.dataset.status='failed';}
+})();
+</script></html>
