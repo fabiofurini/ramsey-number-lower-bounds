@@ -5,7 +5,7 @@ frame.addEventListener('load',()=>{
  const w=frame.contentWindow,d=frame.contentDocument;
  d.documentElement.style.scrollBehavior='auto';
  if(params.has('example')){const s=d.getElementById('example-select');s.value=params.get('example');s.dispatchEvent(new w.Event('change'));}
- const target=section==='known-comparison'?d.querySelector('.circulant-values'):section==='known-table'?d.getElementById('ordinary'):section==='known-circulant'?d.getElementById('circulant'):section==='builder'?d.getElementById('circulant-builder'):section==='intro'?d.getElementById('explore'):section==='edit'?d.querySelector('.editable-heading'):section==='gallery'?d.querySelector('.gallery-heading'):section==='results'?d.getElementById('results'):null;
+ const target=section==='witness-complement'?d.querySelector('.witness-red-section'):section==='known-comparison'?d.querySelector('.circulant-values'):section==='known-table'?d.getElementById('ordinary'):section==='known-circulant'?d.getElementById('circulant'):section==='builder'?d.getElementById('circulant-builder'):section==='intro'?d.getElementById('explore'):section==='edit'?d.querySelector('.editable-heading'):section==='gallery'?d.querySelector('.gallery-heading'):section==='results'?d.getElementById('results'):null;
  if(target)w.scrollTo({top:target.getBoundingClientRect().top+w.scrollY-110,behavior:'instant'});
  if(params.has('modal'))[...d.querySelectorAll('.gallery-card')].find(card=>card.querySelector('strong').textContent===params.get('modal'))?.click();
  setTimeout(()=>{

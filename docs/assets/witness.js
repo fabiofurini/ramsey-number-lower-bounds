@@ -36,12 +36,18 @@
  $('witness-edges').addEventListener('change',()=>{selected=null;draw();});
  $('witness-zoom-in').addEventListener('click',()=>setZoom(zoom+.5));$('witness-zoom-out').addEventListener('click',()=>setZoom(zoom-.5));
  $('witness-reset-view').addEventListener('click',()=>{selected=null;$('witness-edges').value='blue';setZoom(1);draw();});
- $('witness-image').addEventListener('click',()=>{
-  const original=$('witness-graph'),copy=original.cloneNode(true),elements=original.querySelectorAll('*'),clones=copy.querySelectorAll('*');
+ function downloadImage(original,colour){
+  const copy=original.cloneNode(true),elements=original.querySelectorAll('*'),clones=copy.querySelectorAll('*');
   elements.forEach((element,i)=>{const style=getComputedStyle(element);for(const property of ['fill','stroke','stroke-width','stroke-dasharray','opacity','font-size','font-family'])clones[i].style.setProperty(property,style.getPropertyValue(property));});
   copy.removeAttribute('id');copy.setAttribute('xmlns','http://www.w3.org/2000/svg');copy.setAttribute('width','900');copy.setAttribute('height','900');copy.style.width='900px';copy.style.background='#fffefa';const background=document.createElementNS('http://www.w3.org/2000/svg','rect');background.setAttribute('width','900');background.setAttribute('height','900');background.setAttribute('fill','#fffefa');copy.prepend(background);
   const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(copy)],{type:'image/svg+xml'}));
-  const link=document.createElement('a');link.href=url;link.download=`R_${graph.m}_${graph.n}_${N}_vertices_${$('witness-edges').value}.svg`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
- });
+  const link=document.createElement('a');link.href=url;link.download=`R_${graph.m}_${graph.n}_${N}_vertices_${colour}.svg`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
+ $('witness-image').addEventListener('click',()=>downloadImage($('witness-graph'),$('witness-edges').value));
+ $('witness-red-image').addEventListener('click',()=>downloadImage($('witness-red-graph'),'red'));
+ $('witness-red-condition').textContent=`No red clique on ${graph.n} vertices.`;
+ $('witness-red-summary').textContent=`${N} vertices · ${redEdges} red edges. Every edge missing from the blue graph belongs to this red graph.`;
+ RamseyGraph.render($('witness-red-graph'),{n:N,redDistances:red,size:900,display:'red'});
+ $('witness-red-graph').setAttribute('aria-label',`Red complement on ${N} vertices, avoiding cliques of size ${graph.n}`);
  draw();
 })();

@@ -19,6 +19,7 @@ function loadPage(query){return new Promise(resolve=>{const frame=document.creat
    check($('witness-graph').querySelectorAll('.selected-distance').length===row.order,'Distance highlighting: '+row.order+' edges');
    $('witness-zoom-in').click();check($('witness-graph').style.width==='150%','Zoom enlarges drawing');
    $('witness-reset-view').click();check($('witness-edges').value==='blue'&&$('witness-graph').style.width==='100%','Reset restores full blue graph');
+   check($('witness-red-graph').querySelectorAll('.vertex-dot').length===row.order&&$('witness-red-graph').querySelectorAll('.graph-edge').length===red,'Red complement is visible below the main drawing');
    check($('witness-download').href.endsWith(row.certificate),'Separate source certificate download');
    let exported=null,filename=null;
    const create=w.URL.createObjectURL,click=w.HTMLAnchorElement.prototype.click;
@@ -26,6 +27,7 @@ function loadPage(query){return new Promise(resolve=>{const frame=document.creat
    w.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
    $('witness-image').click();w.HTMLAnchorElement.prototype.click=click;w.URL.createObjectURL=create;
    const image=await exported.text();check(exported.type==='image/svg+xml'&&image.includes('<svg')&&image.includes('#fffefa')&&filename.endsWith('.svg'),'Download graph image exports a standalone SVG');
+   w.URL.createObjectURL=blob=>{exported=blob;return create.call(w.URL,blob);};w.HTMLAnchorElement.prototype.click=function(){filename=this.download;};$('witness-red-image').click();w.HTMLAnchorElement.prototype.click=click;w.URL.createObjectURL=create;check(filename.endsWith('_red.svg')&&exported.type==='image/svg+xml','Separate red image download');
   }
   document.getElementById('report').textContent=lines.join('\n')+'\nALL CHECKS PASSED';document.body.dataset.status='passed';
  }catch(error){document.getElementById('report').textContent=lines.join('\n')+'\nFAIL '+error.message;document.body.dataset.status='failed';}
