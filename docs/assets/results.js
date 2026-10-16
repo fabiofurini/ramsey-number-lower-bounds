@@ -34,19 +34,19 @@
     });
   }
   $('result-select').addEventListener('change',drawResult);drawResult();
-  rows.forEach((row,i)=>{
-    const tr=document.createElement('tr');tr.hidden=i>=6;
-    for(const text of [`R(3,${row.n})`,format(row.order),`R(3,${row.n}) ≥ ${row.bound}`]){
-      const td=document.createElement('td');td.textContent=text;tr.append(td);
-    }
-    const td=document.createElement('td'),a=document.createElement('a');
-    a.href=`certificates/${row.certificate}`;a.download=row.certificate;a.textContent='Certificate ↓';
-    a.setAttribute('aria-label',`Download the certificate for R(3,${row.n})`);td.append(a);tr.append(td);$('results-table').append(tr);
-  });
+  const tableRows=[...$('results-table').querySelectorAll('tr')];
+  tableRows.forEach((tr,i)=>{tr.hidden=i>=6;});
+  $('expand-results').hidden=false;
+  $('result-explorer').hidden=false;
+  function setExpanded(expanded){
+    tableRows.forEach((tr,i)=>{tr.hidden=!expanded&&i>=6;});
+    $('expand-results').setAttribute('aria-expanded',String(expanded));
+    $('expand-results').textContent=expanded?'Show fewer ↑':'Show all 25 results ↓';
+  }
+  $('browse-results').addEventListener('click',()=>setExpanded(true));
+  if(location.hash==='#paper-results')setExpanded(true);
   $('expand-results').addEventListener('click',()=>{
     const expanded=$('expand-results').getAttribute('aria-expanded')==='true';
-    $('results-table').querySelectorAll('tr').forEach((tr,i)=>{tr.hidden=expanded&&i>=6;});
-    $('expand-results').setAttribute('aria-expanded',String(!expanded));
-    $('expand-results').textContent=expanded?'Show all 25 results ↓':'Show fewer ↑';
+    setExpanded(!expanded);
   });
 })();

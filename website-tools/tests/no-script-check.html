@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Scientific content without scripts</title><pre id="report">Running…</pre><script>
+function page(path){return new Promise(resolve=>{const f=document.createElement('iframe');f.setAttribute('sandbox','allow-same-origin');f.style='width:390px;height:1200px';f.title=path;f.addEventListener('load',()=>resolve(f),{once:true});f.src='../../docs/'+path;document.body.append(f);});}
+Promise.all(['results.html','gallery.html'].map(page)).then(([rf,gf])=>{
+ const lines=[],rd=rf.contentDocument,gd=gf.contentDocument;
+ const check=(ok,label)=>{if(!ok)throw Error(label);lines.push('PASS '+label);};
+ try{
+  check(rd.querySelectorAll('#result-select option').length===0,'Result scripts are disabled in the sandboxed page');
+  check(rd.querySelectorAll('#results-table tr').length===25,'All 25 results exist without scripts');
+  check([...rd.querySelectorAll('#results-table tr')].every(tr=>!tr.hidden&&rf.contentWindow.getComputedStyle(tr).display!=='none'),'Every result row is visible');
+  check(rd.querySelectorAll('#results-table a[download]').length===25,'All 25 certificates can be downloaded');
+  check(rd.querySelector('.reference-jumps a[download]').getAttribute('href')==='certificates/results.csv','CSV directly available at the top');
+  check(rd.getElementById('expand-results').hidden&&rd.getElementById('result-explorer').hidden,'Script-dependent controls are hidden');
+  check(gd.querySelectorAll('.gallery-card').length===11&&gd.querySelectorAll('.gallery-pair img').length===22,'Eleven blue/red graph pairs without scripts');
+  check([...gd.querySelectorAll('#graph-gallery a[data-witness]')].every(a=>a.getAttribute('href').startsWith('assets/gallery/')),'Graph links open standalone SVGs without scripts');
+  check(gd.querySelectorAll('.gallery-card a[download]').length===11,'Direct certificate downloads for every gallery graph');
+  check(gd.querySelector('.gallery-pair img').complete&&gd.querySelector('.gallery-pair img').naturalWidth>0,'SVG graph renders successfully');
+  for(const [d,f] of [[rd,rf],[gd,gf]]){
+   check(d.querySelector('.menu-toggle').hidden,'Unavailable mobile menu button stays hidden');
+   check(f.contentWindow.getComputedStyle(d.querySelector('.no-script-navigation')).display!=='none','Static navigation visible on mobile');
+   check(d.querySelectorAll('.no-script-navigation a').length===7,'All seven navigation links accessible');
+   check(d.documentElement.scrollWidth<=f.contentWindow.innerWidth,'No horizontal page overflow on mobile');
+  }
+  lines.push('ALL CHECKS PASSED');
+ }catch(error){lines.push('FAIL '+error.stack);}
+ document.getElementById('report').textContent=lines.join('\n');
+});
+</script></html>

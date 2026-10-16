@@ -28,9 +28,11 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check($r('result-grid').children.length===205,'205 distanze su 410 vertici');
   $r('result-grid').lastElementChild.click();check($r('distance-info').textContent.includes('205 edges'),'Classe antipodale di ordine pari');
   check($r('certificate-link').getAttribute('href').includes('R_3_49_graphSize_410.clq'),'Download del certificato corretto');
+  check($r('results-table').querySelectorAll('tr').length===25,'Tutte le righe statiche senza duplicati');
   check($r('results-table').querySelectorAll('tr:not([hidden])').length===6,'Tabella compatta iniziale');
   $r('expand-results').click();check($r('results-table').querySelectorAll('tr:not([hidden])').length===25,'Espansione della tabella');
   $r('expand-results').click();check($r('results-table').querySelectorAll('tr:not([hidden])').length===6,'Chiusura della tabella');
+  $r('browse-results').click();check($r('results-table').querySelectorAll('tr:not([hidden])').length===25,'Il collegamento iniziale apre tutti i risultati');
   d.querySelector('.menu-toggle').click();check($('navigation').classList.contains('open'),'Apertura del menu mobile');
   $('navigation').firstElementChild.click();check(!$('navigation').classList.contains('open'),'Chiusura del menu alla navigazione');
   const gd=galleryFrame.contentDocument,$g=id=>gd.getElementById(id);
@@ -39,7 +41,7 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   const orders=cards.map(c=>Number(c.querySelector('strong').textContent));
   check(orders.every((n,i)=>i===0||n>orders[i-1]),'Ordini strettamente crescenti nella galleria');
   check(orders[0]===5&&orders.at(-1)===51,'Galleria limitata a 51 vertici');
-  check(cards.every(card=>card.querySelectorAll('canvas').length===2),'Ogni costruzione mostra entrambi i grafi, blu e rosso');
+  check(cards.every(card=>card.querySelectorAll('.gallery-pair img').length===2),'Ogni costruzione mostra entrambi i grafi, blu e rosso');
   check(cards.at(-1).querySelector('a.blue').getAttribute('href')==='witness.html?m=4&n=8&colour=blue','La figura blu apre la propria pagina visuale');
   check(cards.at(-1).querySelector('a.red').getAttribute('href')==='witness.html?m=4&n=8&colour=red','La figura rossa apre il complemento nella pagina visuale');
   check($('example-select').children.length===13,'Tredici costruzioni modificabili');
@@ -85,6 +87,7 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check(kd.querySelectorAll('.circulant-values a[download]').length===26,'Certificati scaricabili per tutti i ventisei witness');
   check(d.querySelector('.hero-definition-example .example-citation a').href.endsWith('/sur.pdf#page=7'),'Citazione del survey subito accanto all’esempio R(4,4)');
   check(kd.querySelectorAll('.circulant-values .view-witness').length===26,'Ogni witness apre una pagina web visuale');
+  check(kd.getElementById('circulant-proof-note').textContent.includes('57-vertex witness'),'Distinzione esplicita tra witness ed esclusioni vicino alle tabelle');
   const comparison=kd.querySelector('.circulant-values tr[data-m="3"][data-n="13"] .ordinary-comparison');
   check(comparison.dataset.lower==='61'&&comparison.dataset.upper==='68','Lower e upper bound ordinari affiancati a R_C(3,13)');
   check(kd.querySelector('.circulant-values tr[data-m="3"][data-n="6"] .ordinary-comparison').dataset.lower==='18','Valore ordinario esatto accanto al valore circolante');

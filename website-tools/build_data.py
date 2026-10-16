@@ -110,6 +110,8 @@ def main():
     (DIST / "certificates/results.csv").write_text(out.getvalue())
     shutil.copy2(REPO / "lower-bounds/LICENSE", DIST / "certificates/LICENSE.txt")
     shutil.copy2(REPO / "LICENSE", DIST / "assets/SOFTWARE-LICENSE.txt")
+    from build_static_content import build_static_content
+    build_static_content()
     print(f"Imported {len(rows)} circulant certificates; checked format, symmetry and blue triangle-freeness.")
     print("Checked the 17-vertex illustration contains no monochromatic K4.")
     print("The red K_n exclusions in the large certificates are results of the paper, not re-proved by this importer.")

@@ -9,15 +9,16 @@ The files in this directory are the website source and the published website. Th
 - `index.html`: Ramsey definition, R(4,4) counterexample, graph families, circulant builder and colouring laboratory.
 - `distance-colourings.html`: linear-distance twin of the homepage, with curved edges above/below a vertex line, N−1 independent colours, size selection and exact clique checks. Presets embed existing circulant witnesses. This is presented as an open research direction outside the paper.
 - `known-numbers.html`: exact classical values, Radziszowski survey citation, circulant study values and their proof procedure.
-- `gallery.html`: paired blue/red graph gallery and explanation of complements and lower bounds.
+- `gallery.html`: static paired blue/red graph gallery and certificate links, readable without JavaScript.
+- `assets/gallery/`: 22 generated SVG figures, also viewable directly without JavaScript.
 - `witness.html?m=3&n=13`: visual witness page, colour selection, zoom, distance inspection, SVG image export and certificate download.
 - `assets/witness-data.js`: 26 study and classical witness distance sets; rebuild with `python3 website-tools/build_witness_data.py`.
-- `results.html`: paper results and certificate downloads.
+- `results.html`: all 25 results and certificate links in static HTML; JavaScript adds the distance inspector and compact table view.
 - `method.html`: the mathematical and computational method.
 - `assets/style.css`: shared layout, colours, fonts and responsive rules.
 - `assets/app.js`: homepage builder and colouring laboratory.
-- `assets/gallery.js`: gallery drawing and enlarged views.
-- `assets/results.js`: results selector, distance grid and table.
+- `assets/gallery.js`: progressively links the static figures to the interactive witness viewer.
+- `assets/results.js`: results selector, distance grid and table expansion; it does not create the table data.
 - `assets/graph.js`: graph rendering and exact clique counts in the browser.
 - `assets/data.js`: certificate-derived data and example presets.
 - `assets/analytics.js`: Cloudflare Web Analytics, using the same public site token as the teaching pages on `fabiofurini.github.io`. Analytics runs only on the live hostname; visits are viewed in the Cloudflare dashboard, filtered by the `/ramsey-number-lower-bounds/` path. It is not a visible public counter.
@@ -41,6 +42,8 @@ Open http://127.0.0.1:8765/ . Stop the server with Ctrl+C. All computation for t
 
 ## Verify changes
 
+Run `python3 website-tools/tests/static-content-check.py` to compare all static result rows and gallery edge counts with the downloadable certificates. In the browser, `website-tools/tests/no-script-check.html` checks results, figures, direct SVG links and mobile navigation in sandboxed pages where scripts are disabled.
+
 For exact counting and preset checks, using Node.js:
 
 ```bash
@@ -54,6 +57,18 @@ python3 -m http.server 8766 --bind 127.0.0.1
 ```
 
 Open http://127.0.0.1:8766/website-tools/tests/browser-check.html . It checks the demos, custom circulant construction, all preset sizes, cross-page navigation, gallery and paper-result interactions. `website-tools/tests/distance-check.html` checks the linear-distance UI, independent edits to d and N−d, curved rendering, builder edge counts and a separately enumerated custom graph.
+
+## Refresh static scientific content
+
+```bash
+python3 website-tools/build_static_content.py
+python3 website-tools/build_static_content.py --check
+python3 website-tools/version_assets.py
+```
+
+This reads the existing certificate-derived `data.js` and `witness-data.js`, regenerates the result rows and gallery SVGs, and checks that the gallery colours agree with the witness distances. It preserves the rest of the HTML. The figures retain the research material's CC BY-NC-SA 4.0 licence. `build_data.py` also refreshes this static content when it rebuilds the data.
+
+With JavaScript disabled, every result row and certificate link remains visible, gallery links open the standalone SVG figures, and mobile navigation uses ordinary links. With JavaScript enabled, the existing six-row table, distance inspector and interactive witness links remain available. The initial “Browse all 25 results” link opens the full table.
 
 ## Regenerate certificate data
 

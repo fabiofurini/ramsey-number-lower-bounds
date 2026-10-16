@@ -264,3 +264,26 @@
 
 .distance-page .linear-scroll svg{aspect-ratio:auto}.distance-page .linear-scroll svg[viewBox="0 0 900 300"]{aspect-ratio:3}
 .distance-page .linear-scroll svg[viewBox="0 0 900 520"]{aspect-ratio:900/520}
+
+/* Scientific content stays readable without scripts; controls enhance it. */
+[hidden]{display:none!important}
+.gallery-pair img{display:block;width:100%;height:auto;aspect-ratio:1}
+.reference-proof-note{border-left:3px solid var(--red);padding:17px 21px;margin:24px 0;background:var(--paper);font-size:15px;line-height:1.85;color:var(--muted)}
+.reference-proof-note strong{color:var(--ink)}.reference-proof-note a{color:var(--red);text-decoration:underline;text-underline-offset:3px}
+.method-example .method-example-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:20px}
+.method-example-metrics>div{display:flex;flex-direction:column;gap:5px}.method-example-metrics strong{white-space:nowrap}.method-example-metrics span{line-height:1.5}
+.no-script-navigation{border-bottom:1px solid var(--line);padding-block:10px}.no-script-navigation .wrap{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px}.no-script-navigation a{color:var(--red)}
+@media(max-width:450px){.method-example .method-example-metrics{grid-template-columns:1fr;gap:16px}.method-example-metrics>div{flex-direction:row;align-items:baseline;gap:12px}}
+
+.no-script-navigation{display:none}@media(max-width:760px){.no-script-navigation{display:block}}
+
+@media(max-width:760px){
+ .paper-results-table thead{display:none}.paper-results-table tbody{display:block}
+ .paper-results-table tr{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;padding:20px 0;border-bottom:1px solid #d9d5ca}
+ .paper-results-table td{display:block;padding:0;border:0;white-space:normal;text-align:left;font-size:16px}
+ .paper-results-table td:before{content:attr(data-label);display:block;font:12px/1.6 var(--sans);color:var(--muted);margin-bottom:5px}
+ .paper-results-table td:first-child{grid-column:1;grid-row:1;font-size:21px}
+ .paper-results-table td:nth-child(2){grid-column:1;grid-row:2}
+ .paper-results-table td:nth-child(3){grid-column:2;grid-row:1;font-size:16px}
+ .paper-results-table td:last-child{grid-column:2;grid-row:2;font-size:14px}
+}
