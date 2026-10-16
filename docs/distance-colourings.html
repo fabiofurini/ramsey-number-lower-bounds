@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ramsey — Linear-distance colourings</title>
+  <meta name="description" content="Build linear-distance colourings: vertices on a line, curved blue and red edges, and exact clique checks in your browser.">
+  <meta name="theme-color" content="#faf8f4">
+  <link rel="canonical" href="https://fabiofurini.github.io/ramsey-number-lower-bounds/distance-colourings.html">
+  <meta property="og:title" content="Ramsey — Exploring Ramsey numbers">
+  <meta property="og:description" content="Interactive circulant colourings, explicit graph certificates and computational research.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fabiofurini.github.io/ramsey-number-lower-bounds/distance-colourings.html">
+  <link rel="icon" href="assets/favicon.svg?v=51d15f5133a3" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css?v=ffedcc75dd6f">
+  <script src="assets/data.js?v=24d897f34906" defer></script>
+  <script src="assets/graph.js?v=9fd55021a262" defer></script>
+  <script src="assets/app.js?v=95adbad494b4" defer></script>
+  <script src="assets/navigation.js?v=833763c001e2" defer></script>
+  <script src="assets/analytics.js?v=fcc4a4c3eb43" defer></script>
+</head>
+<body class="distance-page" data-colouring="linear">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html" aria-label="Ramsey, home"><img src="assets/favicon.svg?v=51d15f5133a3" width="29" height="29" alt="">Ramsey<span>a research project</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">☰</span></button>
+      <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="distance-colourings.html" aria-current="page">Distance colourings</a><a href="known-numbers.html">Known numbers</a><a href="gallery.html">Graph gallery</a><a href="results.html">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="tiny-dot"></span> Distance colourings · Toeplitz graphs</p>
+        <h1 id="hero-title">Ramsey colourings.<br><em>Along a line.</em></h1>
+        <p class="hero-lead"><strong>The same Ramsey question. A larger family.</strong> R(m,n) is the smallest number of vertices such that <em>every</em> red–blue colouring of the edges of a complete graph contains either a blue clique on m vertices or a red clique on n vertices.</p>
+        <p class="hero-definition-note">Put the vertices at positions 0, 1, …, N−1. Give every edge of the same linear distance |i−j| the same colour. The blue graph is a Toeplitz graph; the red graph is its complement.</p>
+        <div class="hero-definition-example"><span class="field-label">The first example</span><p><strong>R(4,4) = 18.</strong> With eighteen vertices, a blue or red clique on four vertices is unavoidable. With seventeen, a colouring can avoid both, as the graph shows.</p><p class="example-citation">First proved by Greenwood and Gleason (1955); see <a href="https://www.cs.rit.edu/~spr/ElJC/sur.pdf#page=7">Radziszowski, <cite>Small Ramsey Numbers</cite>, §2.1(b)</a>.</p></div>
+        <div class="hero-actions"><a class="button primary" href="#explore">Explore a colouring <span aria-hidden="true">↗</span></a><a class="text-link" href="results.html">See the results <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-note">Our research searches for colourings that avoid both forbidden cliques.<br>Each verified construction proves a lower bound on a Ramsey number. This page explores the linear-distance extension implemented after the paper.</p>
+      </div>
+      <figure class="hero-art">
+        <div class="art-label"><span>The same counterexample, unfolded</span><span class="mono">K₁₇</span></div>
+        <div class="linear-scroll hero-linear"><svg id="hero-graph" viewBox="0 0 500 500" role="img" aria-label="A linear-distance colouring on 17 vertices: blue arcs above the line and red arcs below"></svg></div>
+        <figcaption><span class="figure-number">FIG. 01 / LINEAR</span><span>No blue clique on 4 vertices.<br>No red clique on 4 vertices.</span><span class="formula">R(4,4) &gt; 17</span></figcaption>
+        <p class="construction-explanation">Neither colour contains a clique on four vertices. This graph is a <strong>counterexample</strong> to the claim that 17 vertices always force one, so <strong>R(4,4) &gt; 17</strong>, equivalently R(4,4) ≥ 18. Finding such counterexamples on more vertices is how we prove stronger lower bounds.</p>
+        <p class="linear-hint">Blue arcs above, red arcs below. On a small screen, swipe across the drawing.</p>
+      </figure>
+    </section>
+    <section class="section wrap" id="explore" aria-labelledby="explore-title">
+      <div class="family-intro"><p class="eyebrow">01 / Searching in graph families</p><h2>Give the search some structure.</h2><p>A linear-distance colouring needs only N−1 colour choices for N(N−1)/2 edges. Edges with equal differences share a colour. Every valid counterexample found in this family still proves a lower bound for the ordinary Ramsey number.</p><p>Every circulant colouring is also a linear-distance colouring: set the colours of d and N−d equal. Here you may change them independently. The familiar examples below start with that equality, and your edits can explore the larger family.</p></div>
+      <div class="section-head"><div><p class="eyebrow">02 / Build a linear-distance graph</p><h2 id="explore-title">Many edges.<br>Just a few choices.</h2></div><p>Arrange the vertices on a line. Select a difference d and join all pairs i, i+d. The arcs bend above the line so equal lengths are easy to follow.</p></div>
+      <div class="circulant-intro"><p>The distance is <strong>d = |i−j|</strong>, with no wrap-around. There are <strong>N−1 possible distances</strong>. Distance d has exactly N−d edges: on 17 vertices, distance 1 has 16 edges and distance 16 has just one.</p></div>
+      <div class="circulant-builder" id="circulant-builder">
+        <div class="builder-controls"><label for="builder-order" class="field-label">Number of vertices: <output id="builder-order-value" for="builder-order">17</output></label><input id="builder-order" type="range" min="5" max="56" value="17" step="1"><p class="small muted">Move the slider, then choose which distances belong to the graph.</p><span class="field-label">Include these distances</span><div id="builder-distances" class="builder-distances" aria-label="Select circular distances"></div><p id="builder-summary" class="small muted" aria-live="polite"></p><button id="builder-use" class="button primary" type="button">Try as an R(4,4) colouring ↓</button><p class="demo-note">This graph becomes the blue colour class. Its missing edges become red in the next step.</p></div>
+        <figure class="builder-visual linear-scroll"><svg id="builder-graph" viewBox="0 0 560 560" role="img" aria-label="Linear-distance graph built from the selected differences"></svg><figcaption id="builder-caption"></figcaption></figure>
+      </div>
+      <div class="colouring-intro" id="colouring"><p class="eyebrow">03 / Turn the graph into a colouring</p><h2>One graph. Its complement.<br>A possible counterexample.</h2><p>Colour the selected edges blue and every missing edge red. Instead of choosing colours for all N(N−1)/2 edges, you now have just <strong>N−1 distance colours</strong>.</p><p>Avoid a blue clique on m vertices and a red clique on n vertices. If both conditions hold on N vertices, the colouring proves <strong>R(m,n) ≥ N+1</strong>. Change a distance below and see whether the counterexample survives.</p></div>
+      <div class="editable-heading"><h3>Now change a construction</h3><p>In these small examples, every edit is checked exactly in your browser.</p></div>
+      <div id="example-shortcuts" class="example-shortcuts" aria-label="Choose an editable graph by its number of vertices"></div>
+      <p id="circulant-summary" class="circulant-summary" aria-live="polite"></p>
+      <div class="explorer">
+        <div class="explorer-sidebar">
+          <label class="field-label" for="example-select">The construction</label>
+          <select id="example-select"></select>
+          <p id="example-description" class="small muted"></p>
+          <div class="control-heading"><span class="field-label">Distance colours</span><span class="small muted">click to switch</span></div>
+          <div id="distance-controls" class="distance-controls" aria-label="Change distance colours"></div>
+          <p class="small muted">Click a distance or an arc to switch its whole class. Dashed blue arcs sit above the line; solid red arcs sit below. Vertices are numbered from 0.</p>
+          <div class="clique-counters"><div class="blue"><span id="blue-count">0</span><span id="blue-count-label">blue K₄ cliques</span></div><div class="red"><span id="red-count">0</span><span id="red-count-label">red K₄ cliques</span></div></div>
+          <div id="explorer-status" class="explorer-status" role="status" aria-live="polite"></div>
+          <div class="explorer-actions"><button id="reset-example" class="button secondary" type="button">Reset</button><button id="show-clique" class="button quiet" type="button" disabled>Show a clique</button></div>
+          <p class="demo-note">This demo checks the displayed small graphs exactly. The research solver is available in the repository.</p>
+        </div>
+        <div class="explorer-visual"><div class="graph-caption"><span id="graph-description" class="mono"></span><span class="live-tag"><span></span> Interactive check</span></div><div class="graph-toolbar"><label for="edge-display">Show edges</label><select id="edge-display"><option value="both">Both colours</option><option value="blue">Blue only</option><option value="red">Red only</option></select><span>Both colours are checked.</span></div><div class="linear-scroll"><svg id="interactive-graph" viewBox="0 0 560 560" aria-label="Editable linear-distance colouring with curved arcs"></svg></div><p class="linear-hint">On a small screen, swipe across the drawing to see every vertex.</p><div class="graph-bottom"><span id="graph-summary"></span><span><i class="legend-line red"></i> Red <i class="legend-line blue"></i> Blue</span></div></div>
+      </div>
+      <details class="math-note"><summary>What does a valid colouring prove?</summary><div><p>A colouring on <i>N</i> vertices with no blue clique of order <i>m</i> and no red clique of order <i>n</i> proves <strong>R(m,n) ≥ N+1</strong>. Establishing the exact value also requires a matching upper bound.</p><p>The 17-vertex construction is a classical example for R(4,4), rather than a new result of this project. The examples on 5 and 6 vertices illustrate R(3,3) = 6. These presets are classical or paper circulant witnesses, embedded in the linear-distance family. Editing distance d does not change N−d. This page does not claim new distance-colouring results.</p></div></details>
+    </section>
+
+
+
+    <section class="distance-notes section wrap" aria-labelledby="distance-notes-title">
+      <p class="eyebrow">From circles to differences</p><h2 id="distance-notes-title">More freedom. The same certificate.</h2>
+      <div class="distance-note-grid"><article><h3>Equal distance, equal colour.</h3><p>The edges (0,3), (1,4) and (2,5) all have distance 3 and change together. The colour only depends on |i−j|. Blue arcs are drawn above the line and red arcs below; their curvature is just a visual aid.</p></article><article><h3>A larger search space.</h3><p>Circulant colourings require d and N−d to have the same colour. Linear-distance colourings drop that constraint: N−1 binary choices instead of ⌊N/2⌋. More freedom can help a search, but it does not guarantee a stronger bound.</p></article><article><h3>What an exact check proves.</h3><p>The demo counts blue Kₘ and red Kₙ cliques separately, using the actual linear differences. If both counts are zero, the displayed N-vertex colouring proves R(m,n) ≥ N+1. A forbidden clique can be highlighted directly.</p></article></div>
+      <p class="reference-source">This family is an extension implemented after the paper. <a href="https://github.com/fabiofurini/ramsey-number-lower-bounds/blob/main/code/DISTANCE-MODEL.md">Read the linear-distance model documentation ↗</a> · <a href="index.html#explore">Compare with the circulant explorer ↗</a></p>
+    </section>
+
+    <section class="project-section" id="project" aria-labelledby="project-title"><div class="wrap section">
+      <p class="eyebrow">The project / From research to code</p><div class="project-grid"><div><h2 id="project-title">A project to read,<br>check and build on.</h2><p class="project-intro">This website accompanies the paper <cite>An Integer Programming Approach to Compute Lower Bounds for Ramsey Numbers Using Circulant Graphs</cite>.</p><p>The repository brings together code, instructions, certificates and visualisations. The solver combines integer programming with clique search; a second engine explores circulant colourings without a linear programming model.</p><a class="button primary" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Explore the repository <span aria-hidden="true">↗</span></a></div><aside class="authors"><p class="field-label">The authors</p><ul><li>Stefano Coniglio</li><li><a href="https://fabiofurini.github.io/">Fabio Furini <span aria-hidden="true">↗</span></a></li><li>Ivana Ljubić</li><li>Pablo San Segundo</li><li>Johannes Thürauf</li><li>Emiliano Traversi</li></ul><span class="small muted">Research in combinatorial optimisation<br>and computational graph theory.</span></aside></div>
+      <div class="resource-links"><a href="https://github.com/fabiofurini/ramsey-number-lower-bounds/tree/main/code"><span class="resource-index">01</span><span><strong>Run the solver</strong><small>Installation, parameters and interpreting output</small></span><span aria-hidden="true">↗</span></a><a href="https://github.com/fabiofurini/ramsey-number-lower-bounds/tree/main/checker"><span class="resource-index">02</span><span><strong>Check a certificate</strong><small>Independent checker and instructions</small></span><span aria-hidden="true">↗</span></a><a href="https://github.com/fabiofurini/ramsey-number-lower-bounds#citation-request"><span class="resource-index">03</span><span><strong>Cite the work</strong><small>Authors, title and project reference</small></span><span aria-hidden="true">↗</span></a></div>
+      <details class="math-note"><summary>Practical details for running the code</summary><div><p>The branch-and-cut solver requires a local IBM ILOG CPLEX installation. The currently distributed package uses precompiled objects incorporating COPT. The checker does not require CPLEX. See the repository for requirements and instructions.</p><p>The interactions on this page demonstrate small graphs; they do not run the research solver. The certificates and results come from repository snapshot <code>38e59da</code>.</p></div></details>
+    </div></section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-inner"><a class="brand" href="#">Ramsey<span>colourings, symmetries, new bounds</span></a><p>An introduction to the research project.<br><a href="certificates/LICENSE.txt">Certificates: CC BY-NC-SA 4.0</a> · <a href="assets/SOFTWARE-LICENSE.txt?v=230184f60bae">Website code: GPL-3.0-or-later</a></p><a class="back-top" href="#">Back to top ↑</a></div></footer>
+  <noscript><p class="noscript-note">The interactive sections require JavaScript. You can read the results and download certificates from the <a href="https://github.com/fabiofurini/ramsey-number-lower-bounds">project repository</a>.</p></noscript>
+</body>
+</html>

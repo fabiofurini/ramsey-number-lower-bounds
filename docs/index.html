@@ -12,11 +12,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://fabiofurini.github.io/ramsey-number-lower-bounds/">
   <link rel="icon" href="assets/favicon.svg?v=51d15f5133a3" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/style.css?v=a8faa70ce820">
+  <link rel="stylesheet" href="assets/style.css?v=ffedcc75dd6f">
   <script src="assets/data.js?v=24d897f34906" defer></script>
-  <script src="assets/graph.js?v=4705d4a9ecc8" defer></script>
-  <script src="assets/app.js?v=93c3f386b14c" defer></script>
+  <script src="assets/graph.js?v=9fd55021a262" defer></script>
+  <script src="assets/app.js?v=95adbad494b4" defer></script>
   <script src="assets/navigation.js?v=833763c001e2" defer></script>
+  <script src="assets/analytics.js?v=fcc4a4c3eb43" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -24,7 +25,7 @@
     <div class="wrap header-inner">
       <a class="brand" href="#" aria-label="Ramsey, home"><img src="assets/favicon.svg?v=51d15f5133a3" width="29" height="29" alt="">Ramsey<span>a research project</span></a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">☰</span></button>
-      <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="known-numbers.html">Known numbers</a><a href="gallery.html">Graph gallery</a><a href="results.html">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
+      <nav id="navigation" aria-label="Main navigation"><a href="index.html#explore">Explore</a><a href="distance-colourings.html">Distance colourings</a><a href="known-numbers.html">Known numbers</a><a href="gallery.html">Graph gallery</a><a href="results.html">Results</a><a href="method.html">The method</a><a class="nav-github" href="https://github.com/fabiofurini/ramsey-number-lower-bounds">Code <span aria-hidden="true">↗</span></a></nav>
     </div>
   </header>
   <main id="main">
@@ -46,7 +47,7 @@
       </figure>
     </section>
     <section class="section wrap" id="explore" aria-labelledby="explore-title">
-      <div class="family-intro"><p class="eyebrow">01 / Searching in graph families</p><h2>Give the search some structure.</h2><p>There are enormously many ways to colour a complete graph. We can search within a family with a compact description, such as circulant graphs. Every valid counterexample we find still proves a lower bound for the ordinary Ramsey number.</p><p>The restriction makes the search smaller. A failed search within this family does not rule out counterexamples in other families.</p></div>
+      <p class="distance-page-link"><a href="distance-colourings.html">New: explore distance colourings on a line <span aria-hidden="true">↗</span></a></p><div class="family-intro"><p class="eyebrow">01 / Searching in graph families</p><h2>Give the search some structure.</h2><p>There are enormously many ways to colour a complete graph. We can search within a family with a compact description, such as circulant graphs. Every valid counterexample we find still proves a lower bound for the ordinary Ramsey number.</p><p>The restriction makes the search smaller. A failed search within this family does not rule out counterexamples in other families.</p></div>
       <div class="section-head"><div><p class="eyebrow">02 / Build a circulant graph</p><h2 id="explore-title">Many edges.<br>Just a few choices.</h2></div><p>Arrange the vertices on a circle. Choose circular distances and join every pair at those distances. Rotating the vertices preserves the graph.</p></div>
       <div class="circulant-intro"><p>The circular distance is the shorter number of steps around the circle. There are <strong>⌊N/2⌋ possible distances</strong> on N vertices. Selecting a distance adds its entire class of edges.</p></div>
       <div class="circulant-builder" id="circulant-builder">

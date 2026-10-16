@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Linear-distance interaction checks</title><pre id="report">Running…</pre><iframe title="Distance colourings" src="../../docs/distance-colourings.html" style="width:1200px;height:900px"></iframe><script>
+document.querySelector('iframe').addEventListener('load',event=>{
+ const d=event.target.contentDocument,w=event.target.contentWindow,$=id=>d.getElementById(id),lines=[];
+ function check(ok,message){if(!ok)throw Error(message);lines.push('PASS '+message);}
+ const total=()=>Number($('blue-count').textContent.replaceAll(',',''))+Number($('red-count').textContent.replaceAll(',',''));
+ try{
+  check(d.documentElement.lang==='en'&&d.body.dataset.colouring==='linear','English linear-distance page');
+  check($('hero-graph').querySelectorAll('.vertex-dot').length===17,'17 hero vertices');
+  check($('hero-graph').querySelectorAll('path.graph-edge').length===136,'Every hero edge is a curved path');
+  check(new Set([...$('hero-graph').querySelectorAll('.vertex-dot')].map(v=>v.getAttribute('cy'))).size===1,'Every vertex lies on the same line');
+  check($('hero-graph').querySelector('.vertex-label').textContent==='0','Zero-indexed vertices');
+  check(total()===0&&$('distance-controls').children.length===16,'Valid K17 example with 16 linear classes');
+  const last=$('distance-controls').querySelector('[data-distance="16"]').className;
+  $('distance-controls').querySelector('[data-distance="1"]').click();
+  check($('distance-controls').querySelector('[data-distance="16"]').className===last,'Distance 1 can change without changing distance N−1');
+  check(total()>0,'Independent edit introduces forbidden cliques');
+  $('show-clique').click();
+  check($('explorer-status').textContent.includes('Highlighted clique'),'A found clique is highlighted');
+  check($('interactive-graph').querySelector('[stroke-width="3.5"]'),'Highlighted clique arcs');
+  $('reset-example').click();check(total()===0,'Reset restores the valid witness');
+  const edge=$('interactive-graph').querySelector('[role="button"]');
+  edge.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+  check(total()>0,'Keyboard edge activation changes a distance');$('reset-example').click();
+  for(const e of w.demoData?.examples||w.RAMSEY_DATA.examples){
+   $('example-select').value=String(e.order);$('example-select').dispatchEvent(new w.Event('change'));
+   check($('distance-controls').children.length===e.order-1,`${e.order} vertices have N−1 controls`);
+   check(e.order===6?total()>0:total()===0,`Exact preset check at order ${e.order}`);
+  }
+  $('builder-order').value='6';$('builder-order').dispatchEvent(new w.Event('input'));
+  check($('builder-distances').children.length===5,'Builder uses every linear distance');
+  check($('builder-graph').querySelectorAll('.graph-edge').length===4,'Builder counts N−d edges per selected distance');
+  $('builder-distances').querySelector('[data-builder-distance="5"]').click();
+  check($('builder-graph').querySelectorAll('.graph-edge').length===3,'Longest distance changes exactly one edge');
+  $('builder-use').click();check($('example-select').value==='custom','Custom graph transfers to the exact checker');
+  const red=new Set([...$('distance-controls').children].filter(b=>b.classList.contains('red')).map(b=>Number(b.dataset.distance)));
+  let blue=0,redCount=0;
+  for(let a=0;a<3;a++)for(let b=a+1;b<4;b++)for(let c=b+1;c<5;c++)for(let e=c+1;e<6;e++){
+   const vertices=[a,b,c,e],colours=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)colours.push(red.has(vertices[j]-vertices[i]));
+   if(colours.every(Boolean))redCount++;if(colours.every(x=>!x))blue++;
+  }
+  check(Number($('blue-count').textContent)===blue&&Number($('red-count').textContent)===redCount,'Custom colouring agrees with independent subset enumeration');
+  check(d.querySelector('script[src*="assets/analytics.js"]'),'Analytics included');
+  check(!d.querySelector('script[data-cf-beacon]'),'Local development does not generate visit analytics');
+  lines.push('ALL CHECKS PASSED');
+ }catch(error){lines.push('FAIL '+error.stack);}
+ document.getElementById('report').textContent=lines.join('\n');
+});
+</script></html>

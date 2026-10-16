@@ -237,3 +237,30 @@
 .witness-red-heading{display:flex;align-items:center;justify-content:space-between;gap:25px}.witness-red-heading h2{font-size:32px}.witness-red-heading p{font-size:16px;color:var(--red);margin:15px 0 0}
 .witness-static-graph{width:100%;max-width:none;height:auto;aspect-ratio:1}
 @media(max-width:760px){.witness-red-heading{display:block}.witness-red-heading .button{margin-top:20px}.witness-red-heading h2{font-size:29px}}
+
+/* Linear-distance explorer: curved edges on a horizontal vertex line. */
+.distance-page .hero{grid-template-columns:1fr 1fr;gap:35px}
+.distance-page .hero-copy{grid-column:1/-1;max-width:950px}.distance-page .hero h1{max-width:1000px}
+.distance-page .hero-lead,.distance-page .hero-definition-note,.distance-page .hero-definition-example{max-width:850px}
+.distance-page .hero-art{grid-column:1/-1;width:100%;max-width:none;padding:0;min-width:0}
+.linear-scroll{overflow-x:auto;overscroll-behavior-x:contain;max-width:100%;min-width:0}
+.linear-scroll svg{width:100%;min-width:760px;height:auto;aspect-ratio:900/520;max-height:none}
+.distance-page #interactive-graph{aspect-ratio:900/520;max-height:none}
+.linear-scroll .vertex-label{font-size:15px;fill:var(--ink)}.linear-colour-label{font:14px Arial,sans-serif;letter-spacing:1.4px}
+.hero-linear{background:radial-gradient(ellipse at center,#eee9dd80,transparent 70%);border-radius:8px;margin:15px 0}
+.linear-hint{font-size:13px;color:var(--muted);margin-top:12px}
+.distance-page .circulant-builder{grid-template-columns:300px minmax(0,1fr)}
+.distance-page .builder-visual{margin:0;padding:20px 0}.distance-page .builder-visual figcaption{position:sticky;left:0;padding:0 20px}
+.distance-page .explorer{grid-template-columns:300px minmax(0,1fr)}
+.distance-page .explorer-visual{justify-content:center}
+.distance-page .graph-bottom{flex-wrap:wrap}
+.distance-note-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:35px;margin-top:40px}
+.distance-note-grid h3{font-size:27px;margin-bottom:18px}.distance-note-grid p{color:var(--muted);font-size:16px}
+.distance-page-link{font-size:16px;color:var(--red);padding:18px 22px;background:var(--red-soft);border-radius:5px;margin-bottom:45px}
+.site-header nav a[aria-current=page]{color:var(--red)}
+@media(min-width:761px){.site-header nav{gap:15px}.site-header nav a{font-size:13px}.header-inner{gap:15px}.site-header .brand span{display:none}}
+@media(max-width:1000px) and (min-width:761px){.site-header nav{gap:10px}.site-header nav a{font-size:12px}}
+@media(max-width:760px){.distance-page .hero,.distance-page .circulant-builder,.distance-page .explorer,.distance-note-grid{grid-template-columns:1fr}.distance-page .hero h1{font-size:53px}.distance-page .hero-art{max-width:100%}.distance-page .hero-art .art-label{font-size:11px}.distance-page .hero-art figcaption{font-size:12px}.distance-page .builder-visual{padding-top:0}.distance-page .hero{gap:25px}.linear-scroll svg{min-width:760px}.distance-note-grid{gap:24px}}
+
+.distance-page .linear-scroll svg{aspect-ratio:auto}.distance-page .linear-scroll svg[viewBox="0 0 900 300"]{aspect-ratio:3}
+.distance-page .linear-scroll svg[viewBox="0 0 900 520"]{aspect-ratio:900/520}

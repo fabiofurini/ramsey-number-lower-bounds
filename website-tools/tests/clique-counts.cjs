@@ -51,3 +51,35 @@ assert.equal(a.red.count,choose(56,6));assert.equal(a.blue.count,0);assert.equal
 a=RamseyGraph.analyse(56,5,6,new Set(),4);
 assert.equal(a.blue.count,choose(56,5));assert.equal(a.red.count,0);
 console.log(`PASS ${checks} asymmetric counting comparisons, ${window.RAMSEY_DATA.examples.length} presets, witness checks and large complete-colour counts.`);
+// Linear-distance mode is checked independently: no circular folding in the oracle.
+function enumerateLinear(n,k,red,isRed){
+  let count=0;const chosen=[];
+  function visit(start){
+    if(chosen.length===k){
+      for(let i=0;i<k;i++)for(let j=i+1;j<k;j++)if(red.has(chosen[j]-chosen[i])!==isRed)return;
+      count++;return;
+    }
+    for(let v=start;v<=n-(k-chosen.length);v++){chosen.push(v);visit(v+1);chosen.pop();}
+  }
+  visit(0);return count;
+}
+for(let n=5;n<=12;n++)for(let trial=0;trial<30;trial++){
+  const mask=(trial*1543+n*71)%(1<<(n-1));
+  const red=new Set(Array.from({length:n-1},(_,i)=>i+1).filter(d=>mask&(1<<(d-1))));
+  const blueTarget=3+trial%3,redTarget=3+(trial+1)%4;
+  const result=RamseyGraph.analyse(n,blueTarget,redTarget,red,3,'linear');
+  assert.equal(result.blue.count,enumerateLinear(n,blueTarget,red,false));
+  assert.equal(result.red.count,enumerateLinear(n,redTarget,red,true));
+  for(const [colour,target] of [['blue',blueTarget],['red',redTarget]])for(const witness of result[colour].witnesses){
+    assert.equal(new Set(witness).size,target);
+    for(let i=0;i<target;i++)for(let j=i+1;j<target;j++)assert.equal(red.has(Math.abs(witness[i]-witness[j])),colour==='red');
+  }
+}
+for(const e of window.RAMSEY_DATA.examples){
+  const lifted=new Set(Array.from({length:e.order-1},(_,i)=>i+1).filter(d=>e.redDistances.includes(Math.min(d,e.order-d))));
+  const result=RamseyGraph.analyse(e.order,e.m,e.n,lifted,3,'linear');
+  if(e.order===6)assert.ok(result.blue.count+result.red.count>0);
+  else assert.equal(result.blue.count+result.red.count,0,`Invalid linear preset ${e.order}`);
+}
+assert.notEqual(RamseyGraph.analyse(6,3,3,new Set([1,2]),3,'linear').red.count,RamseyGraph.analyse(6,3,3,new Set([1,2]),3).red.count);
+console.log('PASS 240 independent linear-distance comparisons, sampled clique witnesses, all lifted presets, and a case distinguishing the two distance metrics.');

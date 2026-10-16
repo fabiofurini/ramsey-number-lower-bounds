@@ -7,6 +7,7 @@ The files in this directory are the website source and the published website. Th
 ## Edit a page
 
 - `index.html`: Ramsey definition, R(4,4) counterexample, graph families, circulant builder and colouring laboratory.
+- `distance-colourings.html`: linear-distance twin of the homepage, with curved edges above/below a vertex line, N−1 independent colours, size selection and exact clique checks. Presets embed existing circulant witnesses.
 - `known-numbers.html`: exact classical values, Radziszowski survey citation, circulant study values and their proof procedure.
 - `gallery.html`: paired blue/red graph gallery and explanation of complements and lower bounds.
 - `witness.html?m=3&n=13`: visual witness page, colour selection, zoom, distance inspection, SVG image export and certificate download.
@@ -19,11 +20,12 @@ The files in this directory are the website source and the published website. Th
 - `assets/results.js`: results selector, distance grid and table.
 - `assets/graph.js`: graph rendering and exact clique counts in the browser.
 - `assets/data.js`: certificate-derived data and example presets.
+- `assets/analytics.js`: Cloudflare Web Analytics, using the same public site token as the teaching pages on `fabiofurini.github.io`. Analytics runs only on the live hostname; visits are viewed in the Cloudflare dashboard, filtered by the `/ramsey-number-lower-bounds/` path. It is not a visible public counter.
 - `assets/navigation.js`: shared mobile navigation.
 
 On GitHub, open a file, choose **Edit**, make the change and commit it to `main`. GitHub Pages publishes `main` → `/docs` automatically. The deployment status is visible under the repository’s **Actions** tab and **Settings → Pages**. Keep `.nojekyll`: this is a static HTML website.
 
-The `gallery/`, `results/` and `method/` directories provide short URL redirects; edit the corresponding `.html` files above for the actual page content.
+The `gallery/`, `results/`, `known-numbers/`, `distance-colourings/` and `method/` directories provide short URL redirects; edit the corresponding `.html` files above for the actual page content.
 
 After changing a CSS or JavaScript asset locally, run `python3 website-tools/version_assets.py` and commit the updated HTML files together with the assets. This refreshes their URLs so browsers load the matching version instead of reusing an older cached script or stylesheet.
 
@@ -51,7 +53,7 @@ For the browser interaction checks, serve the repository root:
 python3 -m http.server 8766 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8766/website-tools/tests/browser-check.html . It checks the demos, custom circulant construction, all preset sizes, cross-page navigation, gallery and paper-result interactions.
+Open http://127.0.0.1:8766/website-tools/tests/browser-check.html . It checks the demos, custom circulant construction, all preset sizes, cross-page navigation, gallery and paper-result interactions. `website-tools/tests/distance-check.html` checks the linear-distance UI, independent edits to d and N−d, curved rendering, builder edge counts and a separately enumerated custom graph.
 
 ## Regenerate certificate data
 

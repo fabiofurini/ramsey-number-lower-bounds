@@ -64,7 +64,7 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
   check(directFrame.contentDocument.getElementById('example-select').value==='56'&&directFrame.contentDocument.getElementById('blue-count').textContent==='0'&&directFrame.contentDocument.getElementById('red-count').textContent==='0','Apertura diretta dalla galleria sul preset a 56 vertici');
   check(methodFrame.contentDocument.getElementById('formulation'),'Metodo matematico ancora nella pagina dedicata');
   for(const page of [d,rd,gd,methodFrame.contentDocument,knownFrame.contentDocument]){
-   check(page.querySelector('nav a[href="known-numbers.html"]')&&page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
+   check(page.querySelector('nav a[href="distance-colourings.html"]')&&page.querySelector('script[src*="assets/analytics.js"]')&&page.querySelector('nav a[href="known-numbers.html"]')&&page.querySelector('nav a[href="results.html"]')&&page.querySelector('nav a[href="gallery.html"]')&&page.querySelector('nav a[href="method.html"]'),'Navigazione completa su '+page.title);
   }
   check($('builder-order').value==='17'&&$('builder-order').max==='56','Costruttore iniziale su 17 vertici, modificabile fino a 56');
   check($('builder-graph').querySelectorAll('.vertex-dot').length===17&&$('builder-graph').querySelectorAll('.graph-edge').length===68,'Grafo blu iniziale per R(4,4): 17 vertici e 68 archi');
