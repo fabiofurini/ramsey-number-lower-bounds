@@ -31,7 +31,7 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 14 | Controls Kalbfleisch cuts: `1` enables them; `0` disables them. |
 | 15 | Controls clique-jump cuts: `1` enables them; `0` disables them. |
 | 16 | Controls cover cuts: `1` enables them; `0` disables them. |
-| 17 | Controls the cut loop: `1` enables it; `0` disables it. |
+| 17 | Controls the cut loop: `-1` disables it; a non-negative value `k` first runs the branch-and-cut with a limit of `k` nodes (`0`: the root only), which fills the formulation with cuts, and then runs it again without the limit. |
 | 18 | Controls triangle constraints: `1` enables them; `0` disables them. |
 | 19 | Controls quadrangle constraints: `1` enables them; `0` disables them. |
 | 20 | Controls the post-solve check: `1` checks a solution after it is found; `0` skips this check. |
@@ -41,7 +41,7 @@ The executable requires 33 positional inputs, which must be provided in the orde
 | 24 | Sets CPLEX heuristic frequency: `-1` disables it; `0` is automatic; a positive integer sets the frequency. |
 | 25 | Sets the clique search: `1` searches for the target size; `0` searches for a maximum clique. |
 | 26 | Controls returned cliques: `1` truncates a larger clique to the target size; `0` keeps it unchanged. |
-| 27 | Sets the maximum number of cuts obtained from a larger clique; `0` keeps only the first. |
+| 27 | Reserved: the value is read and recorded, and has no effect on the search. Use `0`. |
 | 28 | Sets the random seed; use an integer and record it for reproducibility. |
 | 29 | Selects the CPLEX branching variable rule: `-1` minimum infeasibility; `0` default; `1` maximum infeasibility; `2` pseudo-cost; `3` strong branching; `4` pseudo-reduced-cost. |
 | 30 | Sets the number of CPLEX threads; use a positive integer. |

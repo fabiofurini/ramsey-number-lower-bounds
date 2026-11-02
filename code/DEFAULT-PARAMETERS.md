@@ -21,7 +21,7 @@ Run the solver from `code/solver/`:
 | 4 | `3` | Select the distance-space formulation. Two further values were added after the paper and are not part of this default. `5` selects a linear-distance formulation, over a class strictly larger than the circulant one; see [The linear-distance model](DISTANCE-MODEL.md). `6` selects a tabu search, a heuristic with its own shorter command line; see [The tabu search](TABU-SEARCH.md). |
 | 5 | `1` | Published behaviour. Values `2` and `3` switch on the optional search additions (partial-colouring propagator, integral pre-check); see [Optional search additions](NEW-OPTIONS.md). They apply to both distance-space formulations, input 4 = `3` and input 4 = `5`. |
 | 6 | `1` | Impose the circulant restriction. Meaningless with input 4 = `5`, which forces it to `0`. See [The linear-distance model](DISTANCE-MODEL.md). |
-| 7 | `7200` | Allow at most 7,200 seconds for the clique routine. |
+| 7 | `7200` | Allow at most 7,200 seconds, for CPLEX and for each exact call of the clique routine. |
 | 8 | `1` | Use the exact Tur\'an right-hand side in clique cuts. |
 | 9 | `0` | Use the internal clique-separation route rather than a CPLEX separation model. |
 | 10 | `1` | Enable the MNTS clique-search heuristic. |
@@ -41,7 +41,7 @@ Run the solver from `code/solver/`:
 | 24 | `0` | Leave CPLEX heuristic frequency at its automatic setting. |
 | 25 | `1` | Search for the required clique size rather than a maximum clique. |
 | 26 | `0` | Keep a returned larger clique unchanged. |
-| 27 | `0` | Keep only the first applicable cut from a larger clique. |
+| 27 | `0` | Reserved; no effect. |
 | 28 | `1` | Use seed 1. |
 | 29 | `0` | Use CPLEX's default variable-selection rule. |
 | 30 | `1` | Run each solver process with one CPLEX thread. |

@@ -97,9 +97,9 @@ The filename records the blue target `m`, red target `n`, graph order `t`, circu
 The file contains:
 
 1. the graph order `t` on the first line;
-2. a `t` by `t` adjacency matrix, with entries separated by spaces.
+2. a `t` by `t` matrix, with entries separated by spaces, of which only the entries above the diagonal (`i < j`) are filled.
 
-For every pair of distinct vertices, `1` means that the edge is blue and `0` means that it is red. The diagonal entries are zero.
+For every pair `i < j`, `1` means that the edge is blue and `0` means that it is red. The diagonal entries and the entries below the diagonal are zero.
 
 ### Counterexamples from the distance model
 
@@ -111,7 +111,7 @@ The file contains:
 4. the line `MATRIX`;
 5. the complete `t` by `t` coloring matrix.
 
-A printed jump index `i` represents circular distance `i+1`. In this format, the listed jumps and matrix entries equal to `1` are red, while entries equal to `0` are blue. Diagonal zeros do not represent edges.
+A printed jump index `i` represents circular distance `i+1`. In this format, the listed jumps and matrix entries equal to `1` are blue, while entries equal to `0` are red. Diagonal zeros do not represent edges.
 
 The summary files allow a counterexample to be matched with the complete command that produced it. Keep the command, coloring, and summary together when recording a computational result.
 
