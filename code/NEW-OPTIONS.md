@@ -32,12 +32,12 @@ In a circulant colouring the colour of an edge depends only on the circular dist
 `d = min(|i-j|, t-|i-j|)`, so a colouring is a choice of one colour per distance
 `d = 1, ..., floor(t/2)`. Assigning a colour to `d` colours the whole orbit `{i, i+d}` at once.
 
-If assigning distance `d` to colour `c` creates a monochromatic `K_k` in colour `c` that was not
+If assigning distance `d` to colour `c` creates a monochromatic $K_k$ in colour `c` that was not
 there before, that clique must use an edge of the new orbit, and by rotating and reflecting we may
 assume it uses the edge `{0, d}`. Its remaining `k-2` vertices then form a clique of colour `c`
 inside the graph induced on the common neighbourhood `N_c(0) ∩ N_c(d)`.
 
-So a new monochromatic `K_k` exists **if and only if** there is a `K_(k-2)` in that induced
+So a new monochromatic $K_k$ exists **if and only if** there is a $K_{k-2}$ in that induced
 subgraph. The test is exact, not heuristic, and it is local: it inspects one small induced graph
 instead of the whole colouring. The implementation works on machine-word bitsets, so a single test
 costs microseconds. Because it is anchored at the pair `{0, d}`, this page calls it the *anchored
@@ -54,7 +54,7 @@ unaffected.
 A branch callback is registered. At every node it reads the distance variables that are already
 **fixed** to a colour by branching — it never treats a fractional LP value as a colour — and applies
 the anchored test to that fixed part. If the fixed distances alone already force a monochromatic
-`K_m` or `K_n`, no completion of that subtree can be a valid colouring, so the node is closed and no
+$K_m$ or $K_n$, no completion of that subtree can be a valid colouring, so the node is closed and no
 children are created.
 
 The propagator prunes the tree; it adds nothing to the formulation. Measured cost is about four
@@ -65,7 +65,7 @@ microseconds per call. It is active for graph orders up to 127.
 Everything in `5 = 2`, and in addition: when the LP returns an **integral** candidate — every
 distance `0` or `1`, hence a complete colouring — the anchored test is run over all distances of both
 colours before the general clique separator is called. On a complete colouring that test is a
-complete detector of a monochromatic `K_k`, and it returns the offending clique, which is then used
+complete detector of a monochromatic $K_k$, and it returns the offending clique, which is then used
 to build the usual cut. The general maximum-clique separator is therefore bypassed for that
 candidate.
 

@@ -31,11 +31,11 @@ clique oracle for the residual queries, (iii) deterministic splitting of an exha
 In a circulant graph on `Z_t` the colour of an edge depends only on the circular distance
 `d = min(|i-j|, t-|i-j|)`, so a colouring is one choice of colour per distance
 `d = 1, ..., floor(t/2)`, and assigning `d` colours the whole orbit `{i, i+d}` at once. If assigning
-`d` to colour `c` creates a monochromatic `K_k` that was not present before, that clique must use an
+`d` to colour `c` creates a monochromatic $K_k$ that was not present before, that clique must use an
 edge of the new orbit, and by rotation and reflection we may assume it uses `{0, d}`; its remaining
 `k-2` vertices then form a clique of colour `c` in the graph induced on `N_c(0) ∩ N_c(d)`. So after
 each assignment it is necessary and sufficient to ask whether that small induced graph contains a
-`K_(k-2)`. The search assigns distances in order and backtracks whenever the answer is yes.
+$K_{k-2}$. The search assigns distances in order and backtracks whenever the answer is yes.
 
 ## How it is implemented
 

@@ -7,7 +7,7 @@ The files in this directory are the website source and the published website. Th
 ## Edit a page
 
 - `index.html`: Ramsey definition, R(4,4) counterexample, graph families, circulant builder and colouring laboratory.
-- `distance-colourings.html`: linear-distance twin of the homepage, with curved edges above/below a vertex line, N−1 independent colours, size selection and exact clique checks. Presets embed existing circulant witnesses. This is presented as an open research direction outside the paper.
+- `distance-colourings.html`: linear-distance twin of the homepage, with curved edges above/below a vertex line, t−1 independent colours, size selection and exact clique checks. Presets embed existing circulant witnesses. This is presented as an open research direction outside the paper.
 - `known-numbers.html`: exact classical values, Radziszowski survey citation, circulant study values and their proof procedure.
 - `gallery.html`: static paired blue/red graph gallery and certificate links, readable without JavaScript.
 - `assets/gallery/`: 22 generated SVG figures, also viewable directly without JavaScript.
@@ -56,7 +56,7 @@ For the browser interaction checks, serve the repository root:
 python3 -m http.server 8766 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8766/website-tools/tests/browser-check.html . It checks the demos, custom circulant construction, all preset sizes, cross-page navigation, gallery and paper-result interactions. `website-tools/tests/distance-check.html` checks the linear-distance UI, independent edits to d and N−d, curved rendering, builder edge counts and a separately enumerated custom graph.
+Open http://127.0.0.1:8766/website-tools/tests/browser-check.html . It checks the demos, custom circulant construction, all preset sizes, cross-page navigation, gallery and paper-result interactions. `website-tools/tests/distance-check.html` checks the linear-distance UI, independent edits to d and t−d, curved rendering, builder edge counts and a separately enumerated custom graph.
 
 ## Refresh static scientific content
 
@@ -76,7 +76,7 @@ With JavaScript disabled, every result row and certificate link remains visible,
 python3 website-tools/build_data.py
 ```
 
-This uses the source files already present in this repository, verifies DIMACS format, circulant symmetry and blue triangle-freeness for the 25 large certificates, and checks the classical K17 illustration. It rebuilds `assets/data.js` and the downloadable certificate copies. It does not independently prove the large red-clique exclusions; those come from the paper and the research checker.
+This uses the source files already present in this repository, verifies DIMACS format, circulant symmetry and blue triangle-freeness for the 25 large certificates, and checks the classical K<sub>17</sub> illustration. It rebuilds `assets/data.js` and the downloadable certificate copies. It does not independently prove the large red-clique exclusions; those come from the paper and the research checker.
 
 ## Licences and provenance
 

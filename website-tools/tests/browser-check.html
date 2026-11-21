@@ -50,10 +50,10 @@ Promise.all(['index.html','results.html','gallery.html','method.html','index.htm
    const total=Number($('blue-count').textContent.replaceAll(',',''))+Number($('red-count').textContent.replaceAll(',',''));
    check(example.order===6?total>0:total===0,`Controllo esatto del preset a ${example.order} vertici`);
   }
-  check($('blue-count-label').textContent==='blue K₅ cliques'&&$('red-count-label').textContent==='red K₆ cliques','Target distinti per R(5,6)');
+  check($('blue-count-label').textContent==='blue K5 cliques'&&$('red-count-label').textContent==='red K6 cliques','Target distinti per R(5,6)');
   check($('distance-controls').children.length===28,'28 distanze modificabili su 56 vertici');
   d.querySelector('.example-shortcut[data-order="8"]').click();
-  check($('example-select').value==='8'&&$('red-count-label').textContent==='red K₄ cliques','Selezione rapida e target asimmetrici');
+  check($('example-select').value==='8'&&$('red-count-label').textContent==='red K4 cliques','Selezione rapida e target asimmetrici');
   check(!d.querySelector('section#method')&&d.querySelector('a[href="method.html"]'),'Metodo in una pagina separata');
   check(parseFloat(w.getComputedStyle(d.querySelector('.art-label')).fontSize)>=12,'Didascalia principale leggibile');
   for(let mask=0;mask<8;mask++){

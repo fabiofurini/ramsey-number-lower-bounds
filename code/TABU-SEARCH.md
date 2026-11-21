@@ -24,7 +24,7 @@ anchor its reduction at vertex `t-1` rather than let the routine pick the anchor
 required for soundness, because Toeplitz graphs are not vertex-transitive and only the two ends are
 valid anchors.  See [the distance model's note](DISTANCE-MODEL.md#separation).
 
-Two optional complete initial pools can be requested: all K3 supports and/or all K4 supports.  This
+Two optional complete initial pools can be requested: all K<sub>3</sub> supports and/or all K<sub>4</sub> supports.  This
 lets a run enumerate a small target on either colour and focus dynamic separation on the other target.
 The mask is `0` for neither, `1` for blue only, `2` for red only, and `3` for both; a selected side
 must have target clique size 3 or 4.  All non-selected targets are handled dynamically and every
@@ -162,7 +162,7 @@ instead of circling it. Supports that are currently satisfied are left untouched
 
 ### Growing the pool, and the final check
 
-The pool is not fixed. It can start from all selected K3/K4 supports and grows: every so often the
+The pool is not fixed. It can start from all selected K<sub>3</sub>/K<sub>4</sub> supports and grows: every so often the
 search calls the branch-and-cut clique separator on each colour whose small pool was not selected,
 and any clique it finds becomes a support. The heuristic and the exact method therefore share the
 same separation routines.
@@ -175,7 +175,7 @@ write a certificate.
 
 ### Restrictions
 
-`m` and `n` must each be at least 3.  Complete enumeration is intentionally limited to K3/K4: if a
+`m` and `n` must each be at least 3.  Complete enumeration is intentionally limited to K<sub>3</sub>/K<sub>4</sub>: if a
 mask selects blue (red), the corresponding `m` (`n`) must be 3 or 4.  This is a performance choice,
 not a restriction on the dynamic search, which handles all other targets.
 
@@ -212,7 +212,7 @@ tells the two apart, so input 4 = `6` is only recognised on the short line.
 | 15 | Sets the adaptive-weight period: how many iterations between two weight updates. Use `0` to disable adaptive weights, which is the baseline. |
 | 16 | Sets the adaptive-weight increment, as a real number: how much the penalty of a still-violated support grows at each update. Ignored when input 15 is `0`. |
 | 17 | Selects geometry: `1` circulant (`floor(t/2)` variables), `0` linear-distance (`t-1` variables). |
-| 18 | Selects complete small-clique enumeration: `0` neither color, `1` blue only, `2` red only, `3` both. A selected target must be K3 or K4. |
+| 18 | Selects complete small-clique enumeration: `0` neither color, `1` blue only, `2` red only, `3` both. A selected target must be K<sub>3</sub> or K<sub>4</sub>. |
 | 19 | Sets a unique integer identifying the run and its output files. |
 
 The three groups worth tuning first are the tenure range (inputs 8 and 9), which controls how long

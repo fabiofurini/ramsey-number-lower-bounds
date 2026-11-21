@@ -5,12 +5,12 @@
  if(!graph){$('witness-content').hidden=true;$('witness-error').hidden=false;return;}
  const N=graph.order,red=new Set(graph.redDistances),total=N*(N-1)/2;
  const redEdges=graph.redDistances.reduce((sum,d)=>sum+(d===N/2?N/2:N),0);
- const sub=n=>String(n).replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]);
+ const sub=n=>`<sub>${Number(n)}</sub>`;
  let zoom=1,selected=null;
  if(['blue','red','both'].includes(params.get('colour')))$('witness-edges').value=params.get('colour');
  document.title=`${N}-vertex witness for R(${graph.m},${graph.n}) — Ramsey`;
  $('witness-title').textContent=`${N} vertices. A counterexample.`;
- $('witness-condition').textContent=`No blue K${sub(graph.m)} · No red K${sub(graph.n)}`;
+ $('witness-condition').innerHTML=`No blue K${sub(graph.m)} · No red K${sub(graph.n)}`;
  $('witness-bound').textContent=`R(${graph.m},${graph.n}) ≥ ${N+1}`;
  $('witness-explanation').textContent=`There is no blue clique on ${graph.m} vertices and no red clique on ${graph.n} vertices. This colouring on ${N} vertices therefore proves the lower bound R(${graph.m},${graph.n}) ≥ ${N+1}.`;
  $('witness-counts').textContent=`${N} vertices · ${total-redEdges} blue edges · ${redEdges} red edges`;

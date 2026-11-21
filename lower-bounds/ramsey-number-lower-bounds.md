@@ -10,7 +10,7 @@ circular-distance / adjacency matrix. See [`README.md`](README.md) for the
 file naming convention, file format, and verification instructions shared by
 all certificates in this directory.
 
-| Instance | N | Certificate | Figures |
+| Instance | $t$ | Certificate | Figures |
 | --- | --- | --- | --- |
 | R(3,24) | 150 | [R_3_24_graphSize_150.clq](certificates/R_3_24_graphSize_150.clq) | [distances](matrices/R_3_24_graphSize_150.svg) · [adjacency](matrices/R_3_24_graphSize_150_adjacency.svg) |
 | R(3,25) | 159 | [R_3_25_graphSize_159.clq](certificates/R_3_25_graphSize_159.clq) | [distances](matrices/R_3_25_graphSize_159.svg) · [adjacency](matrices/R_3_25_graphSize_159_adjacency.svg) |
@@ -44,4 +44,4 @@ Circular-distance matrix for `R_3_37_graphSize_271.clq`, the certificate proving
 
 ![Circular-distance matrix for R(3,37) on 271 vertices](matrices/R_3_37_graphSize_271.svg)
 
-The graph has $N=271$ vertices, so there are $\lfloor 271/2\rfloor=135$ distance classes, shown left to right, top to bottom. Distances 1–7 are red: every one of the 271 edges at each of these distances is a certificate edge, so they belong to the red graph, which must avoid $K_{37}$. Distances 8 and 9 are blue: none of their 271 edges are in the certificate, so they belong to the blue graph, which must avoid $K_3$ (be triangle-free). Overall, 117 of the 135 distances are red and 18 are blue; every class is entirely one colour, confirming the graph is circulant.
+The graph has $t=271$ vertices, so there are $\lfloor 271/2\rfloor=135$ distance classes, shown left to right, top to bottom. Distances 1–7 are red: every one of the 271 edges at each of these distances is a certificate edge, so they belong to the red graph, which must avoid $K_{37}$. Distances 8 and 9 are blue: none of their 271 edges are in the certificate, so they belong to the blue graph, which must avoid $K_3$ (be triangle-free). Overall, 117 of the 135 distances are red and 18 are blue; every class is entirely one colour, confirming the graph is circulant.

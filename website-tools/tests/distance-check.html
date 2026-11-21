@@ -12,7 +12,7 @@ document.querySelector('iframe').addEventListener('load',event=>{
   check(total()===0&&$('distance-controls').children.length===16,'Valid K17 example with 16 linear classes');
   const last=$('distance-controls').querySelector('[data-distance="16"]').className;
   $('distance-controls').querySelector('[data-distance="1"]').click();
-  check($('distance-controls').querySelector('[data-distance="16"]').className===last,'Distance 1 can change without changing distance N−1');
+  check($('distance-controls').querySelector('[data-distance="16"]').className===last,'Distance 1 can change without changing distance t−1');
   check(total()>0,'Independent edit introduces forbidden cliques');
   $('show-clique').click();
   check($('explorer-status').textContent.includes('Highlighted clique'),'A found clique is highlighted');
@@ -23,12 +23,12 @@ document.querySelector('iframe').addEventListener('load',event=>{
   check(total()>0,'Keyboard edge activation changes a distance');$('reset-example').click();
   for(const e of w.demoData?.examples||w.RAMSEY_DATA.examples){
    $('example-select').value=String(e.order);$('example-select').dispatchEvent(new w.Event('change'));
-   check($('distance-controls').children.length===e.order-1,`${e.order} vertices have N−1 controls`);
+   check($('distance-controls').children.length===e.order-1,`${e.order} vertices have t−1 controls`);
    check(e.order===6?total()>0:total()===0,`Exact preset check at order ${e.order}`);
   }
   $('builder-order').value='6';$('builder-order').dispatchEvent(new w.Event('input'));
   check($('builder-distances').children.length===5,'Builder uses every linear distance');
-  check($('builder-graph').querySelectorAll('.graph-edge').length===4,'Builder counts N−d edges per selected distance');
+  check($('builder-graph').querySelectorAll('.graph-edge').length===4,'Builder counts t−d edges per selected distance');
   $('builder-distances').querySelector('[data-builder-distance="5"]').click();
   check($('builder-graph').querySelectorAll('.graph-edge').length===3,'Longest distance changes exactly one edge');
   $('builder-use').click();check($('example-select').value==='custom','Custom graph transfers to the exact checker');

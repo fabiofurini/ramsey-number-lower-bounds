@@ -69,8 +69,8 @@ vertex does, by vertex-transitivity, so any anchor will do and the reduction is 
 **Toeplitz** graph it holds at the two ends only: translating a clique by `-min(S)` puts one at
 vertex `0`, translating by `t-1-max(S)` puts one at vertex `t-1`, and nothing of the sort holds for
 the vertices in between. A small measured example, at `t = 11` with blue distances `{2,3}` and red
-target 5: the red graph has a `K_5`, yet `1 + omega(N(v))` is only 4 for `v` in `{2,3,7,8}`, so at
-such an anchor the reduction concludes that no `K_5` exists.
+target 5: the red graph has a $K_5$, yet `1 + omega(N(v))` is only 4 for `v` in `{2,3,7,8}`, so at
+such an anchor the reduction concludes that no $K_5$ exists.
 
 So anchoring is legitimate in this class — at `0` or at `t-1` — and the propagator of input 5 uses
 exactly that, which is why it is complete. The separator now uses it too. What made the routine's
@@ -122,7 +122,7 @@ input 4 from `3` to `5`. The command line is the same 33 inputs, documented in
 | ---: | --- |
 | 4 | Selects the model. Use `5`. During development this formulation was `6`; that value is now refused with a message, rather than reinterpreted, so that an older command line cannot quietly run something else. |
 | 6 | The circulant restriction. **Meaningless here and forced to `0`.** With it set, the CPLEX separation model constrains its clique search in a way that is written for the circulant case. The solver prints a notice and overrides the value, so no setting of input 6 can affect the search in this model. This input does not control the clique routine's anchor, which this model fixes at `t-1` on its own; see the warning above. |
-| 5 | The partial-colouring propagator and the integral pre-check of [Optional search additions](NEW-OPTIONS.md), with the same values: `0` or `1` historic behaviour, `2` the propagator, `3` the propagator plus the pre-check. The exact test they use is different here: a Toeplitz graph contains a `K_k` if and only if the subgraph induced on its own distance set contains a `K_(k-1)`, because a clique can be translated so that its smallest vertex becomes 0. Unlike the circulant implementation there is **no limit on the graph order**. |
+| 5 | The partial-colouring propagator and the integral pre-check of [Optional search additions](NEW-OPTIONS.md), with the same values: `0` or `1` historic behaviour, `2` the propagator, `3` the propagator plus the pre-check. The exact test they use is different here: a Toeplitz graph contains a $K_k$ if and only if the subgraph induced on its own distance set contains a $K_{k-1}$, because a clique can be translated so that its smallest vertex becomes 0. Unlike the circulant implementation there is **no limit on the graph order**. |
 | 8 | Stronger cuts. `1` uses the Turán right-hand sides, `0` the weaker unit ones, exactly as documented. |
 | 9 | The separation route. `0` uses the internal clique solver, `1` the CPLEX separation model. Both search over all vertices in this model. |
 | 14 | Degree cuts. Their shape changes. In a circulant graph every vertex has the same degree and a single inequality suffices; here vertex `i` has blue neighbours at distance at most `i` below it and at most `t-1-i` above it, so each vertex gives a different inequality, coefficients are `0`, `1` or `2`, and the middle vertex gives the strongest one. As in the paper, using a known lower bound in place of a Ramsey number turns these into a restriction of the search space: an empty answer then certifies nothing. |
@@ -176,7 +176,7 @@ separation itself rather than the formulation.
 
 | Check | Result |
 | --- | --- |
-| The `t=11`, blue `{2,3}`, red target 5 counterexample | the anchored mode returns a valid `K_5`; the circulant mode still returns "not found", which is why it must not be used here |
+| The `t=11`, blue `{2,3}`, red target 5 counterexample | the anchored mode returns a valid $K_5$; the circulant mode still returns "not found", which is why it must not be used here |
 | Every Toeplitz graph for `t = 5..12` — all `2^(t-1)` distance sets, targets 3 to 7 — against an independent brute-force `omega` | 20,400 cases, no mismatch, and every returned clique verified pairwise in original vertex numbering |
 | Circulant regression, `t = 5..16`, all jump sets, targets 3 to 6, before and after the change | 3,024 cases, output identical |
 | The exhaustive small-instance suite above, rerun end to end | 364 instance-arm combinations, no mismatch, every certificate accepted by the checker |

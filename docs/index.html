@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="assets/style.css?v=c4fa56d252c6">
   <script src="assets/data.js?v=24d897f34906" defer></script>
   <script src="assets/graph.js?v=9fd55021a262" defer></script>
-  <script src="assets/app.js?v=95adbad494b4" defer></script>
+  <script src="assets/app.js?v=15abc0ce1f4e" defer></script>
   <script src="assets/navigation.js?v=977c4f24ffc4" defer></script>
   <script src="assets/analytics.js?v=fcc4a4c3eb43" defer></script>
 </head>
@@ -41,7 +41,7 @@
         <p class="hero-note">Our research searches for colourings that avoid both forbidden cliques.<br>Each verified construction proves a lower bound on a Ramsey number.</p>
       </div>
       <figure class="hero-art">
-        <div class="art-label"><span>A closer look at a construction</span><span class="mono">K₁₇</span></div>
+        <div class="art-label"><span>A closer look at a construction</span><span class="mono">K<sub>17</sub></span></div>
         <div class="hero-orbit"><svg id="hero-graph" viewBox="0 0 500 500" role="img" aria-label="A colouring of the complete graph on 17 vertices with no monochromatic clique of order four"></svg><div class="orbit-stamp"><strong>17</strong><span>vertices</span></div></div>
         <figcaption><span class="figure-number">FIG. 01</span><span>No blue clique on 4 vertices.<br>No red clique on 4 vertices.</span><span class="formula">R(4,4) &gt; 17</span></figcaption>
         <p class="construction-explanation">Neither colour contains a clique on four vertices. This graph is a <strong>counterexample</strong> to the claim that 17 vertices always force one, so <strong>R(4,4) &gt; 17</strong>, equivalently R(4,4) ≥ 18. Finding such counterexamples on more vertices is how we prove stronger lower bounds.</p>
@@ -50,12 +50,12 @@
     <section class="section wrap" id="explore" aria-labelledby="explore-title">
       <p class="distance-page-link"><a href="distance-colourings.html">Open research: explore distance colourings on a line <span aria-hidden="true">↗</span></a></p><div class="family-intro"><p class="eyebrow">01 / Searching in graph families</p><h2>Give the search some structure.</h2><p>There are enormously many ways to colour a complete graph. We can search within a family with a compact description, such as circulant graphs. Every valid counterexample we find still proves a lower bound for the ordinary Ramsey number.</p><p>The restriction makes the search smaller. A failed search within this family does not rule out counterexamples in other families.</p></div>
       <div class="section-head"><div><p class="eyebrow">02 / Build a circulant graph</p><h2 id="explore-title">Many edges.<br>Just a few choices.</h2></div><p>Arrange the vertices on a circle. Choose circular distances and join every pair at those distances. Rotating the vertices preserves the graph.</p></div>
-      <div class="circulant-intro"><p>The circular distance is the shorter number of steps around the circle. There are <strong>⌊N/2⌋ possible distances</strong> on N vertices. Selecting a distance adds its entire class of edges.</p></div>
+      <div class="circulant-intro"><p>The circular distance is the shorter number of steps around the circle. There are <strong>⌊t/2⌋ possible distances</strong> on t vertices. Selecting a distance adds its entire class of edges.</p></div>
       <div class="circulant-builder" id="circulant-builder">
         <div class="builder-controls"><label for="builder-order" class="field-label">Number of vertices: <output id="builder-order-value" for="builder-order">17</output></label><input id="builder-order" type="range" min="5" max="56" value="17" step="1"><p class="small muted">Move the slider, then choose which distances belong to the graph.</p><span class="field-label">Include these distances</span><div id="builder-distances" class="builder-distances" aria-label="Select circular distances"></div><p id="builder-summary" class="small muted" aria-live="polite"></p><button id="builder-use" class="button primary" type="button">Try as an R(4,4) colouring ↓</button><p class="demo-note">This graph becomes the blue colour class. Its missing edges become red in the next step.</p></div>
         <figure class="builder-visual"><svg id="builder-graph" viewBox="0 0 560 560" role="img" aria-label="Circulant graph built from the selected distances"></svg><figcaption id="builder-caption"></figcaption></figure>
       </div>
-      <div class="colouring-intro" id="colouring"><p class="eyebrow">03 / Turn the graph into a colouring</p><h2>One graph. Its complement.<br>A possible counterexample.</h2><p>Colour the selected edges blue and every missing edge red. Instead of choosing colours for all N(N−1)/2 edges, you now have just <strong>⌊N/2⌋ distance colours</strong>.</p><p>Avoid a blue clique on m vertices and a red clique on n vertices. If both conditions hold on N vertices, the colouring proves <strong>R(m,n) ≥ N+1</strong>. Change a distance below and see whether the counterexample survives.</p></div>
+      <div class="colouring-intro" id="colouring"><p class="eyebrow">03 / Turn the graph into a colouring</p><h2>One graph. Its complement.<br>A possible counterexample.</h2><p>Colour the selected edges blue and every missing edge red. Instead of choosing colours for all t(t−1)/2 edges, you now have just <strong>⌊t/2⌋ distance colours</strong>.</p><p>Avoid a blue clique on m vertices and a red clique on n vertices. If both conditions hold on t vertices, the colouring proves <strong>R(m,n) ≥ t+1</strong>. Change a distance below and see whether the counterexample survives.</p></div>
       <div class="editable-heading"><h3>Now change a construction</h3><p>In these small examples, every edit is checked exactly in your browser.</p></div>
       <details class="math-note" id="prediction-exercise"><summary>Try a prediction exercise</summary><div>
         <p>Start with a valid construction, such as the 5-vertex R(3,3) example or the 17-vertex R(4,4) example.</p>
@@ -74,14 +74,14 @@
           <div class="control-heading"><span class="field-label">Distance colours</span><span class="small muted">click to switch</span></div>
           <div id="distance-controls" class="distance-controls" aria-label="Change distance colours"></div>
           <p class="small muted">You can also click an edge in the graph. Solid red and dashed blue distinguish the two classes.</p>
-          <div class="clique-counters"><div class="blue"><span id="blue-count">0</span><span id="blue-count-label">blue K₄ cliques</span></div><div class="red"><span id="red-count">0</span><span id="red-count-label">red K₄ cliques</span></div></div>
+          <div class="clique-counters"><div class="blue"><span id="blue-count">0</span><span id="blue-count-label">blue K<sub>4</sub> cliques</span></div><div class="red"><span id="red-count">0</span><span id="red-count-label">red K<sub>4</sub> cliques</span></div></div>
           <div id="explorer-status" class="explorer-status" role="status" aria-live="polite"></div>
           <div class="explorer-actions"><button id="reset-example" class="button secondary" type="button">Reset</button><button id="show-clique" class="button quiet" type="button" disabled>Show a clique</button></div>
           <p class="demo-note">This demo checks the displayed small graphs exactly. The research solver is available in the repository.</p>
         </div>
         <div class="explorer-visual"><div class="graph-caption"><span id="graph-description" class="mono"></span><span class="live-tag"><span></span> Interactive check</span></div><div class="graph-toolbar"><label for="edge-display">Show edges</label><select id="edge-display"><option value="both">Both colours</option><option value="blue">Blue only</option><option value="red">Red only</option></select><span>Both colours are checked.</span></div><svg id="interactive-graph" viewBox="0 0 560 560" aria-label="Editable circulant colouring"></svg><div class="graph-bottom"><span id="graph-summary"></span><span><i class="legend-line red"></i> Red <i class="legend-line blue"></i> Blue</span></div></div>
       </div>
-      <details class="math-note"><summary>What does a valid colouring prove?</summary><div><p>A colouring on <i>N</i> vertices with no blue clique of order <i>m</i> and no red clique of order <i>n</i> proves <strong>R(m,n) ≥ N+1</strong>. Establishing the exact value also requires a matching upper bound.</p><p>The 17-vertex construction is a classical example for R(4,4), rather than a new result of this project. The examples on 5 and 6 vertices illustrate R(3,3) = 6. Edits in this demo explore circulant colourings only.</p></div></details>
+      <details class="math-note"><summary>What does a valid colouring prove?</summary><div><p>A colouring on <i>t</i> vertices with no blue clique of order <i>m</i> and no red clique of order <i>n</i> proves <strong>R(m,n) ≥ t+1</strong>. Establishing the exact value also requires a matching upper bound.</p><p>The 17-vertex construction is a classical example for R(4,4), rather than a new result of this project. The examples on 5 and 6 vertices illustrate R(3,3) = 6. Edits in this demo explore circulant colourings only.</p></div></details>
     </section>
 
 

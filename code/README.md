@@ -31,7 +31,7 @@ depart from that configuration.
 6. [The tabu search](TABU-SEARCH.md): input 4 = `6`, a generic heuristic for circulant and
    linear-distance colorings, with its own shorter command line. It can produce a certificate but never an exclusion.
 7. [Generic tabu validation](TABU-SEARCH-VALIDATION.md): independently checked small cases for the
-   generic targets, complete K3/K4 pools, and both geometries.
+   generic targets, complete K<sub>3</sub>/K<sub>4</sub> pools, and both geometries.
 8. [Recording and reusing cut pools](CUT-FILES.md): what input 31 can write and read, the file
    format, and why a pool of the linear-distance model can be reused at a larger order while a
    circulant one cannot.
