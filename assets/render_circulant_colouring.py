@@ -56,14 +56,30 @@ def graph_group(
     for index, (x, y) in enumerate(coordinates):
         parts.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="12" class="node"/><text x="{x:.2f}" y="{y + 4:.2f}" text-anchor="middle" class="label">{index}</text>')
     distance_text = ", ".join(str(value) for value in distances(matrix, colour))
-    parts.append(f'<text x="{centre_x}" y="{centre_y + radius + 38}" text-anchor="middle" class="caption">{distance_label} = {{{distance_text}}}</text>')
+    parts.append(f'<text x="{centre_x}" y="{centre_y + radius + 38}" text-anchor="middle" class="caption">{distance_label}<tspan dy="-4">&#160;= {{{distance_text}}}</tspan></text>')
     return "\n".join(parts)
 
 
+# Arial advance widths at the 10px script size (0.556em for b, 0.333em for r).
+SCRIPT_WIDTHS = {"b": 5.56, "r": 3.33}
+
+
+def stacked_scripts(base: str, superscript: str, subscript: str) -> str:
+    """Base symbol with a superscript stacked above a subscript, as in LaTeX D^b_{17}.
+
+    The superscript is written first; the subscript is then moved back under it, so the
+    text that follows resumes after the wider subscript. The baseline ends 4px low: the
+    caller's next tspan restores it with dy="-4".
+    """
+    return (f'<tspan font-style="italic">{base}</tspan>'
+            f'<tspan class="script" font-style="italic" dx="1" dy="-6">{superscript}</tspan>'
+            f'<tspan class="script" dx="-{SCRIPT_WIDTHS[superscript] + 1:.2f}" dy="10">{subscript}</tspan>')
+
+
 def render(matrix: list[list[int]]) -> str:
-    blue = graph_group(matrix, 0, 220, 210, "Blue circulant graph", "D₁₇ᵇ", "#2563eb")
-    red = graph_group(matrix, 1, 620, 210, "Red circulant graph", "D₁₇ʳ", "#dc2626")
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="840" height="410" viewBox="0 0 840 410" role="img" aria-labelledby="title description">
+    blue = graph_group(matrix, 0, 220, 210, "Blue circulant graph", stacked_scripts("D", "b", "17"), "#2563eb")
+    red = graph_group(matrix, 1, 620, 210, "Red circulant graph", stacked_scripts("D", "r", "17"), "#dc2626")
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="840" height="430" viewBox="0 0 840 430" role="img" aria-labelledby="title description">
 <title id="title">A circulant 4,4-colouring of K17</title>
 <desc id="description">Two complementary circulant graphs on 17 vertices. Their distance sets are D_17^b = {{3, 5, 6, 7}} and D_17^r = {{1, 2, 4, 8}}.</desc>
 <style>
@@ -71,10 +87,11 @@ def render(matrix: list[list[int]]) -> str:
   .caption {{ font: 14px Arial, sans-serif; fill: #334155; }}
   .node {{ fill: white; stroke: #334155; stroke-width: 1.5; }}
   .label {{ font: 11px Arial, sans-serif; fill: #0f172a; }}
+  .script {{ font-size: 10px; }}
   line {{ stroke-width: 1.3; stroke-opacity: .76; }}
 </style>
 <rect width="100%" height="100%" rx="16" fill="#f8fafc"/>
-<text x="420" y="380" text-anchor="middle" class="caption">A circulant (4,4)-colouring of K₁₇</text>
+<text x="420" y="412" text-anchor="middle" class="caption">A circulant (4,4)-colouring of <tspan font-style="italic">K</tspan><tspan class="script" dy="4">17</tspan></text>
 {blue}
 {red}
 </svg>

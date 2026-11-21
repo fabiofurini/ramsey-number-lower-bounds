@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="410" viewBox="0 0 840 410" role="img" aria-labelledby="title description">
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="430" viewBox="0 0 840 430" role="img" aria-labelledby="title description">
 <title id="title">A circulant 4,4-colouring of K17</title>
 <desc id="description">Two complementary circulant graphs on 17 vertices. Their distance sets are D_17^b = {3, 5, 6, 7} and D_17^r = {1, 2, 4, 8}.</desc>
 <style>
@@ -6,10 +6,11 @@
   .caption { font: 14px Arial, sans-serif; fill: #334155; }
   .node { fill: white; stroke: #334155; stroke-width: 1.5; }
   .label { font: 11px Arial, sans-serif; fill: #0f172a; }
+  .script { font-size: 10px; }
   line { stroke-width: 1.3; stroke-opacity: .76; }
 </style>
 <rect width="100%" height="100%" rx="16" fill="#f8fafc"/>
-<text x="420" y="380" text-anchor="middle" class="caption">A circulant (4,4)-colouring of K₁₇</text>
+<text x="420" y="412" text-anchor="middle" class="caption">A circulant (4,4)-colouring of <tspan font-style="italic">K</tspan><tspan class="script" dy="4">17</tspan></text>
 <text x="220" y="34" text-anchor="middle" class="heading">Blue circulant graph</text>
 <line x1="220.00" y1="80.00" x2="336.37" y2="152.05" stroke="#2563eb"/>
 <line x1="220.00" y1="80.00" x2="345.04" y2="245.58" stroke="#2563eb"/>
@@ -96,7 +97,7 @@
 <circle cx="103.63" cy="152.05" r="12" class="node"/><text x="103.63" y="156.05" text-anchor="middle" class="label">14</text>
 <circle cx="132.42" cy="113.93" r="12" class="node"/><text x="132.42" y="117.93" text-anchor="middle" class="label">15</text>
 <circle cx="173.04" cy="88.78" r="12" class="node"/><text x="173.04" y="92.78" text-anchor="middle" class="label">16</text>
-<text x="220" y="378.0" text-anchor="middle" class="caption">D₁₇ᵇ = {3, 5, 6, 7}</text>
+<text x="220" y="378.0" text-anchor="middle" class="caption"><tspan font-style="italic">D</tspan><tspan class="script" font-style="italic" dx="1" dy="-6">b</tspan><tspan class="script" dx="-6.56" dy="10">17</tspan><tspan dy="-4">&#160;= {3, 5, 6, 7}</tspan></text>
 <text x="620" y="34" text-anchor="middle" class="heading">Red circulant graph</text>
 <line x1="620.00" y1="80.00" x2="666.96" y2="88.78" stroke="#dc2626"/>
 <line x1="620.00" y1="80.00" x2="707.58" y2="113.93" stroke="#dc2626"/>
@@ -183,5 +184,5 @@
 <circle cx="503.63" cy="152.05" r="12" class="node"/><text x="503.63" y="156.05" text-anchor="middle" class="label">14</text>
 <circle cx="532.42" cy="113.93" r="12" class="node"/><text x="532.42" y="117.93" text-anchor="middle" class="label">15</text>
 <circle cx="573.04" cy="88.78" r="12" class="node"/><text x="573.04" y="92.78" text-anchor="middle" class="label">16</text>
-<text x="620" y="378.0" text-anchor="middle" class="caption">D₁₇ʳ = {1, 2, 4, 8}</text>
+<text x="620" y="378.0" text-anchor="middle" class="caption"><tspan font-style="italic">D</tspan><tspan class="script" font-style="italic" dx="1" dy="-6">r</tspan><tspan class="script" dx="-4.33" dy="10">17</tspan><tspan dy="-4">&#160;= {1, 2, 4, 8}</tspan></text>
 </svg>

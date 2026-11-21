@@ -84,6 +84,8 @@
 .equation{padding:25px 24px;background:#eeeee5;text-align:center;font-family:var(--serif);font-size:26px;line-height:1.7;margin:28px 0;border-radius:5px;color:var(--ink)}
 .equation>span{color:var(--red)}.equation-stack>div+div{margin-top:20px}
 .equation small{display:block;font-size:15px;color:var(--muted)}
+sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;bottom:-.28em}
+.bigop{position:relative;display:inline-block;font-size:1.25em;line-height:1;margin:0 .15em .9em 0}.bigop .limits{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:.45em;line-height:1.2;white-space:nowrap}
 .method-example{padding:25px 28px;background:var(--paper);border:1px solid var(--line);border-radius:5px;margin:26px 0}
 .method-example>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:15px}
 .method-example strong{font-family:var(--serif);font-size:32px;font-weight:400;color:var(--red)}
